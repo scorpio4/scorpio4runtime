@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <artifactId>Parent</artifactId>
+        <groupId>factcore</groupId>
+        <version>0.01-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>Runtime</artifactId>
+    <version>0.02-SNAPSHOT</version>
+
+    <organization>
+        <name>Fact:Core</name>
+    </organization>
+    <url>http://www.factcore.com</url>
+
+    <developers>
+        <developer>
+            <id>lee</id>
+            <name>Lee Curtis</name>
+            <email>lee.curtis@me.com</email>
+            <organization>Troven / Fact:Core</organization>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+11</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:http://54.79.86.22:8080/gitblit/r/Runtime.git</connection>
+        <developerConnection>scm:git:http://lee@54.79.86.22:8080/gitblit/r/Runtime.git</developerConnection>
+    </scm>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.directory>deploy</project.build.directory>
+        <project.webapp.directory>src/main/resources/www/</project.webapp.directory>
+
+        <!-- dependency versions -->
+        <spring.version>3.1.2.RELEASE</spring.version>
+        <slf4j.version>1.6.6</slf4j.version>
+        <camel.version>2.10.1</camel.version>
+        <sesame.version>2.6.10</sesame.version>
+
+        <groovy.version>2.0.1</groovy.version>
+        <groovy-eclipse-compiler.version>2.8.0-01</groovy-eclipse-compiler.version>
+        <groovy-eclipse-batch.version>2.1.8-01</groovy-eclipse-batch.version>
+
+        <factcore.id>urn:${project.name}:</factcore.id>
+
+        <factcore.src.path>src/main/resources/factcore/</factcore.src.path>
+        <factcore.resources.path>src/main/resources/factcore/</factcore.resources.path>
+        <factcore.target.path>build/target/</factcore.target.path>
+        <factcore.temp.path>build/temp/</factcore.temp.path>
+
+        <factcore.sandbox.host>http://127.0.0.1:8080/openrdf-sesame/</factcore.sandbox.host>
+        <factcore.sandbox.name>FactTools</factcore.sandbox.name>
+
+    </properties>
+    <build>
+        <plugins>
+
+            <!--Groovy Eclipse compiler plugin compiles both .groovy and .java sources-->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <compilerId>groovy-eclipse-compiler</compilerId>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-compiler</artifactId>
+                        <version>${groovy-eclipse-compiler.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-batch</artifactId>
+                        <version>${groovy-eclipse-batch.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <version>${groovy.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-plugin-plugin</artifactId>-->
+            <!--<version>3.3</version>-->
+            <!--<configuration>-->
+            <!--&lt;!&ndash; see http://jira.codehaus.org/browse/MNG-5346 &ndash;&gt;-->
+            <!--<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>mojo-descriptor</id>-->
+            <!--<goals>-->
+            <!--<goal>descriptor</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--&lt;!&ndash; if you want to generate help goal &ndash;&gt;-->
+            <!--<execution>-->
+            <!--<id>help-goal</id>-->
+            <!--<goals>-->
+            <!--<goal>helpmojo</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
+
+    <!-- Project dependencies -->
+    <dependencies>
+
+        <dependency>
+            <groupId>factcore</groupId>
+            <artifactId>FactTools</artifactId>
+            <version>0.36-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-restlet</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-runtime-osgi</artifactId>
+            <version>${sesame.version}</version>
+        </dependency>
+
+        <!--<dependency>-->
+        <!--<groupId>org.apache.maven.plugin-tools</groupId>-->
+        <!--<artifactId>maven-plugin-annotations</artifactId>-->
+        <!--<version>3.3</version>-->
+        <!--<scope>provided</scope>&lt;!&ndash; annotations are needed only to build the plugin &ndash;&gt;-->
+        <!--</dependency>-->
+
+    </dependencies>
+
+
+</project>

@@ -1,0 +1,7 @@
+prefix core: 		<http://factcore.com/core/>
+
+SELECT DISTINCT ?id
+WHERE {
+	?id		a		core:Runtime.
+
+}
