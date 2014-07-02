@@ -43,7 +43,7 @@
     </licenses>
 
     <scm>
-        <url>://github.com/troven/scorpio4runtime.git</url>
+        <url>github.com/troven/scorpio4runtime.git</url>
         <connection>scm:git:https://github.com/troven/scorpio4runtime.git</connection>
     </scm>
 
