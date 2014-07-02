@@ -1,8 +1,8 @@
-package com.factcore.runtime;
+package com.scorpio4.runtime;
 
-import com.factcore.util.map.MapUtil;
-import com.factcore.vendor.sesame.RepositoryManager;
-import com.factcore.vendor.sesame.crud.SesameCRUD;
+import com.scorpio4.util.map.MapUtil;
+import com.scorpio4.vendor.sesame.RepositoryManager;
+import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ import java.util.Properties;
 
 /**
  * Scorpio (c) 2014
- * Module: com.factcore.runtime
+ * Module: com.scorpio4.runtime
  * User  : lee
  * Date  : 24/06/2014
  * Time  : 8:00 PM

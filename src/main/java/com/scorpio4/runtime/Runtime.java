@@ -1,15 +1,15 @@
-package com.factcore.runtime;
+package com.scorpio4.runtime;
 
-import com.factcore.assets.AssetRegister;
-import com.factcore.assets.AssetRegisters;
-import com.factcore.fact.FactSpace;
-import com.factcore.util.Identifiable;
-import com.factcore.vendor.camel.planner.RDFRoutePlanner;
-import com.factcore.vendor.camel.planner.RoutePlanner;
-import com.factcore.vendor.camel.component.Any23Component;
-import com.factcore.vendor.camel.component.CoreComponent;
-import com.factcore.vendor.camel.component.SelfComponent;
-import com.factcore.vendor.sesame.RepositoryManager;
+import com.scorpio4.assets.AssetRegister;
+import com.scorpio4.assets.AssetRegisters;
+import com.scorpio4.fact.FactSpace;
+import com.scorpio4.util.Identifiable;
+import com.scorpio4.vendor.camel.planner.RDFRoutePlanner;
+import com.scorpio4.vendor.camel.planner.RoutePlanner;
+import com.scorpio4.vendor.camel.component.Any23Component;
+import com.scorpio4.vendor.camel.component.CoreComponent;
+import com.scorpio4.vendor.camel.component.SelfComponent;
+import com.scorpio4.vendor.sesame.RepositoryManager;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.JndiRegistry;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * Scorpio (c) 2014
- * Module: com.factcore.runtime
+ * Module: com.scorpio4.runtime
  * User  : lee
  * Date  : 24/06/2014
  * Time  : 12:00 AM

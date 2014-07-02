@@ -1,6 +1,6 @@
-package com.factcore.output.xml;
+package com.scorpio4.output.xml;
 
-import com.factcore.output.IOProcessor;
+import com.scorpio4.output.IOProcessor;
 import groovy.text.Template;
 import groovy.text.XmlTemplateEngine;
 import org.slf4j.Logger;

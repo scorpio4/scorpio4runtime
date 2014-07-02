@@ -1,6 +1,6 @@
-package com.factcore.output.rdf;
+package com.scorpio4.ui.swing;
 /*
- *   Fact:Core - CONFIDENTIAL
+ *   Scorpio4 - CONFIDENTIAL
  *   Unpublished Copyright (c) 2009-2014 Lee Curtis, All Rights Reserved.
  *
  *   NOTICE:  All information contained herein is, and remains the property of Lee Curtis. The intellectual and technical concepts contained
@@ -16,19 +16,23 @@ package com.factcore.output.rdf;
  *   TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE, USE, OR SELL ANYTHING THAT IT  MAY DESCRIBE, IN WHOLE OR IN PART.
  *
  */
-import com.factcore.fact.stream.N3Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import javax.swing.*;
 
 /**
- * Fact:Core (c) 2010-2013
- *
- * Expresses the ability of a class to generate an N3 representation of itself
+ * Scorpio4 (c) 2013
+ * Module: com.scorpio4.ui.swing
+ * User  : lee
+ * Date  : 8/01/2014
+ * Time  : 11:33 PM
  */
-public interface N3Serializer {
+public class DeskSearchBox extends JComboBox {
+    private static final Logger log = LoggerFactory.getLogger(ImagePanel.class);
+    JComboBox search = new JComboBox();
 
-	public String getBaseURI();
-
-	public N3Stream toN3() throws IOException;
+    public DeskSearchBox() {
+    }
 
 }

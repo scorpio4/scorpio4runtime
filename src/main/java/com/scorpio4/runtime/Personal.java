@@ -1,7 +1,8 @@
-package com.factcore.runtime;
+package com.scorpio4.runtime;
 
-import com.factcore.util.map.MapUtil;
-import com.factcore.vendor.sesame.RepositoryManager;
+import com.scorpio4.ui.swing.DeskTray;
+import com.scorpio4.util.map.MapUtil;
+import com.scorpio4.vendor.sesame.RepositoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,13 +10,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 /**
  * Scorpio (c) 2014
- * Module: com.factcore.runtime
+ * Module: com.scorpio4.runtime
  * User  : lee
  * Date  : 24/06/2014
  * Time  : 12:00 AM
@@ -23,11 +25,18 @@ import java.util.Properties;
 public class Personal extends Runtime {
 	static final Logger log = LoggerFactory.getLogger(Personal.class);
 	static String name = "scorpio4";
+	DeskTray deskTray;
 
 	public Personal(String identity, File rootDir, Map<String,Object> properties) throws Exception {
 		log.debug("Working directory: " + rootDir.getAbsolutePath());
 		rootDir.mkdirs();
 		init(identity, new RepositoryManager(rootDir), properties);
+	}
+
+	@Override
+	public void init(String identity, RepositoryManager repositoryManager,  Map<String,Object> properties) throws Exception {
+		this.deskTray = new DeskTray(name,name, "images/logo.png");
+		super.init(identity, repositoryManager, properties);
 	}
 
 	public static void main(String[] args) {

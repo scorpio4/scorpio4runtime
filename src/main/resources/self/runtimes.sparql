@@ -1,4 +1,4 @@
-prefix core: 		<http://factcore.com/core/>
+prefix core: 		<http://scorpio4.com/core/>
 
 SELECT DISTINCT ?id
 WHERE {

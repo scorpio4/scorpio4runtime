@@ -1,6 +1,6 @@
-package com.factcore.output.file;
+package com.scorpio4.output.file;
 /*
- *   Fact:Core - CONFIDENTIAL
+ *   Scorpio4 - CONFIDENTIAL
  *   Unpublished Copyright (c) 2009-2014 Lee Curtis, All Rights Reserved.
  *
  *   NOTICE:  All information contained herein is, and remains the property of Lee Curtis. The intellectual and technical concepts contained
@@ -16,9 +16,9 @@ package com.factcore.output.file;
  *   TO REPRODUCE, DISCLOSE OR DISTRIBUTE ITS CONTENTS, OR TO MANUFACTURE, USE, OR SELL ANYTHING THAT IT  MAY DESCRIBE, IN WHOLE OR IN PART.
  *
  */
-import com.factcore.fact.stream.N3Stream;
-import com.factcore.output.rdf.N3Serializer;
-import com.factcore.util.DateXSD;
+import com.scorpio4.fact.stream.N3Stream;
+import com.scorpio4.output.rdf.N3Serializer;
+import com.scorpio4.util.DateXSD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Fact:Core (c) 2010-2013
+ * Scorpio4 (c) 2010-2013
  * User: lee
  * Date: 17/01/13
  * Time: 7:55 PM
@@ -63,7 +63,7 @@ public class FolderSerializer implements N3Serializer {
 
 	public N3Stream toN3(File folder) throws IOException {
 		N3Stream n3 = new N3Stream();
-		n3.append("@prefix drive: <urn:factcore:drive:>.\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.\n");
+		n3.append("@prefix drive: <urn:scorpio4:drive:>.\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.\n");
 		n3.append("\n# FactDrive scan from: ").append(folder.getAbsolutePath());
 		n3.append("\n# Generated on: ").append(new Date()).append("\n");
 		n3.append("\n<").append(toRelativePath(folder)).append("> a drive:Home.\n\n");

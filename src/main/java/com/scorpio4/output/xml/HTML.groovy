@@ -1,4 +1,4 @@
-package com.factcore.output.xml;
+package com.scorpio4.output.xml;
 
 import java.io.*;
 import java.util.*

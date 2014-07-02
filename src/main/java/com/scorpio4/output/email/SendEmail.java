@@ -1,6 +1,6 @@
-package com.factcore.output.email;
+package com.scorpio4.output.email;
 /*
- *   Fact:Core - CONFIDENTIAL
+ *   Scorpio4 - CONFIDENTIAL
  *   Unpublished Copyright (c) 2009-2014 Lee Curtis, All Rights Reserved.
  *
  *   NOTICE:  All information contained herein is, and remains the property of Lee Curtis. The intellectual and technical concepts contained
@@ -17,8 +17,8 @@ package com.factcore.output.email;
  *
  */
 
-import com.factcore.oops.ConfigException;
-import com.factcore.util.Configurable;
+import com.scorpio4.oops.ConfigException;
+import com.scorpio4.util.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * FactCore (c) 2013
- * Module: com.factcore.output.email
+ * scorpio4 (c) 2013
+ * Module: com.scorpio4.output.email
  * User  : lee
  * Date  : 15/11/2013
  * Time  : 4:50 PM
@@ -85,7 +85,7 @@ public class SendEmail implements Configurable {
             Transport.send(message);
             log.debug("Sent message to: "+to);
         }catch (MessagingException e) {
-            log.debug("urn:factcore:output:email:Send:oops:sending#" + e.getMessage(), e);
+            log.debug("urn:scorpio4:output:email:Send:oops:sending#" + e.getMessage(), e);
         }
     }
 
