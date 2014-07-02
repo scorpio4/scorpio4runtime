@@ -15,8 +15,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="RDF Tools" />
     <orderEntry type="module" module-name="Core" />
-    <orderEntry type="module" module-name="RDF Tools" />
-    <orderEntry type="module" module-name="Core" />
     <orderEntry type="library" name="Maven: ognl:ognl:3.0.6" level="project" />
     <orderEntry type="library" name="Maven: javassist:javassist:3.11.0.GA" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.1" level="project" />
