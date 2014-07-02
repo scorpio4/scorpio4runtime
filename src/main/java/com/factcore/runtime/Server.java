@@ -24,7 +24,7 @@ import java.util.Properties;
  */
 public class Server extends Runtime {
 	static final Logger log = LoggerFactory.getLogger(Server.class);
-	static String name = "factcore";
+	static String name = "scorpio4";
 	Map runtimes = new HashMap();
 
 	public Server(String identity, File rootDir, Map<String,Object> properties) throws Exception {

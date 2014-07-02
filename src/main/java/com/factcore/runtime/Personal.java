@@ -22,7 +22,7 @@ import java.util.Properties;
  */
 public class Personal extends Runtime {
 	static final Logger log = LoggerFactory.getLogger(Personal.class);
-	static String name = "factcore";
+	static String name = "scorpio4";
 
 	public Personal(String identity, File rootDir, Map<String,Object> properties) throws Exception {
 		log.debug("Working directory: " + rootDir.getAbsolutePath());
