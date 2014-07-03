@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>scorpio4runtime</artifactId>
+    <packaging>maven-plugin</packaging>
 
     <name>Scorpio4 Runtime</name>
     <url>http://www.scorpio4.com</url>
@@ -120,10 +121,30 @@
             <version>${camel.version}</version>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.apache.camel</groupId>-->
+            <!--<artifactId>camel-osgi</artifactId>-->
+            <!--<version>${camel.version}</version>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.camel</groupId>-->
+            <!--<artifactId>camel-spring-osgi</artifactId>-->
+            <!--<version>${camel.version}</version>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-runtime-osgi</artifactId>
             <version>${sesame.version}</version>
+        </dependency>
+
+        <!-- Apache Felix OSGi -->
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+            <version>4.4.0</version>
         </dependency>
 
         <!-- Apache FOP (PDF) -->
@@ -133,39 +154,10 @@
             <version>1.0</version>
         </dependency>
 
-        <!-- Lucene -->
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queries</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucene.version}</version>
-        </dependency>
-
         <!-- zxing (QR & Barcodes) -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
-            <version>2.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>core</artifactId>
             <version>2.0</version>
         </dependency>
 

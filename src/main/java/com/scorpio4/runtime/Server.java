@@ -23,7 +23,7 @@ import java.util.Properties;
  * Date  : 24/06/2014
  * Time  : 8:00 PM
  */
-public class Server extends Runtime {
+public class Server extends Engine {
 	static final Logger log = LoggerFactory.getLogger(Server.class);
 	static String name = "scorpio4";
 	Map runtimes = new HashMap();
@@ -40,9 +40,9 @@ public class Server extends Runtime {
 		Collection<Map> all_runtimes = new SesameCRUD(getFactSpace()).read("self/runtimes", properties);
 		for(Map run: all_runtimes) {
 			String id = (String)run.get("id");
-			Runtime runtime = new Runtime();
-			runtime.init(id, manager, run);
-			runtimes.put(id, runtime);
+			Engine engine = new Engine();
+			engine.init(id, manager, run);
+			runtimes.put(id, engine);
 		}
 	}
 

@@ -4,11 +4,11 @@ import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.AssetRegisters;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.util.Identifiable;
-import com.scorpio4.vendor.camel.planner.RDFRoutePlanner;
-import com.scorpio4.vendor.camel.planner.RoutePlanner;
 import com.scorpio4.vendor.camel.component.Any23Component;
 import com.scorpio4.vendor.camel.component.CoreComponent;
 import com.scorpio4.vendor.camel.component.SelfComponent;
+import com.scorpio4.vendor.camel.planner.CamelFLO;
+import com.scorpio4.vendor.camel.planner.FLOSupport;
 import com.scorpio4.vendor.sesame.RepositoryManager;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -31,7 +31,7 @@ import java.util.Map;
  * Date  : 24/06/2014
  * Time  : 12:00 AM
  */
-public class Runtime implements Identifiable, Runnable {
+public class Engine implements Identifiable, Runnable {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	RepositoryManager manager = null;
@@ -40,22 +40,22 @@ public class Runtime implements Identifiable, Runnable {
 	Registry registry = null;
 	CamelContext camel = null;
 
-	RoutePlanner routePlanner;
+	FLOSupport floSupport;
 	boolean isRunning = false;
 	Repository repository = null;
 	Map<String,Object> properties = null;
 //	File rootDir = null;
 
-	protected Runtime() {
+	protected Engine() {
 	}
 
 	protected void init(String identity, RepositoryManager manager, Map<String,Object> properties) throws Exception {
 		log.debug("Runtime: "+identity);
 		this.properties=properties;
 		this.manager=manager;
+
 		initFactSpace(identity);
-		initCamel();
-		initPlanning();
+		initActiveVocabularies();
 		initBootstrap(properties);
 	}
 
@@ -70,35 +70,54 @@ public class Runtime implements Identifiable, Runnable {
 	}
 
 	protected void initBootstrap(Map<String, Object> properties) {
-		log.debug("Booting API");
+		log.debug("Engine Ready");
 		String bootstrapURI = "direct:"+getIdentity();
 		try {
-			routePlanner.trigger(bootstrapURI, null, properties);
+			floSupport.trigger(bootstrapURI, null, properties);
 		} catch(Exception e) {
 			log.debug("Bootstrap Failed: "+bootstrapURI+" -> "+e.getMessage());
 		}
 	}
 
-	protected void initPlanning() throws Exception {
-		log.debug("Routing API"+getFactSpace().getIdentity());
-		routePlanner = new RDFRoutePlanner(camel, getFactSpace());
-		routePlanner.plan();
+	protected void initActiveVocabularies() throws Exception {
+		log.debug("Activating Vocabularies");
+		initCamelFLO();
+		initSpringyBeans();
 	}
 
-	protected void initCamel() {
-		log.debug("Connecting API");
+	protected void initSpringyBeans() throws Exception {
+	}
+
+	protected void initCamelFLO() throws Exception {
+		log.debug("Booting CamelFLO");
 		registry = new JndiRegistry();
 		camel = new DefaultCamelContext(registry);
 
 		camel.addComponent("self", new SelfComponent(this));
 		camel.addComponent("core", new CoreComponent(getFactSpace(), assetRegister ));
 		camel.addComponent("any23", new Any23Component());
+
+		log.debug("Routing API"+getFactSpace().getIdentity());
+		floSupport = new CamelFLO(camel, getFactSpace());
+		floSupport.plan();
 	}
 
 	public void start() throws Exception {
 		log.debug("Starting Runtime");
 		camel.start();
 		isRunning = true;
+		final Engine self = this;
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				try {
+					log.error("Graceful shutdown ...");
+					self.stop();
+				} catch (Exception e) {
+					log.error("FATAL shutdown", e);
+				}
+			}
+		});
 	}
 
 	public void run() {
@@ -144,8 +163,8 @@ public class Runtime implements Identifiable, Runnable {
 		return camel;
 	}
 
-	public RoutePlanner getRoutePlanner() {
-		return routePlanner;
+	public FLOSupport getFLOSupport() {
+		return floSupport;
 	}
 
 }

@@ -19,7 +19,6 @@ package com.scorpio4.ui.swing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -39,9 +38,8 @@ import java.util.Map;
 public class DeskTray {
     private static final Logger log = LoggerFactory.getLogger(DeskTray.class);
     TrayIcon trayIcon = null;
-    Map<String,MenuItem> menus = new HashMap();
+    Map<String,MenuItem> menus = new HashMap<String, MenuItem>();
     String title = "Scorpio4", tooltip = "Not Configured", icon = null;
-    JFrame notifyFrame = new JFrame();
     PopupMenu popup = new PopupMenu();
 
     public DeskTray(String title, String tooltip, String icon) {
@@ -103,7 +101,7 @@ public class DeskTray {
         popup.add(adminItem);
 
         // Monitor Menu
-        Menu monitorMenu = new Menu("Monitor");
+        Menu monitorMenu = new Menu("Commands");
         popup.addSeparator();
         popup.add(monitorMenu);
 

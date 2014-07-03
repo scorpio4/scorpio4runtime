@@ -137,6 +137,12 @@
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient-cache:4.2.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:3.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.jmock:jmock-legacy:2.5.1" level="project" />
+    <orderEntry type="library" name="Maven: org.jmock:jmock:2.5.1" level="project" />
+    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-library:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.objenesis:objenesis:1.0" level="project" />
+    <orderEntry type="library" name="Maven: cglib:cglib-nodep:2.1_3" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.3" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-plugin-api:2.0" level="project" />
@@ -148,7 +154,6 @@
     <orderEntry type="library" name="Maven: org.apache.maven:maven-model:2.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-interpolation:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.plexus:plexus-container-default:1.0-alpha-9-stable-1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:3.8.1" level="project" />
     <orderEntry type="library" name="Maven: classworlds:classworlds:1.1-alpha-2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-profile:2.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-artifact-manager:2.1.0" level="project" />
@@ -191,6 +196,7 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-web:2.5.6" level="project" />
     <orderEntry type="library" name="Maven: cglib:cglib:2.2" level="project" />
     <orderEntry type="library" name="Maven: asm:asm:3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.felix:org.apache.felix.framework:4.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.xmlgraphics:fop:1.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.xmlgraphics:xmlgraphics-commons:1.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svg-dom:1.7" level="project" />
@@ -212,12 +218,6 @@
     <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-extension:1.7" level="project" />
     <orderEntry type="library" name="Maven: org.apache.avalon.framework:avalon-framework-api:4.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.avalon.framework:avalon-framework-impl:4.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:4.5.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queries:4.5.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queryparser:4.5.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-sandbox:4.5.0" level="project" />
-    <orderEntry type="library" name="Maven: jakarta-regexp:jakarta-regexp:1.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:4.5.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.zxing:javase:2.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.zxing:core:2.0" level="project" />
   </component>

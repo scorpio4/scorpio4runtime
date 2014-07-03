@@ -22,7 +22,7 @@ import java.util.Properties;
  * Date  : 24/06/2014
  * Time  : 12:00 AM
  */
-public class Personal extends Runtime {
+public class Personal extends Engine {
 	static final Logger log = LoggerFactory.getLogger(Personal.class);
 	static String name = "scorpio4";
 	DeskTray deskTray;

@@ -1,6 +1,10 @@
 package com.scorpio4.mojo;
 
+import com.scorpio4.runtime.Personal;
 import org.apache.maven.project.MavenProject;
+
+import java.io.File;
+import java.util.Map;
 
 
 /*
@@ -30,7 +34,7 @@ import org.apache.maven.project.MavenProject;
 /**
  * Goal which starts a Personal Server
  *
- * @goal Personal Server
+ * @goal launch
  *
  * @phase process-sources
  */
@@ -50,5 +54,12 @@ public class PersonalMoJo extends ScorpioMojo {
 
 	@Override
 	public void executeInternal() throws Exception {
+//		String identity, File rootDir, Map<String,Object> properties;
+		Map config = getProject().getProperties();
+		File file = new File(System.getProperty("user.home"), getAppName());
+		file.mkdirs();
+		getLog().info("Working directory: "+file.getAbsolutePath());
+		Personal personal = new Personal(getIdentity(), file, config);
+		personal.start();
 	}
 }
