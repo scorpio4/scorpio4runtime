@@ -33,6 +33,7 @@ public class ActiveVocabularies {
 	protected void initSpringyBeans() throws Exception {
 	}
 
+
 	protected void initCamelFLO() throws Exception {
 		log.debug("Booting CamelFLO");
 		CamelContext camel = engine.getCamelContext();
