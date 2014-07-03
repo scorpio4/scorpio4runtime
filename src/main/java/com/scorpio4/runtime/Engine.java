@@ -3,12 +3,8 @@ package com.scorpio4.runtime;
 import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.AssetRegisters;
 import com.scorpio4.fact.FactSpace;
+import com.scorpio4.iq.ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
-import com.scorpio4.vendor.camel.component.Any23Component;
-import com.scorpio4.vendor.camel.component.CoreComponent;
-import com.scorpio4.vendor.camel.component.SelfComponent;
-import com.scorpio4.vendor.camel.planner.CamelFLO;
-import com.scorpio4.vendor.camel.planner.FLOSupport;
 import com.scorpio4.vendor.sesame.RepositoryManager;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -40,7 +36,6 @@ public class Engine implements Identifiable, Runnable {
 	Registry registry = null;
 	CamelContext camel = null;
 
-	FLOSupport floSupport;
 	boolean isRunning = false;
 	Repository repository = null;
 	Map<String,Object> properties = null;
@@ -53,53 +48,20 @@ public class Engine implements Identifiable, Runnable {
 		log.debug("Runtime: "+identity);
 		this.properties=properties;
 		this.manager=manager;
+		boot(identity);
 
-		initFactSpace(identity);
-		initActiveVocabularies();
-		initBootstrap(properties);
+		new ActiveVocabularies(this);
 	}
 
-	protected void initFactSpace(String identity) throws MalformedURLException, RepositoryException, RepositoryConfigException {
+	protected void boot(String identity) throws MalformedURLException, RepositoryException, RepositoryConfigException {
+		this.registry = new JndiRegistry();
+		this.camel = new DefaultCamelContext(registry);
 		repository = manager.getRepository(identity);
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
 
 		RepositoryConnection connection = repository.getConnection();
 		factSpace = new FactSpace( connection, identity );
 		assetRegister = new AssetRegisters(connection);
-
-	}
-
-	protected void initBootstrap(Map<String, Object> properties) {
-		log.debug("Engine Ready");
-		String bootstrapURI = "direct:"+getIdentity();
-		try {
-			floSupport.trigger(bootstrapURI, null, properties);
-		} catch(Exception e) {
-			log.debug("Bootstrap Failed: "+bootstrapURI+" -> "+e.getMessage());
-		}
-	}
-
-	protected void initActiveVocabularies() throws Exception {
-		log.debug("Activating Vocabularies");
-		initCamelFLO();
-		initSpringyBeans();
-	}
-
-	protected void initSpringyBeans() throws Exception {
-	}
-
-	protected void initCamelFLO() throws Exception {
-		log.debug("Booting CamelFLO");
-		registry = new JndiRegistry();
-		camel = new DefaultCamelContext(registry);
-
-		camel.addComponent("self", new SelfComponent(this));
-		camel.addComponent("core", new CoreComponent(getFactSpace(), assetRegister ));
-		camel.addComponent("any23", new Any23Component());
-
-		log.debug("Routing API"+getFactSpace().getIdentity());
-		floSupport = new CamelFLO(camel, getFactSpace());
-		floSupport.plan();
 	}
 
 	public void start() throws Exception {
@@ -163,8 +125,7 @@ public class Engine implements Identifiable, Runnable {
 		return camel;
 	}
 
-	public FLOSupport getFLOSupport() {
-		return floSupport;
+	public Map<String, Object> getConfig() {
+		return properties;
 	}
-
 }
