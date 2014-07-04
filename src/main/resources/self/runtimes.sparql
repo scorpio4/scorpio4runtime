@@ -1,4 +1,4 @@
-prefix core: 		<http://scorpio4.com/core/>
+prefix core: 		<http://scorpio4.com/vocab/v1/>
 
 SELECT DISTINCT ?id
 WHERE {

@@ -1,0 +1,7 @@
+prefix flo: 		<http://scorpio4.com/vocab/v1/flo/>
+
+SELECT DISTINCT ?from ?to WHERE {
+	?that flo:from	?from.
+	?from flo:to 	?to.
+}
+BINDINGS ?that { (<{{scorpio4_id}}>) }

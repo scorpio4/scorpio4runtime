@@ -6,18 +6,20 @@ import com.scorpio4.fact.FactSpace;
 import com.scorpio4.iq.ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.RepositoryManager;
+import com.scorpio4.vendor.spring.CachedBeanFactory;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.JndiRegistry;
-import org.apache.camel.spi.Registry;
+import org.apache.camel.spring.spi.ApplicationContextRegistry;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.config.RepositoryConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.GenericApplicationContext;
 
-import java.net.MalformedURLException;
 import java.util.Map;
 
 /**
@@ -31,48 +33,70 @@ public class Engine implements Identifiable, Runnable {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	RepositoryManager manager = null;
+
+	Repository repository = null;
 	AssetRegister assetRegister = null;
 	FactSpace factSpace = null;
-	Registry registry = null;
-	CamelContext camel = null;
 
 	boolean isRunning = false;
-	Repository repository = null;
-	Map<String,Object> properties = null;
-//	File rootDir = null;
+	GenericApplicationContext registry;
+	CamelContext camel = null;
+	Map<String,String> properties = null;
+
+	ActiveVocabularies activeVocabularies;
 
 	protected Engine() {
 	}
 
-	protected void init(String identity, RepositoryManager manager, Map<String,Object> properties) throws Exception {
-		log.debug("Runtime: "+identity);
+	public Engine(String identity, RepositoryManager manager, Map<String,String> properties) throws Exception {
+		init(identity,manager,properties);
+	}
+
+	protected void init(String identity, RepositoryManager manager, Map<String,String> properties) throws Exception {
+		log.debug("Engine: "+identity);
 		this.properties=properties;
 		this.manager=manager;
 		boot(identity);
-
-		new ActiveVocabularies(this);
 	}
 
-	protected void boot(String identity) throws MalformedURLException, RepositoryException, RepositoryConfigException {
-		this.registry = new JndiRegistry();
-		this.camel = new DefaultCamelContext(registry);
+	protected void boot(String identity) throws Exception {
+		CachedBeanFactory cachedBeanFactory = new CachedBeanFactory();
+		this.registry = new GenericApplicationContext(cachedBeanFactory);
+		registry.setId(getIdentity());
+		registry.setDisplayName(getIdentity());
+
+		this.camel = new DefaultCamelContext(new ApplicationContextRegistry(registry));
+		camel.setProperties(getConfig());
 		repository = manager.getRepository(identity);
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
 
 		RepositoryConnection connection = repository.getConnection();
 		factSpace = new FactSpace( connection, identity );
 		assetRegister = new AssetRegisters(connection);
+		activeVocabularies = new ActiveVocabularies(this);
+
+		// engine's depenencies
+		cachedBeanFactory.cache("self:engine",  this);
+		cachedBeanFactory.cache("self:facts",   getFactSpace());
+		cachedBeanFactory.cache("self:assets",  getAssetRegister());
+
+		cachedBeanFactory.cache("self:registry",getRegistry());
+		cachedBeanFactory.cache("self:sesame",  getRepositoryManager());
+		cachedBeanFactory.cache("self:core",    getRepository());
+		cachedBeanFactory.cache("self:camel",   getCamelContext());
 	}
 
 	public void start() throws Exception {
-		log.debug("Starting Runtime");
-		camel.start();
-		isRunning = true;
+		log.debug("Starting Engine");
 		final Engine self = this;
 
+		camel.start();
+		internalRoutes();
+
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
+			public void xrun() {
 				try {
+					activeVocabularies.trigger("direct:self:graceful");
 					log.error("Graceful shutdown ...");
 					self.stop();
 				} catch (Exception e) {
@@ -80,6 +104,36 @@ public class Engine implements Identifiable, Runnable {
 				}
 			}
 		});
+		isRunning = true;
+		activeVocabularies.trigger("direct:self:started");
+	}
+
+	private void internalRoutes() throws Exception {
+		final Engine self = this;
+		RouteBuilder routeBuilder = new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				from("direct:self:reboot").process(new Processor() {
+					@Override
+					public void process(Exchange exchange) throws Exception {
+						self.reboot();
+					}
+				});
+				from("direct:self:stop").process(new Processor() {
+					@Override
+					public void process(Exchange exchange) throws Exception {
+						self.stop();
+					}
+				});
+			}
+		};
+		camel.addRoutes(routeBuilder);
+	}
+
+	public void reboot() throws Exception {
+		stop();
+		boot(getIdentity());
+		start();
 	}
 
 	public void run() {
@@ -88,13 +142,14 @@ public class Engine implements Identifiable, Runnable {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				log.error("FATAL", e);
 			}
 		}
 	}
 
 	public void stop() throws Exception {
-		log.debug("Stopping Runtime");
+		activeVocabularies.trigger("direct:self:stopping");
+		log.debug("Stopping Engine");
 		camel.stop();
 		factSpace.getConnection().close();
 		repository.shutDown();
@@ -117,15 +172,32 @@ public class Engine implements Identifiable, Runnable {
 		return factSpace;
 	}
 
-	public Registry getRegistry() {
-		return registry;
-	}
-
 	public CamelContext getCamelContext() {
 		return camel;
 	}
 
-	public Map<String, Object> getConfig() {
+	public Map<String, String> getConfig() {
 		return properties;
 	}
+
+	public GenericApplicationContext getRegistry() {
+		return registry;
+	}
+
+	public RepositoryManager getRepositoryManager() {
+		return manager;
+	}
+
+	public Repository getRepository() {
+		return repository;
+	}
+
+	public boolean isRunning() {
+		return isRunning;
+	}
+
+//	public ActiveVocabularies getActiveVocabularies() {
+//		return activeVocabularies;
+//	}
+
 }

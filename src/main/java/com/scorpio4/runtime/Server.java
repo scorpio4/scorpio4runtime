@@ -28,7 +28,7 @@ public class Server extends Engine {
 	static String name = "scorpio4";
 	Map runtimes = new HashMap();
 
-	public Server(String identity, File rootDir, Map<String,Object> properties) throws Exception {
+	public Server(String identity, File rootDir, Map<String,String> properties) throws Exception {
 		log.debug("Working directory: "+rootDir.getAbsolutePath());
 		rootDir.mkdirs();
 		init(identity, new RepositoryManager(rootDir), properties);

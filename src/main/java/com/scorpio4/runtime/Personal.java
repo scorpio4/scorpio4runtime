@@ -27,14 +27,14 @@ public class Personal extends Engine {
 	static String name = "scorpio4";
 	DeskTray deskTray;
 
-	public Personal(String identity, File rootDir, Map<String,Object> properties) throws Exception {
+	public Personal(String identity, File rootDir, Map<String,String> properties) throws Exception {
 		log.debug("Working directory: " + rootDir.getAbsolutePath());
 		rootDir.mkdirs();
 		init(identity, new RepositoryManager(rootDir), properties);
 	}
 
 	@Override
-	public void init(String identity, RepositoryManager repositoryManager,  Map<String,Object> properties) throws Exception {
+	public void init(String identity, RepositoryManager repositoryManager,  Map<String,String> properties) throws Exception {
 		this.deskTray = new DeskTray(name,name, "images/logo.png");
 		super.init(identity, repositoryManager, properties);
 	}
