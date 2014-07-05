@@ -1,18 +1,16 @@
 package com.scorpio4.runtime;
 
+import com.scorpio4.ExecutionEnvironment;
 import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.AssetRegisters;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.iq.ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.RepositoryManager;
-import com.scorpio4.vendor.spring.CachedBeanFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.spring.spi.ApplicationContextRegistry;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -29,7 +27,7 @@ import java.util.Map;
  * Date  : 24/06/2014
  * Time  : 12:00 AM
  */
-public class Engine implements Identifiable, Runnable {
+public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	RepositoryManager manager = null;
@@ -39,8 +37,6 @@ public class Engine implements Identifiable, Runnable {
 	FactSpace factSpace = null;
 
 	boolean isRunning = false;
-	GenericApplicationContext registry;
-	CamelContext camel = null;
 	Map<String,String> properties = null;
 
 	ActiveVocabularies activeVocabularies;
@@ -60,13 +56,6 @@ public class Engine implements Identifiable, Runnable {
 	}
 
 	protected void boot(String identity) throws Exception {
-		CachedBeanFactory cachedBeanFactory = new CachedBeanFactory();
-		this.registry = new GenericApplicationContext(cachedBeanFactory);
-		registry.setId(getIdentity());
-		registry.setDisplayName(getIdentity());
-
-		this.camel = new DefaultCamelContext(new ApplicationContextRegistry(registry));
-		camel.setProperties(getConfig());
 		repository = manager.getRepository(identity);
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
 
@@ -75,22 +64,13 @@ public class Engine implements Identifiable, Runnable {
 		assetRegister = new AssetRegisters(connection);
 		activeVocabularies = new ActiveVocabularies(this);
 
-		// engine's depenencies
-		cachedBeanFactory.cache("self:engine",  this);
-		cachedBeanFactory.cache("self:facts",   getFactSpace());
-		cachedBeanFactory.cache("self:assets",  getAssetRegister());
-
-		cachedBeanFactory.cache("self:registry",getRegistry());
-		cachedBeanFactory.cache("self:sesame",  getRepositoryManager());
-		cachedBeanFactory.cache("self:core",    getRepository());
-		cachedBeanFactory.cache("self:camel",   getCamelContext());
 	}
 
 	public void start() throws Exception {
 		log.debug("Starting Engine");
 		final Engine self = this;
 
-		camel.start();
+		activeVocabularies.start();
 		internalRoutes();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -127,7 +107,7 @@ public class Engine implements Identifiable, Runnable {
 				});
 			}
 		};
-		camel.addRoutes(routeBuilder);
+		activeVocabularies.addRoutes(routeBuilder);
 	}
 
 	public void reboot() throws Exception {
@@ -150,7 +130,7 @@ public class Engine implements Identifiable, Runnable {
 	public void stop() throws Exception {
 		activeVocabularies.trigger("direct:self:stopping");
 		log.debug("Stopping Engine");
-		camel.stop();
+		activeVocabularies.stop();
 		factSpace.getConnection().close();
 		repository.shutDown();
 		isRunning = false;
@@ -172,8 +152,12 @@ public class Engine implements Identifiable, Runnable {
 		return factSpace;
 	}
 
+	public ActiveVocabularies ActiveVocabularies() {
+		return activeVocabularies;
+	}
+
 	public CamelContext getCamelContext() {
-		return camel;
+		return activeVocabularies.getCamelContext();
 	}
 
 	public Map<String, String> getConfig() {
@@ -181,7 +165,7 @@ public class Engine implements Identifiable, Runnable {
 	}
 
 	public GenericApplicationContext getRegistry() {
-		return registry;
+		return activeVocabularies.getRegistry();
 	}
 
 	public RepositoryManager getRepositoryManager() {

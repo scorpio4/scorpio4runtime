@@ -30,8 +30,14 @@ public class CachedBeanFactory extends DefaultListableBeanFactory {
 
 	@Override
 	public Object getBean(String name) throws BeansException {
-		if (beans.containsKey(name)) return beans.get(name);
+		if (name.startsWith("self:")) {
+			String selfName = name.substring(5);
+			return beans.get(selfName);
+		}
 		return null;
 	}
 
+	public Map getBeanConfig() {
+		return beans;
+	}
 }
