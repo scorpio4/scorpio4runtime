@@ -2,7 +2,7 @@ package com.scorpio4.iq;
 
 import com.scorpio4.ExecutionEnvironment;
 import com.scorpio4.vendor.camel.component.*;
-import com.scorpio4.vendor.camel.planner.CamelFLO;
+import com.scorpio4.vendor.camel.flo.SesameFLO;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vendor.spring.CachedBeanFactory;
 import com.scorpio4.vendor.spring.RDFBeanDefinitionReader;
@@ -31,7 +31,7 @@ public class ActiveVocabularies {
 	public final static String DO_BOOTSTRAP = "direct:self:active";
 
 	final Logger log = LoggerFactory.getLogger(this.getClass());
-	private CamelFLO floSupport;
+	private SesameFLO floSupport;
 	CachedBeanFactory cachedBeanFactory;
 	RDFBeanDefinitionReader springyBeans;
 	GenericApplicationContext registry;
@@ -95,7 +95,7 @@ public class ActiveVocabularies {
 		SesameCRUD crud = new SesameCRUD(engine.getFactSpace());
 		camel.addComponent("crud", new CRUDComponent(crud));
 
-		floSupport = new CamelFLO(camel, engine.getFactSpace());
+		floSupport = new SesameFLO(camel, engine.getFactSpace());
 		floSupport.setBaseURI(COMMON.CAMEL_FLO);
 		floSupport.plan();
 
