@@ -90,6 +90,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 
 	private void internalRoutes() throws Exception {
 		final Engine self = this;
+
 		RouteBuilder routeBuilder = new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {

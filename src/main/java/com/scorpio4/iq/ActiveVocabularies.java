@@ -1,7 +1,11 @@
 package com.scorpio4.iq;
 
 import com.scorpio4.ExecutionEnvironment;
-import com.scorpio4.vendor.camel.component.*;
+import com.scorpio4.vendor.camel.CurateComponent;
+import com.scorpio4.vendor.camel.component.Any23Component;
+import com.scorpio4.vendor.camel.component.CRUDComponent;
+import com.scorpio4.vendor.camel.component.SelfComponent;
+import com.scorpio4.vendor.camel.component.SesameComponent;
 import com.scorpio4.vendor.camel.flo.SesameFLO;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vendor.spring.CachedBeanFactory;
@@ -50,20 +54,22 @@ public class ActiveVocabularies {
 		log.debug("Activating Vocabularies");
 		bootSpringyBeans(engine);
 		bootCamelFLO(engine);
+		bootSelfFLO(engine);
 		trigger(DO_BOOTSTRAP);
 	}
 
 	protected void bindEngine(ExecutionEnvironment engine) throws Exception {
-		// engine's depenencies
+		cachedBeanFactory.cache("camel",   camel);
+		// Engine's dependencies
 		cachedBeanFactory.cache("engine",  engine);
 		cachedBeanFactory.cache("facts",   engine.getFactSpace());
 		cachedBeanFactory.cache("assets",  engine.getAssetRegister());
-
+		cachedBeanFactory.cache("config",  engine.getConfig());
 		cachedBeanFactory.cache("registry",engine.getRegistry());
-		Repository repository = engine.getRepositoryManager().getRepository(engine.getIdentity());
 		cachedBeanFactory.cache("sesame",  engine.getRepositoryManager());
+
+		Repository repository = engine.getRepositoryManager().getRepository(engine.getIdentity());
 		cachedBeanFactory.cache("core",    repository);
-		cachedBeanFactory.cache("camel",   camel);
 	}
 
 	protected void bootSpringyBeans(ExecutionEnvironment engine) throws Exception {
@@ -88,9 +94,12 @@ public class ActiveVocabularies {
 		this.camel = new DefaultCamelContext(new ApplicationContextRegistry(registry));
 		camel.setProperties(engine.getConfig());
 
+		// custom Scorpio4 components
+		// TODO: Find a better way to register them
 		camel.addComponent("self", new SelfComponent(engine));
 		camel.addComponent("any23", new Any23Component());
 		camel.addComponent("sparql", new SesameComponent(engine.getRepositoryManager()));
+		camel.addComponent("curate", new CurateComponent(engine));
 
 		SesameCRUD crud = new SesameCRUD(engine.getFactSpace());
 		camel.addComponent("crud", new CRUDComponent(crud));
@@ -100,6 +109,21 @@ public class ActiveVocabularies {
 		floSupport.plan();
 
 //		floSupport.plan(engine.getFactSpace(),engine.getIdentity());
+	}
+
+	private void bootSelfFLO(final ExecutionEnvironment engine) throws Exception {
+		RouteBuilder routeBuilder = new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+//				from("direct:self:noop").process(new Processor() {
+//					@Override
+//					public void process(Exchange exchange) throws Exception {
+//					}
+//				});
+			}
+		};
+		log.debug("Booted Self: "+routeBuilder);
+		camel.addRoutes(routeBuilder);
 	}
 
 	public void trigger(ExecutionEnvironment engine, String triggerURI) {

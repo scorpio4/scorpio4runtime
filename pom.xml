@@ -25,7 +25,7 @@
             <id>lee</id>
             <name>Lee Curtis</name>
             <email>lee.curtis@me.com</email>
-            <organization>Troven / Scorpio4</organization>
+            <organization>Scorpio4 Foundation</organization>
             <roles>
                 <role>architect</role>
                 <role>developer</role>
@@ -118,7 +118,7 @@
 
         <dependency>
             <groupId>com.scorpio4</groupId>
-            <artifactId>scorpio4core</artifactId>
+            <artifactId>scorpio4curators</artifactId>
             <version>${project.version}</version>
         </dependency>
 
