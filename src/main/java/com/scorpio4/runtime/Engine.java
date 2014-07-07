@@ -4,18 +4,16 @@ import com.scorpio4.ExecutionEnvironment;
 import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.AssetRegisters;
 import com.scorpio4.fact.FactSpace;
-import com.scorpio4.iq.ActiveVocabularies;
+import com.scorpio4.iq.DefaultActiveVocabularies;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.RepositoryManager;
-import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
-import org.apache.camel.builder.RouteBuilder;
+import com.scorpio4.vendor.spring.CachedBeanFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
 import java.util.Map;
@@ -35,17 +33,19 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	Repository repository = null;
 	AssetRegister assetRegister = null;
 	FactSpace factSpace = null;
+	ApplicationContext applicationContext;
 
 	boolean isRunning = false;
 	Map<String,String> properties = null;
 
-	ActiveVocabularies activeVocabularies;
+	DefaultActiveVocabularies defaultActiveVocabularies;
+	private CachedBeanFactory beanFactory;
 
 	protected Engine() {
 	}
 
 	public Engine(String identity, RepositoryManager manager, Map<String,String> properties) throws Exception {
-		init(identity,manager,properties);
+		init(identity, manager, properties);
 	}
 
 	protected void init(String identity, RepositoryManager manager, Map<String,String> properties) throws Exception {
@@ -56,27 +56,35 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	}
 
 	protected void boot(String identity) throws Exception {
+		this.beanFactory = new CachedBeanFactory();
+		this.applicationContext = new GenericApplicationContext(this.beanFactory);
+
+		beanFactory.cache("engine", this);
+		beanFactory.cache("facts", this.getFactSpace());
+		beanFactory.cache("assets", this.getAssetRegister());
+		beanFactory.cache("config", this.getConfig());
+		beanFactory.cache("sesame", this.getRepositoryManager());
+		beanFactory.cache("core", repository);
+
 		repository = manager.getRepository(identity);
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
 
 		RepositoryConnection connection = repository.getConnection();
 		factSpace = new FactSpace( connection, identity );
 		assetRegister = new AssetRegisters(connection);
-		activeVocabularies = new ActiveVocabularies(this);
-
+		defaultActiveVocabularies = new DefaultActiveVocabularies(this);
 	}
 
 	public void start() throws Exception {
 		log.debug("Starting Engine");
 		final Engine self = this;
 
-		activeVocabularies.start();
-		internalRoutes();
+		defaultActiveVocabularies.start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void xrun() {
 				try {
-					activeVocabularies.trigger("direct:self:graceful");
+					defaultActiveVocabularies.trigger("direct:self:graceful");
 					log.error("Graceful shutdown ...");
 					self.stop();
 				} catch (Exception e) {
@@ -85,30 +93,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 			}
 		});
 		isRunning = true;
-		activeVocabularies.trigger("direct:self:started");
-	}
-
-	private void internalRoutes() throws Exception {
-		final Engine self = this;
-
-		RouteBuilder routeBuilder = new RouteBuilder() {
-			@Override
-			public void configure() throws Exception {
-				from("direct:self:reboot").process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						self.reboot();
-					}
-				});
-				from("direct:self:stop").process(new Processor() {
-					@Override
-					public void process(Exchange exchange) throws Exception {
-						self.stop();
-					}
-				});
-			}
-		};
-		activeVocabularies.addRoutes(routeBuilder);
+		defaultActiveVocabularies.trigger("direct:self:started");
 	}
 
 	public void reboot() throws Exception {
@@ -129,9 +114,9 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	}
 
 	public void stop() throws Exception {
-		activeVocabularies.trigger("direct:self:stopping");
+		defaultActiveVocabularies.trigger("direct:self:stopping");
 		log.debug("Stopping Engine");
-		activeVocabularies.stop();
+		defaultActiveVocabularies.stop();
 		factSpace.getConnection().close();
 		repository.shutDown();
 		isRunning = false;
@@ -153,20 +138,16 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		return factSpace;
 	}
 
-	public ActiveVocabularies ActiveVocabularies() {
-		return activeVocabularies;
-	}
-
-	public CamelContext getCamelContext() {
-		return activeVocabularies.getCamelContext();
+	public DefaultActiveVocabularies ActiveVocabularies() {
+		return defaultActiveVocabularies;
 	}
 
 	public Map<String, String> getConfig() {
 		return properties;
 	}
 
-	public GenericApplicationContext getRegistry() {
-		return activeVocabularies.getRegistry();
+	public ApplicationContext getRegistry() {
+		return applicationContext;
 	}
 
 	public RepositoryManager getRepositoryManager() {
