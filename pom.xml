@@ -43,7 +43,8 @@
     <scm>
         <url>github.com/scorpio4/scorpio4runtime.git</url>
         <connection>scm:git:https://github.com/scorpio4/scorpio4runtime.git</connection>
-    </scm>
+      <tag>scorpio4-0.06</tag>
+  </scm>
 
     <properties>
     </properties>
