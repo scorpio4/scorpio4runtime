@@ -1,21 +1,18 @@
 package com.scorpio4.runtime;
 
 import com.scorpio4.vocab.COMMON;
-import org.apache.felix.framework.Felix;
-import org.apache.felix.framework.util.FelixConstants;
 import org.openrdf.model.Statement;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryResult;
-import org.osgi.framework.*;
-import org.osgi.framework.launch.Framework;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -68,7 +65,7 @@ public class OSGi extends Engine implements BundleActivator {
 			if (args.length>0) filename = args[0];
 			Properties config = new Properties();
 			config.load(new FileInputStream(new File(filename)));
-
+/*
 			// Create host activator;
 			List activators = new ArrayList();
 			activators.add(new OSGi());
@@ -80,6 +77,7 @@ public class OSGi extends Engine implements BundleActivator {
 			scorpio4.start();
 			scorpio4.waitForStop(0);
 			System.exit(0);
+*/
 		}
 		catch (Exception ex)
 		{

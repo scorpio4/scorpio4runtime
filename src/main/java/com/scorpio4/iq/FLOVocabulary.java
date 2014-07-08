@@ -3,7 +3,7 @@ package com.scorpio4.iq;
 import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.camel.SelfComponent;
 import com.scorpio4.vendor.camel.component.Any23Component;
-import com.scorpio4.vendor.camel.component.CRUDComponent;
+import com.scorpio4.vendor.camel.CRUDComponent;
 import com.scorpio4.vendor.camel.component.SesameComponent;
 import com.scorpio4.vendor.camel.flo.RDFCamelPlanner;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
