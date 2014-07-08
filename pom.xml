@@ -121,6 +121,19 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.scorpio4</groupId>
+            <artifactId>scorpio4dba</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.scorpio4</groupId>
+            <artifactId>scorpio4rdf</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
         <!--<dependency>-->
             <!--<groupId>org.apache.camel</groupId>-->
             <!--<artifactId>camel-osgi</artifactId>-->

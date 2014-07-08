@@ -1,6 +1,5 @@
 package com.scorpio4.runtime;
 
-import com.scorpio4.ExecutionEnvironment;
 import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.AssetRegisters;
 import com.scorpio4.fact.FactSpace;
@@ -11,6 +10,7 @@ import com.scorpio4.vendor.spring.CachedBeanFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.sail.config.RepositoryResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -150,7 +150,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		return applicationContext;
 	}
 
-	public RepositoryManager getRepositoryManager() {
+	public RepositoryResolver getRepositoryManager() {
 		return manager;
 	}
 

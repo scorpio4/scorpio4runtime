@@ -166,6 +166,16 @@
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.8.0" level="project" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.1" level="project" />
     <orderEntry type="library" name="Maven: net.sf.ezmorph:ezmorph:1.0.6" level="project" />
+    <orderEntry type="module" module-name="scorpio4dba" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queries:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-queryparser:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-sandbox:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: jakarta-regexp:jakarta-regexp:1.4" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:4.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.camel:camel-jdbc:2.13.1" level="project" />
+    <orderEntry type="module" module-name="scorpio4rdf" />
     <orderEntry type="library" name="Maven: org.openrdf.sesame:sesame-runtime-osgi:2.7.11" level="project" />
     <orderEntry type="library" name="Maven: org.openrdf.sesame:sesame-http-server-spring:2.7.11" level="project" />
     <orderEntry type="library" name="Maven: org.openrdf.sesame:sesame-config:2.7.11" level="project" />

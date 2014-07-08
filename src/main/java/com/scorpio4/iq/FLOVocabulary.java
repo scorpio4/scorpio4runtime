@@ -1,11 +1,11 @@
 package com.scorpio4.iq;
 
-import com.scorpio4.ExecutionEnvironment;
+import com.scorpio4.runtime.ExecutionEnvironment;
+import com.scorpio4.vendor.camel.SelfComponent;
 import com.scorpio4.vendor.camel.component.Any23Component;
 import com.scorpio4.vendor.camel.component.CRUDComponent;
-import com.scorpio4.vendor.camel.component.SelfComponent;
 import com.scorpio4.vendor.camel.component.SesameComponent;
-import com.scorpio4.vendor.camel.flo.SesameFLO;
+import com.scorpio4.vendor.camel.flo.RDFCamelPlanner;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vocab.COMMON;
 import org.apache.camel.CamelContext;
@@ -18,9 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import java.util.Collection;
-import java.util.Map;
-
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.iq
@@ -28,24 +25,24 @@ import java.util.Map;
  * Date  : 7/07/2014
  * Time  : 8:37 PM
  */
-public class FLOActiveVocabulary implements ActiveVocabulary {
+public class FLOVocabulary implements ActiveVocabulary {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 	public final static String DO_BOOTSTRAP = "direct:self:active";
 
-	private SesameFLO floSupport;
+	private RDFCamelPlanner floSupport;
 	CamelContext camel = null;
 
-	public FLOActiveVocabulary() {
+	public FLOVocabulary() {
 	}
 
-	public FLOActiveVocabulary(ExecutionEnvironment engine) throws Exception {
+	public FLOVocabulary(ExecutionEnvironment engine) throws Exception {
 		boot(engine);
 	}
 
 	@Override
 	public void boot(ExecutionEnvironment engine) throws Exception {
-		bootCamelFLO(engine);
-		bootSelfFLO(engine);
+		bootCamel(engine);
+		bootSelf(engine);
 		trigger(DO_BOOTSTRAP, engine.getConfig());
 
 	}
@@ -54,7 +51,7 @@ public class FLOActiveVocabulary implements ActiveVocabulary {
 		floSupport.trigger(doBootstrap, body);
 	}
 
-	protected void bootCamelFLO(ExecutionEnvironment engine) throws Exception {
+	protected void bootCamel(ExecutionEnvironment engine) throws Exception {
 		log.debug("FLO Active Vocabulary: "+engine.getIdentity());
 		ApplicationContext registry = engine.getRegistry();
 
@@ -73,22 +70,22 @@ public class FLOActiveVocabulary implements ActiveVocabulary {
 		SesameCRUD crud = new SesameCRUD(engine.getFactSpace());
 		camel.addComponent("crud", new CRUDComponent(crud));
 
-		floSupport = new SesameFLO(camel, engine.getFactSpace());
+		floSupport = new RDFCamelPlanner(camel, engine.getFactSpace());
 
-		floSupport.setBaseURI(COMMON.CAMEL_FLO);
+		floSupport.setVocabURI(COMMON.CAMEL_FLO);
 		floSupport.plan();
 
 //		SesameCRUD crud = new SesameCRUD(engine.getFactSpace());
-		Collection<Map> routes = crud.read("self/routes", engine.getConfig());
-		for(Map route:routes) {
-			floSupport.plan( (String)route.get("from"), (String)route.get("to"));
-		}
-		log.debug("Deployed "+routes.size()+" primary routes");
+//		Collection<Map> routes = crud.read("self/routes", engine.getConfig());
+//		for(Map route:routes) {
+//			floSupport.plan( (String)route.get("from"), (String)route.get("to"));
+//		}
+//		log.debug("Deployed "+routes.size()+" primary routes");
 
 //		floSupport.plan(engine.getFactSpace(),engine.getIdentity());
 	}
 
-	private void bootSelfFLO(final ExecutionEnvironment engine) throws Exception {
+	private void bootSelf(final ExecutionEnvironment engine) throws Exception {
 		RouteBuilder routeBuilder = new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {

@@ -1,6 +1,6 @@
 package com.scorpio4.iq;
 
-import com.scorpio4.ExecutionEnvironment;
+import com.scorpio4.runtime.ExecutionEnvironment;
 
 /**
  * scorpio4-oss (c) 2014

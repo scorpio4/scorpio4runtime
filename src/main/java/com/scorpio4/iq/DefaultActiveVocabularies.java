@@ -1,6 +1,6 @@
 package com.scorpio4.iq;
 
-import com.scorpio4.ExecutionEnvironment;
+import com.scorpio4.runtime.ExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultActiveVocabularies implements ActiveVocabulary {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
-	BeansActiveVocabulary springBeans;
-	FLOActiveVocabulary flo;
+	SpringyBeansVocabulary springBeans;
+	FLOVocabulary flo;
 
 	public DefaultActiveVocabularies(ExecutionEnvironment engine) throws Exception {
 		boot(engine);
@@ -23,8 +23,8 @@ public class DefaultActiveVocabularies implements ActiveVocabulary {
 	public void boot(ExecutionEnvironment engine) throws Exception {
 		bind(engine);
 
-		this.springBeans=new BeansActiveVocabulary(engine);
-		this.flo = new FLOActiveVocabulary(engine);
+		this.springBeans=new SpringyBeansVocabulary(engine);
+		this.flo = new FLOVocabulary(engine);
 		log.debug("Activating Vocabularies");
 	}
 
