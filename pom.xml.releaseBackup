@@ -130,7 +130,7 @@
 
         <dependency>
             <groupId>com.scorpio4</groupId>
-            <artifactId>scorpio4rdf</artifactId>
+            <artifactId>scorpio4maven</artifactId>
             <version>${project.version}</version>
         </dependency>
 
