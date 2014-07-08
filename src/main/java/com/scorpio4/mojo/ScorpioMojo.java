@@ -32,7 +32,7 @@ import java.util.Map;
  * Time  : 5:36 PM
  */
 public abstract class ScorpioMojo extends AbstractMojo {
-	public File srcPath = null, targetPath = null, tempPath = null, resourcesPath=null;
+	public File srcPath = null, targetPath = null, homePath = null, resourcesPath=null;
 	public String identity = null;
 	public Stopwatch stopWatch = new Stopwatch();
 	String PROJECT_PREFIX = "scorpio4";
@@ -55,17 +55,17 @@ public abstract class ScorpioMojo extends AbstractMojo {
         this.srcPath = MapUtil.getFile(properties, PROJECT_PREFIX+".src.path", getProject().getBasedir() );
         this.resourcesPath = MapUtil.getFile(properties, PROJECT_PREFIX+".resources.path", srcPath );
         this.targetPath = MapUtil.getFile(properties, PROJECT_PREFIX+".target.path", getProject().getBasedir() );
-        this.tempPath = MapUtil.getFile(properties, PROJECT_PREFIX+".temp.path", getProject().getBasedir() );
+        this.homePath = MapUtil.getFile(properties, PROJECT_PREFIX+".home", getProject().getBasedir() );
 
         initializeRepository();
     }
 
     protected void initializeRepository() throws RepositoryException, MalformedURLException, RepositoryConfigException {
-	    this.repositoryManager = new RepositoryManager(getTempPath());
+	    this.repositoryManager = new RepositoryManager(getHomePath());
 	    this.repository = repositoryManager.getRepository(getIdentity());
 //	    this.repository = newLocalRepository();
         this.connection = repository.getConnection();
-	    getLog().info("Repository: "+getIdentity()+" @ "+getTempPath());
+	    getLog().info("Repository: "+getIdentity()+" @ "+ getHomePath());
         this.assetRegister = new AssetRegisters(connection);
     }
 
@@ -89,8 +89,8 @@ public abstract class ScorpioMojo extends AbstractMojo {
         return targetPath;
     }
 
-    public File getTempPath() {
-        return tempPath;
+    public File getHomePath() {
+        return homePath;
     }
 
     public String getAppName() {
@@ -137,7 +137,7 @@ public abstract class ScorpioMojo extends AbstractMojo {
     public abstract void executeInternal() throws Exception;
 
     public Repository newLocalRepository() throws RepositoryException {
-        File dataDir = new File(tempPath, "sandbox");
+        File dataDir = new File(homePath, "sandbox");
         dataDir.mkdirs();
         NativeRDFSRepository nativeRDFSRepository = new NativeRDFSRepository(dataDir);
         nativeRDFSRepository.initialize();
@@ -147,7 +147,7 @@ public abstract class ScorpioMojo extends AbstractMojo {
     public Repository newSandboxRepository(Map properties) throws RepositoryException {
         String host = MapUtil.getString(properties, PROJECT_PREFIX+".upload.host", null);
         String name = MapUtil.getString(properties, PROJECT_PREFIX+".upload.name", null);
-        File dataDir = new File(tempPath, "sandbox");
+        File dataDir = new File(homePath, "sandbox");
         dataDir.mkdirs();
 
         if (host==null||host.equals("")) {
