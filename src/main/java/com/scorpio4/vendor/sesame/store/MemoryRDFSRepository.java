@@ -32,8 +32,13 @@ public class MemoryRDFSRepository extends SailRepository {
 	}
 
 	public MemoryRDFSRepository deploy(String resource) throws RepositoryException, FactException, IOException {
-		InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-		if (stream==null) throw new IOException("Deploy resource not found: "+resource);
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		return deploy(resource,classLoader);
+	}
+
+	public MemoryRDFSRepository deploy(String resource, ClassLoader loader) throws RepositoryException, FactException, IOException {
+		InputStream stream = loader.getResourceAsStream(resource);
+		if (stream==null) throw new IOException("Deploy resource not found: "+resource+" in "+loader);
 		SailRepositoryConnection connection = getConnection();
 		SPARQLer.defaultNamespaces(connection);
 		Scorpio4SesameDeployer deployer = new Scorpio4SesameDeployer(new FactSpace(connection, "classpath:"+resource));

@@ -1,4 +1,4 @@
-package com.scorpio4.iq;
+package com.scorpio4.iq.vocab;
 
 import com.scorpio4.runtime.ExecutionEnvironment;
 import org.slf4j.Logger;
@@ -11,18 +11,16 @@ import org.slf4j.LoggerFactory;
  * Date  : 3/07/2014
  * Time  : 11:47 PM
  */
-public class DefaultActiveVocabularies implements ActiveVocabulary {
+public class Scorpio4ActiveVocabularies implements ActiveVocabulary {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 	SpringyBeansVocabulary springBeans;
 	FLOVocabulary flo;
 
-	public DefaultActiveVocabularies(ExecutionEnvironment engine) throws Exception {
+	public Scorpio4ActiveVocabularies(ExecutionEnvironment engine) throws Exception {
 		boot(engine);
 	}
 
 	public void boot(ExecutionEnvironment engine) throws Exception {
-		bind(engine);
-
 		this.springBeans=new SpringyBeansVocabulary(engine);
 		this.flo = new FLOVocabulary(engine);
 		log.debug("Activating Vocabularies");
@@ -40,10 +38,6 @@ public class DefaultActiveVocabularies implements ActiveVocabulary {
 		flo.stop();
 	}
 
-	protected void bind(ExecutionEnvironment engine) throws Exception {
-
-	}
-
 	public void trigger(String triggerURI) {
 		try {
 			flo.trigger(triggerURI, null);
@@ -51,7 +45,4 @@ public class DefaultActiveVocabularies implements ActiveVocabulary {
 			log.warn("Faulty Trigger: "+triggerURI+" ->"+e.getCause().getMessage());
 		}
 	}
-
-
-
 }

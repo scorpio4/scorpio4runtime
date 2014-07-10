@@ -1,4 +1,4 @@
-package com.scorpio4.iq;
+package com.scorpio4.iq.vocab;
 
 import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
@@ -65,5 +65,10 @@ public class SpringyBeansVocabulary implements ActiveVocabulary {
 	@Override
 	public void stop() throws Exception {
 
+	}
+
+	@Override
+	public void trigger(String resource) {
+		log.warn("Bean Trigger not supported: "+resource);
 	}
 }

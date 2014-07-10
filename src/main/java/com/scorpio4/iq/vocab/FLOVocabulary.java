@@ -1,4 +1,4 @@
-package com.scorpio4.iq;
+package com.scorpio4.iq.vocab;
 
 import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.camel.SelfComponent;

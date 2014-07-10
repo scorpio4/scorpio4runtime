@@ -37,12 +37,18 @@ public class Server extends Engine {
 
 
 	protected void initRuntimes() throws Exception {
-		Collection<Map> all_runtimes = new SesameCRUD(getFactSpace()).read("self/runtimes", properties);
-		for(Map run: all_runtimes) {
-			String id = (String)run.get("id");
-			Engine engine = new Engine();
-			engine.init(id, manager, run);
-			runtimes.put(id, engine);
+		Collection<Map> all_runtimes = new SesameCRUD(getFactSpace()).read("self/engines", properties);
+		for(Map runtime: all_runtimes) {
+			String id = (String)runtime.get("id");
+			// don't start self again
+			if (!id.equalsIgnoreCase(getIdentity())) {
+				Engine engine = new Engine();
+				// shared repository manager
+				engine.init(id, manager, runtime);
+				runtimes.put(id, engine);
+				log.debug("Starting "+engine.getIdentity());
+				engine.start();
+			}
 		}
 	}
 
@@ -60,14 +66,21 @@ public class Server extends Engine {
 			properties.load(new FileReader(configFile));
 
 			String identity = MapUtil.getString(properties, name + ".id");
-			File path = MapUtil.getFile(properties, name+".directory", new File("runtime.facts", name));
+			File path = MapUtil.getFile(properties, name+".home", new File("runtime.facts", name));
 
 			Map headers = new HashMap();
 			headers.putAll(properties);
 
 			Server server = new Server(identity, path, headers);
-			server.start();
 			Thread thread = new Thread(server);
+
+			log.debug("Starting Engines: "+server.getIdentity() );
+			thread.start();
+			while(server.isRunning()) {
+				Thread.sleep(100);
+			}
+			log.debug("Stopping Engines: "+server.getIdentity() );
+			server.stop();
 
 		} catch (FileNotFoundException e) {
 			log.debug("Properties not found: "+configFile.getAbsolutePath());
