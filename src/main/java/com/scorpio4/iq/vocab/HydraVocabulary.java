@@ -71,4 +71,9 @@ public class HydraVocabulary implements ActiveVocabulary {
 	public void stop() throws Exception {
 
 	}
+
+	@Override
+	public Object activate(String resource, Object body) {
+		return body;
+	}
 }

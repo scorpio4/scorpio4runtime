@@ -13,16 +13,16 @@ import org.slf4j.LoggerFactory;
  */
 public class Scorpio4ActiveVocabularies implements ActiveVocabulary {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
-	SpringyBeansVocabulary springBeans;
-	FLOVocabulary flo;
+	ActiveBeansVocabulary springBeans;
+	ActiveFLOVocabulary flo;
 
 	public Scorpio4ActiveVocabularies(ExecutionEnvironment engine) throws Exception {
 		boot(engine);
 	}
 
 	public void boot(ExecutionEnvironment engine) throws Exception {
-		this.springBeans=new SpringyBeansVocabulary(engine);
-		this.flo = new FLOVocabulary(engine);
+		this.springBeans=new ActiveBeansVocabulary(engine);
+		this.flo = new ActiveFLOVocabulary(engine);
 		log.debug("Activating Vocabularies");
 	}
 
@@ -38,11 +38,12 @@ public class Scorpio4ActiveVocabularies implements ActiveVocabulary {
 		flo.stop();
 	}
 
-	public void trigger(String triggerURI) {
+	public Object activate(String triggerURI, Object body) {
 		try {
-			flo.trigger(triggerURI, null);
+			return flo.activate(triggerURI, null);
 		} catch (Exception e) {
 			log.warn("Faulty Trigger: "+triggerURI+" ->"+e.getCause().getMessage());
+			return null;
 		}
 	}
 }

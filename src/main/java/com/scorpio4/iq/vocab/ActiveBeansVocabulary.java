@@ -20,23 +20,23 @@ import java.util.Map;
  * Date  : 7/07/2014
  * Time  : 8:41 PM
  */
-public class SpringyBeansVocabulary implements ActiveVocabulary {
+public class ActiveBeansVocabulary implements ActiveVocabulary {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	RDFBeanDefinitionReader rdfBeanReader;
 
 
-	public SpringyBeansVocabulary() {
+	public ActiveBeansVocabulary() {
 	}
 
-	public SpringyBeansVocabulary(ExecutionEnvironment engine) throws Exception {
+	public ActiveBeansVocabulary(ExecutionEnvironment engine) throws Exception {
 		boot(engine);
 	}
 
 	@Override
 	public void boot(ExecutionEnvironment engine) throws Exception {
 		// Engine's dependencies
-		log.debug("Springy Beans Vocabulary");
+		log.debug("Active Beans Vocabulary");
 
 
 		Repository repository = engine.getRepositoryManager().getRepository(engine.getIdentity());
@@ -68,7 +68,8 @@ public class SpringyBeansVocabulary implements ActiveVocabulary {
 	}
 
 	@Override
-	public void trigger(String resource) {
+	public Object activate(String resource, Object body) {
 		log.warn("Bean Trigger not supported: "+resource);
+		return rdfBeanReader.getBean(resource);
 	}
 }

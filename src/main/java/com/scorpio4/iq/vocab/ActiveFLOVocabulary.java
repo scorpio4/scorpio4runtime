@@ -25,17 +25,17 @@ import org.springframework.context.ApplicationContext;
  * Date  : 7/07/2014
  * Time  : 8:37 PM
  */
-public class FLOVocabulary implements ActiveVocabulary {
+public class ActiveFLOVocabulary implements ActiveVocabulary {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 	public final static String DO_BOOTSTRAP = "direct:self:active";
 
 	private RDFCamelPlanner floSupport;
 	CamelContext camel = null;
 
-	public FLOVocabulary() {
+	public ActiveFLOVocabulary() {
 	}
 
-	public FLOVocabulary(ExecutionEnvironment engine) throws Exception {
+	public ActiveFLOVocabulary(ExecutionEnvironment engine) throws Exception {
 		boot(engine);
 	}
 
@@ -43,12 +43,8 @@ public class FLOVocabulary implements ActiveVocabulary {
 	public void boot(ExecutionEnvironment engine) throws Exception {
 		bootCamel(engine);
 		bootSelf(engine);
-		trigger(DO_BOOTSTRAP, engine.getConfig());
+		activate(DO_BOOTSTRAP, engine.getConfig());
 
-	}
-
-	public void trigger(String doBootstrap, Object body) {
-		floSupport.trigger(doBootstrap, body);
 	}
 
 	protected void bootCamel(ExecutionEnvironment engine) throws Exception {
@@ -132,6 +128,11 @@ public class FLOVocabulary implements ActiveVocabulary {
 
 	public CamelContext getCamelContext() {
 		return camel;
+	}
+
+	public Object activate(String doBootstrap, Object body) {
+		Object triggered = floSupport.trigger(doBootstrap, body);
+		return triggered;
 	}
 
 }
