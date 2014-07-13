@@ -2,14 +2,14 @@ package com.scorpio4.iq.exec;
 
 import com.scorpio4.assets.Asset;
 import com.scorpio4.assets.AssetHelper;
-import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.AssetNotSupported;
 import com.scorpio4.oops.ConfigException;
 import com.scorpio4.oops.IQException;
-import com.scorpio4.vendor.sesame.io.SPARQLer;
+import com.scorpio4.vendor.sesame.io.SPARQLRules;
 import com.scorpio4.vocab.COMMON;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
@@ -31,15 +31,10 @@ import java.util.concurrent.TimeoutException;
  */
 public class Inferring implements Executable {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+	protected Repository repository;
 
-    FactSpace factSpace;
-
-    public Inferring(RepositoryConnection connection) {
-        this.factSpace = new FactSpace(connection, "bean:"+getClass().getCanonicalName());
-    }
-
-    public Inferring(FactSpace factSpace) {
-        this.factSpace=factSpace;
+    public Inferring(Repository repository) {
+	    this.repository=repository;
     }
 
     @Override
@@ -65,9 +60,10 @@ class NotInferFuture implements Future {
     Object result = null;
 
     public NotInferFuture(Inferring inferring, Asset asset, Map paramaters) throws IQException, RepositoryException, QueryEvaluationException, MalformedQueryException, IOException, ConfigException {
-        SPARQLer sparqLer = new SPARQLer(inferring.factSpace);
+	    RepositoryConnection connection = inferring.repository.getConnection();
+        SPARQLRules SPARQLRules = new SPARQLRules(connection, "bean:"+getClass().getCanonicalName());
         Asset newAsset = AssetHelper.getAsset(asset, paramaters);
-        int copied = sparqLer.copy(newAsset.toString());
+        int copied = SPARQLRules.apply(newAsset.toString());
         result = copied;
     }
 

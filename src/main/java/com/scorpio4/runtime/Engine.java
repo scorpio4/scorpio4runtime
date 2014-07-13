@@ -2,7 +2,6 @@ package com.scorpio4.runtime;
 
 import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.AssetRegisters;
-import com.scorpio4.fact.FactSpace;
 import com.scorpio4.iq.vocab.ActiveVocabulary;
 import com.scorpio4.iq.vocab.Scorpio4ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
@@ -28,12 +27,12 @@ import java.util.Map;
  */
 public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
-
+	String identity;
 	RepositoryManager manager = null;
 
 	Repository repository = null;
 	AssetRegister assetRegister = null;
-	FactSpace factSpace = null;
+//	FactSpace factSpace = null;
 	ApplicationContext applicationContext;
 
 	boolean isRunning = false;
@@ -57,11 +56,11 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	}
 
 	protected void boot(String identity) throws Exception {
+		this.identity=identity;
 		this.beanFactory = new CachedBeanFactory();
 		this.applicationContext = new GenericApplicationContext(this.beanFactory);
 
 		beanFactory.cache("engine", this);
-		beanFactory.cache("facts", this.getFactSpace());
 		beanFactory.cache("assets", this.getAssetRegister());
 		beanFactory.cache("config", this.getConfig());
 		beanFactory.cache("sesame", this.getRepositoryManager());
@@ -71,7 +70,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
 
 		RepositoryConnection connection = repository.getConnection();
-		factSpace = new FactSpace( connection, identity );
+//		factSpace = new FactSpace( connection, identity );
 		assetRegister = new AssetRegisters(connection);
 		activeVocabulary = new Scorpio4ActiveVocabularies(this);
 	}
@@ -122,13 +121,12 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		activeVocabulary.activate("direct:self:stopping", this);
 		log.debug("Stopping Engine");
 		activeVocabulary.stop();
-		factSpace.getConnection().close();
 		repository.shutDown();
 		isRunning = false;
 	}
 
 	public String getIdentity() {
-		return factSpace==null?"bean:"+getClass().getCanonicalName():factSpace.getIdentity();
+		return identity;
 	}
 
 	public RepositoryManager RepositoryManager() {
@@ -139,9 +137,9 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		return assetRegister;
 	}
 
-	public FactSpace getFactSpace() {
-		return factSpace;
-	}
+//	public FactSpace getFactSpace() {
+//		return factSpace;
+//	}
 
 	public ActiveVocabulary getActiveVocabulary() {
 		return activeVocabulary;

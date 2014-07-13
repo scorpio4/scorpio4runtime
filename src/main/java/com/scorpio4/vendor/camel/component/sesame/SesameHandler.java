@@ -3,6 +3,7 @@ package com.scorpio4.vendor.camel.component.sesame;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
 import org.apache.camel.Message;
+import org.apache.camel.Processor;
 import org.apache.camel.util.ExchangeHelper;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.openrdf.query.*;
@@ -27,7 +28,7 @@ import java.util.Map;
  * Date  : 25/06/2014
  * Time  : 11:33 AM
  */
-public class SesameHandler {
+public class SesameHandler implements Processor {
 	private static final Logger log = LoggerFactory.getLogger(SesameHandler.class);
 	RepositoryConnection connection = null;
 
@@ -44,8 +45,9 @@ public class SesameHandler {
 		log.debug("SPARQLHandler: "+sparql);
 	}
 
+	@Override
 	@Handler
-	public void handle(Exchange exchange) throws MalformedQueryException, RepositoryException, QueryResultHandlerException, QueryEvaluationException, IOException {
+	public void process(Exchange exchange) throws Exception {
 		Map<String,Object> headers = exchange.getIn().getHeaders();
 
 		if (sparql==null||sparql.equals ("")) {

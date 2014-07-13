@@ -1,9 +1,10 @@
 package com.scorpio4.iq.vocab;
 
+import com.scorpio4.fact.FactSpace;
 import com.scorpio4.runtime.ExecutionEnvironment;
+import com.scorpio4.vendor.camel.CRUDComponent;
 import com.scorpio4.vendor.camel.SelfComponent;
 import com.scorpio4.vendor.camel.component.Any23Component;
-import com.scorpio4.vendor.camel.CRUDComponent;
 import com.scorpio4.vendor.camel.component.SesameComponent;
 import com.scorpio4.vendor.camel.flo.RDFCamelPlanner;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
@@ -32,6 +33,8 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 	private RDFCamelPlanner floSupport;
 	CamelContext camel = null;
 
+	private boolean tracing = true;
+
 	public ActiveFLOVocabulary() {
 	}
 
@@ -48,13 +51,12 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 	}
 
 	protected void bootCamel(ExecutionEnvironment engine) throws Exception {
-		log.debug("FLO Active Vocabulary: "+engine.getIdentity());
 		ApplicationContext registry = engine.getRegistry();
 
 		// Camel
 		this.camel = new DefaultCamelContext(new ApplicationContextRegistry(registry));
 		camel.setProperties(engine.getConfig());
-//		cachedBeanFactory.cache("camel", camel);
+		camel.setTracing(tracing);
 
 		// custom Scorpio4 components
 		// TODO: Find a better way to register them
@@ -63,25 +65,30 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 		camel.addComponent("sparql", new SesameComponent(engine.getRepositoryManager()));
 //		camel.addComponent("curate", new CurateComponent(engine));
 
-		SesameCRUD crud = new SesameCRUD(engine.getFactSpace());
+		FactSpace factSpace = new FactSpace(engine.getIdentity(), engine.getRepository());
+		SesameCRUD crud = new SesameCRUD(factSpace);
 		camel.addComponent("crud", new CRUDComponent(crud));
 
-		floSupport = new RDFCamelPlanner(camel, engine.getFactSpace());
+		floSupport = new RDFCamelPlanner(camel, factSpace );
 
-		floSupport.setVocabURI(COMMON.CAMEL_FLO);
+		floSupport.setVocabURI(COMMON.ACTIVE_FLO);
 		floSupport.plan();
+		factSpace.close();
 
+		log.debug("Active FLO Booted: "+engine.getIdentity());
+	}
+
+	private void bootSelf(final ExecutionEnvironment engine) throws Exception {
+//		Deprecated
 //		SesameCRUD crud = new SesameCRUD(engine.getFactSpace());
+//
 //		Collection<Map> routes = crud.read("self/routes", engine.getConfig());
 //		for(Map route:routes) {
 //			floSupport.plan( (String)route.get("from"), (String)route.get("to"));
 //		}
 //		log.debug("Deployed "+routes.size()+" primary routes");
 
-//		floSupport.plan(engine.getFactSpace(),engine.getIdentity());
-	}
 
-	private void bootSelf(final ExecutionEnvironment engine) throws Exception {
 		RouteBuilder routeBuilder = new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
@@ -131,8 +138,15 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 	}
 
 	public Object activate(String doBootstrap, Object body) {
-		Object triggered = floSupport.trigger(doBootstrap, body);
-		return triggered;
+		return floSupport.trigger(doBootstrap, body);
+	}
+
+	public boolean isTracing() {
+		return tracing;
+	}
+
+	public void setTracing(boolean tracing) {
+		this.tracing = tracing;
 	}
 
 }

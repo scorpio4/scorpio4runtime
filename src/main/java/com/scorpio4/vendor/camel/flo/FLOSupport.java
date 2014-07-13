@@ -72,12 +72,12 @@ public class FLOSupport {
 
 	public Object trigger(String from, Object body, Map header) {
 		try {
-			ProducerTemplate doit = context.createProducerTemplate();
-			Object result = doit.requestBodyAndHeaders(from, body, header);
+			ProducerTemplate producer = context.createProducerTemplate();
+			Object result = producer.requestBodyAndHeaders(from, body, header);
 			return result;
 		} catch(Exception e) {
-			log.warn(e.getMessage());
-			return null;
+			log.error("Faulty Trigger: " + from + " --> " + e.getMessage());
+			return body;
 		}
 	}
 

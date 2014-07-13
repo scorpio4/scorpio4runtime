@@ -33,17 +33,16 @@ public class HydraVocabulary implements ActiveVocabulary {
 
 	@Override
 	public void boot(ExecutionEnvironment engine) throws Exception {
-		RepositoryConnection connection = engine.getFactSpace().getConnection();
+		RepositoryConnection connection = engine.getRepository().getConnection();
 		ValueFactory vf = connection.getValueFactory();
 
 		RepositoryResult<Statement> apiDocs = connection.getStatements(vf.createURI(engine.getIdentity()), vf.createURI(BASE + "apiDocumentation"), null, useInferencing);
 		while(apiDocs.hasNext()) {
-			bootAPI(engine, apiDocs.next().getObject());
+			bootAPI(connection, apiDocs.next().getObject());
 		}
 	}
 
-	private void bootAPI(ExecutionEnvironment engine, Value apiDoc) throws RepositoryException {
-		RepositoryConnection connection = engine.getFactSpace().getConnection();
+	private void bootAPI(RepositoryConnection connection, Value apiDoc) throws RepositoryException {
 		ValueFactory vf = connection.getValueFactory();
 
 		log.debug("Hydra API: "+apiDoc);

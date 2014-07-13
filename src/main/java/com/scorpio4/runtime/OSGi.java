@@ -44,7 +44,7 @@ public class OSGi extends Engine implements BundleActivator {
 	}
 
 	protected void installBundles(String coreURI) throws Exception {
-		RepositoryConnection connection = getFactSpace().getConnection();
+		RepositoryConnection connection = getRepository().getConnection();
 		ValueFactory vf = connection.getValueFactory();
 		RepositoryResult<Statement> bundles = connection.getStatements(vf.createURI(coreURI), vf.createURI(INSTALL_BUNDLE), null, true);
 		while(bundles.hasNext()) {
@@ -55,6 +55,7 @@ public class OSGi extends Engine implements BundleActivator {
 				bundle.start();
 			}
 		}
+		connection.close();
 	}
 
 	public static void main(String[] args) {
@@ -88,5 +89,4 @@ public class OSGi extends Engine implements BundleActivator {
 
 
 	}
-
 }

@@ -19,13 +19,12 @@ package com.scorpio4.deploy;
  */
 
 import com.scorpio4.assets.SesameAssetRegister;
-import com.scorpio4.util.Identifiable;
-import com.scorpio4.vendor.sesame.io.SPARQLer;
-import com.scorpio4.vocab.COMMON;
-import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.FactException;
+import com.scorpio4.util.Identifiable;
 import com.scorpio4.util.Steps;
 import com.scorpio4.util.io.StreamCopy;
+import com.scorpio4.vendor.sesame.io.SPARQLRules;
+import com.scorpio4.vocab.COMMON;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -75,11 +74,11 @@ public class Scorpio4SesameDeployer implements Identifiable {
     URI textType = null, rdfsLabel = null, mimeExtension = null;
     ScriptEngineManager sem = new ScriptEngineManager();
 
-    public Scorpio4SesameDeployer(FactSpace factSpace) throws FactException {
-        init(factSpace.getConnection(), factSpace.getIdentity());
+    public Scorpio4SesameDeployer(String context, RepositoryConnection connection) throws FactException, RepositoryException {
+        init(context,connection);
     }
 
-	public void init(RepositoryConnection connection, String context) throws FactException {
+	public void init(String context, RepositoryConnection connection) throws FactException {
         try {
             setConnection(connection);
 	        //  (boolean verifyData, boolean stopAtFirstError, boolean preserveBNodeIDs, org.openrdf.rio.RDFParser.DatatypeHandling datatypeHandling) { /* compiled code */ }
@@ -106,7 +105,7 @@ public class Scorpio4SesameDeployer implements Identifiable {
 					getConnection().add(mimeURI, subClassOf, textType, provenanceContext);
 					getConnection().add(mimeURI, a, textType, provenanceContext);
 					getConnection().add(mimeURI, rdfsLabel, values.createLiteral(sef.getLanguageName()), provenanceContext);
-					log.trace("\t Script: "+sef.getLanguageName()+" --> "+mimeURI.toString());
+//					log.debug("\t Script: "+sef.getLanguageName()+" --> "+mimeURI.toString());
 					for(int y=0;y<extensions.size();y++) {
 						getConnection().add(mimeURI, mimeExtension, values.createLiteral(extensions.get(y)));
 						extension2type.put(extensions.get(y), mimeURI.toString());
@@ -133,7 +132,7 @@ public class Scorpio4SesameDeployer implements Identifiable {
         try {
             getConnection().clear(this.provenanceContext);
 	        getConnection().commit();
-	        SPARQLer.defaultNamespaces(getConnection());
+	        SPARQLRules.defaultNamespaces(getConnection());
         } catch (RepositoryException e) {
             throw new FactException("Obliterate failed: "+e.getMessage(), e);
         }
@@ -205,7 +204,7 @@ public class Scorpio4SesameDeployer implements Identifiable {
 		return count;
 	}
 
-	protected void deploy(File home, File file) throws FactException, IOException {
+	public void deploy(File home, File file) throws FactException, IOException {
 		FileInputStream inStream = new FileInputStream(file);
 		deploy(Steps.localize("", home.getParentFile(), file), inStream);
         inStream.close();
@@ -243,14 +242,14 @@ public class Scorpio4SesameDeployer implements Identifiable {
 		} catch (RDFParseException e) {
 			throw new FactException("Corrupt RDF: "+e.getMessage()+"-> "+localPath+" -> "+e.getLineNumber()+":"+e.getColumnNumber(),e);
 		} catch (RepositoryException e) {
-			throw new FactException("Failed to import RDF: "+localPath,e);
+			throw new FactException("Repository Error: "+e.getMessage()+" -> "+localPath,e);
 		}
 	}
 
 	private void deployRIO(String localPath, InputStream inStream, RDFFormat format) throws RepositoryException, IOException, RDFParseException {
 		getConnection().begin();
 		String baseURN = toURN(localPath, ":");
-		log.debug("Deploying "+format+": "+baseURN+" in: "+provenanceContext+" ("+inStream.available()+")");
+		log.debug("Deploying: "+format+": "+baseURN+" in: "+provenanceContext+" ("+inStream.available()+")");
 		getConnection().add(inStream, baseURN, format, provenanceContext);
 		describeAsset(baseURN);
 		getConnection().commit();
@@ -305,7 +304,7 @@ public class Scorpio4SesameDeployer implements Identifiable {
 
 		Literal scriptBody = values.createLiteral(script, mimeType);
         getConnection().add( scriptURI, hasAsset, scriptBody, provenanceContext);
-        log.debug("Deployed "+extension+" asset: " + scriptName+" -> "+scriptURI.toString() + " as " + scriptType);
+        log.debug("Deployed: "+extension+" asset: " + scriptName+" -> "+scriptURI.toString() + " as " + scriptType);
 
 //        getConnection().add( scriptURI , rdfsLabel, values.createLiteral(scriptName), provenanceContext );
         describeAsset(scriptURI.toString());

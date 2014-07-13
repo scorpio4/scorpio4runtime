@@ -2,10 +2,9 @@ package com.scorpio4.iq.exec;
 
 import com.scorpio4.assets.Asset;
 import com.scorpio4.assets.AssetRegister;
-import com.scorpio4.assets.AssetRegisters;
-import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.AssetNotSupported;
 import com.scorpio4.oops.IQException;
+import com.scorpio4.runtime.Engine;
 import com.scorpio4.vendor.sesame.util.RDFCollections;
 import com.scorpio4.vocab.COMMON;
 import org.openrdf.model.Statement;
@@ -36,8 +35,8 @@ import java.util.concurrent.Future;
 public class Executor implements Executable {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+	RepositoryConnection connection;
     AssetRegister assetRegister = null;
-    FactSpace factSpace = null;
     RDFCollections rdfCollections = null;
     String DO_EXECUTES = COMMON.CORE+"iq/executes";
     String DO_EXECUTE = COMMON.CORE+"iq/execute";
@@ -45,15 +44,17 @@ public class Executor implements Executable {
 //    String IS_BEAN = COMMON.CORE+"iq/Bean";
     Map<String,Executable> beanFactory = new HashMap();
     Map<String,Boolean> seen = new HashMap();
+	String assetURI = null;
 
-    public Executor(FactSpace factSpace) {
-        this(factSpace, new AssetRegisters(factSpace.getConnection()));
+    public Executor(Engine engine, RepositoryConnection connection, String assetURI) throws RepositoryException {
+        this(connection, assetURI, engine.getAssetRegister());
     }
 
-    public Executor(FactSpace factSpace, AssetRegister assetRegister) {
-        this.factSpace = factSpace;
+    public Executor(RepositoryConnection connection, String assetURI, AssetRegister assetRegister) throws RepositoryException {
+	    this.connection=connection;
+	    this.assetURI = assetURI;
         this.assetRegister = assetRegister;
-        this.rdfCollections = new RDFCollections(factSpace.getConnection(),factSpace.getIdentity());
+        this.rdfCollections = new RDFCollections(connection,assetURI);
     }
 
     public void addExecutable(String name, Executable executable) {
@@ -82,7 +83,6 @@ public class Executor implements Executable {
         Collection<Value> allExecs = rdfCollections.getList(listURI, DO_EXECUTES);
 
         Map results = new HashMap();
-        RepositoryConnection connection = factSpace.getConnection();
 
         for(Value execURI: allExecs) {
             if (execURI instanceof URI) {
@@ -92,6 +92,7 @@ public class Executor implements Executable {
             }
         }
 
+//        RepositoryConnection connection = factSpace.getConnection();
         ValueFactory vf = connection.getValueFactory();
         RepositoryResult<Statement> singleExecs = connection.getStatements(vf.createURI(listURI), vf.createURI(DO_EXECUTE), null, true);
         while(singleExecs.hasNext()) {
@@ -108,7 +109,6 @@ public class Executor implements Executable {
     }
 
     protected Map<String, Future> doExecutables(URI execURI, Map bindings) throws RepositoryException, ExecutionException, IQException, InterruptedException, IOException, AssetNotSupported {
-        RepositoryConnection connection = factSpace.getConnection();
         Map beans = findBeans(connection, execURI);
         if (beans==null|beans.isEmpty()) return null;
         Asset asset = assetRegister.getAsset(execURI.stringValue(), null);

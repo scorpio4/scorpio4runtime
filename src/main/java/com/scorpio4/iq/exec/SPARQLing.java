@@ -1,7 +1,6 @@
 package com.scorpio4.iq.exec;
 
 import com.scorpio4.assets.Asset;
-import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.ConfigException;
 import com.scorpio4.oops.IQException;
 import com.scorpio4.template.PicoTemplate;
@@ -34,10 +33,6 @@ public class SPARQLing implements Executable {
 
     public SPARQLing(RepositoryConnection connection) {
         this.connection=connection;
-    }
-
-    public SPARQLing(FactSpace factSpace) {
-        this.connection=factSpace.getConnection();
     }
 
     @Override

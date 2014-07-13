@@ -33,11 +33,11 @@ public class SesameCRUD implements CRUD {
     String context = null;
     AssetRegister assetRegister;
 
-    public SesameCRUD(FactSpace factSpace) throws FactException {
+    public SesameCRUD(FactSpace factSpace) throws FactException, RepositoryException {
         this(factSpace, new JARAssetRegister());
     }
 
-    public SesameCRUD(FactSpace factSpace, AssetRegister assetRegister) throws FactException {
+    public SesameCRUD(FactSpace factSpace, AssetRegister assetRegister) throws FactException, RepositoryException {
         this(factSpace.getConnection(), factSpace.getIdentity(), assetRegister);
     }
 
@@ -94,4 +94,8 @@ public class SesameCRUD implements CRUD {
         return null;
     }
 
+	@Override
+	public String getIdentity() {
+		return context;
+	}
 }

@@ -1,5 +1,6 @@
 package com.scorpio4.runtime;
 
+import com.scorpio4.fact.FactSpace;
 import com.scorpio4.util.map.MapUtil;
 import com.scorpio4.vendor.sesame.RepositoryManager;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
@@ -10,7 +11,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,8 @@ public class Server extends Engine {
 
 
 	protected void initRuntimes() throws Exception {
-		Collection<Map> all_runtimes = new SesameCRUD(getFactSpace()).read("self/engines", properties);
+		FactSpace factSpace = new FactSpace(getIdentity(), getRepository());
+		Collection<Map> all_runtimes = new SesameCRUD(factSpace).read("self/engines", properties);
 		for(Map runtime: all_runtimes) {
 			String id = (String)runtime.get("id");
 			// don't start self again

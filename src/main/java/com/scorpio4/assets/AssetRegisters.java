@@ -59,13 +59,14 @@ public class AssetRegisters extends BaseAssetRegister {
 		for(AssetRegister asset: assets) {
 			try {
 				found = found!=null?found:asset.getAsset(uri, mimeType);
-				log.debug("Checked: "+asset+" -> "+found);
+//				log.debug("Checked: "+asset+" ("+uri+") -> "+found);
 			} catch (IOException e) {
 				log.debug(e.getMessage());
 				// do nothing
 			}
 		}
         if (bindings!=null && found!=null) {
+			log.debug("Found: ("+uri+") -> "+found);
             return AssetHelper.getAsset(found,bindings);
         }
 		return found;

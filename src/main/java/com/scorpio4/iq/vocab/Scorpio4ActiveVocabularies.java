@@ -1,6 +1,7 @@
 package com.scorpio4.iq.vocab;
 
 import com.scorpio4.runtime.ExecutionEnvironment;
+import org.apache.camel.CamelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,18 @@ public class Scorpio4ActiveVocabularies implements ActiveVocabulary {
 		} catch (Exception e) {
 			log.warn("Faulty Trigger: "+triggerURI+" ->"+e.getCause().getMessage());
 			return null;
+		}
+	}
+
+	public CamelContext getCamelContext() {
+		return flo.getCamelContext();
+	}
+
+	public void startAndWait() throws Exception {
+		start();
+		log.debug("Waiting for startup");
+		while ( getCamelContext().isStartingRoutes()) {
+			Thread.sleep(100);
 		}
 	}
 }

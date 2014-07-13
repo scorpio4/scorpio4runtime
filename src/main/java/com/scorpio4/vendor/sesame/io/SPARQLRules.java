@@ -5,7 +5,6 @@ package com.scorpio4.vendor.sesame.io;
  *
  *  25/04/2014 re-licensed BSD License [Lee Curtis].
  */
-import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.FactException;
 import com.scorpio4.vocab.COMMON;
 import org.openrdf.model.*;
@@ -28,21 +27,16 @@ import java.io.IOException;
  *
  */
 
-public class SPARQLer {
-	private static final Logger log = LoggerFactory.getLogger(SPARQLer.class);
+public class SPARQLRules {
+	private static final Logger log = LoggerFactory.getLogger(SPARQLRules.class);
 	RepositoryConnection from = null;
     String ctx = null;
     boolean isInferred = false;
 
-	public SPARQLer(RepositoryConnection from, String ctx) {
+	public SPARQLRules(RepositoryConnection from, String ctx) {
 		this.from = from;
         this.ctx = ctx;
 	}
-
-    public SPARQLer(FactSpace factSpace) {
-        this.from = factSpace.getConnection();
-        this.ctx = factSpace.getIdentity();
-    }
 
     public void clean(RepositoryConnection to) throws RepositoryException {
         URI context = to.getValueFactory().createURI(ctx);
@@ -54,29 +48,29 @@ public class SPARQLer {
 //		return copy(from, context, query, false);
 //	}
 
-    public int copy(String query) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
+    public int apply(String query) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
         URI context = from.getValueFactory().createURI(ctx);
-        return copy(from, context, query, isInferred);
+        return apply(from, context, query, isInferred);
     }
 
-    public int copy(RepositoryConnection to, String query) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
+    public int apply(RepositoryConnection to, String query) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
         URI context = from.getValueFactory().createURI(ctx);
-        return copy(to, context, query, isInferred);
+        return apply(to, context, query, isInferred);
     }
 
-	public int copy(RepositoryConnection to, String query, String ctx) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
+	public int apply(RepositoryConnection to, String query, String ctx) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
 		URI context = from.getValueFactory().createURI(ctx);
-		return copy(to, context, query, isInferred);
+		return apply(to, context, query, isInferred);
 	}
 
-	public int copy(RepositoryConnection to, Resource context, String query, boolean remove) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
+	public int apply(RepositoryConnection to, Resource context, String query, boolean remove) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
 		GraphQuery graphQuery = from.prepareGraphQuery(QueryLanguage.SPARQL, query);
 log.debug("GraphQuery: "+query+"\n -> from: "+graphQuery.getClass());
 		GraphQueryResult result = graphQuery.evaluate();
-		return copy(to, context, result, remove);
+		return apply(to, context, result, remove);
 	}
 
-	public int copy(RepositoryConnection to, Resource context, GraphQueryResult result , boolean remove) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
+	public int apply(RepositoryConnection to, Resource context, GraphQueryResult result, boolean remove) throws RepositoryException, QueryEvaluationException, MalformedQueryException {
 		int count = 0;
         copyNamespaces(to);
 		ValueFactory valueFactory = to.getRepository().getValueFactory();
@@ -94,12 +88,12 @@ log.debug("GraphQuery: "+query+"\n -> from: "+graphQuery.getClass());
 		return count;
 	}
 
-	public void copy(String query, File file) throws FactException, IOException, QueryEvaluationException, RDFHandlerException {
+	public void apply(String query, File file) throws FactException, IOException, QueryEvaluationException, RDFHandlerException {
 		N3Writer n3_writer = new N3Writer(new FileWriter(file));
-		copy(query, n3_writer);
+		apply(query, n3_writer);
 	}
 
-	public void copy(String query, N3Writer n3_writer) throws FactException, QueryEvaluationException, RDFHandlerException {
+	public void apply(String query, N3Writer n3_writer) throws FactException, QueryEvaluationException, RDFHandlerException {
 		if (query==null) throw new FactException("Can't query query: " + query);
 		try {
 			GraphQuery gq = from.prepareGraphQuery(QueryLanguage.SPARQL, query);

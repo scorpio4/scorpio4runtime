@@ -50,7 +50,8 @@ public class SesameComponent extends ClassComponent {
 		if (connection==null) throw new IQException("Failed to resolve connection: "+remaining);
 		log.debug("SPARQL Repository: "+remaining);
 		log.debug("SPARQL Query: "+sparql);
-		return new BeanEndpoint(uri, this, new BeanProcessor(new SesameHandler(connection, sparql, isInferred, maxQueryTime, autoClose ), getCamelContext()));
+		return new BeanEndpoint(uri, this, new BeanProcessor(
+			new SesameHandler(connection, sparql, isInferred, maxQueryTime, autoClose ), getCamelContext()));
 	}
 
 }

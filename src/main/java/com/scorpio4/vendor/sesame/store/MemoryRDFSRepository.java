@@ -1,9 +1,8 @@
 package com.scorpio4.vendor.sesame.store;
 
 import com.scorpio4.deploy.Scorpio4SesameDeployer;
-import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.FactException;
-import com.scorpio4.vendor.sesame.io.SPARQLer;
+import com.scorpio4.vendor.sesame.io.SPARQLRules;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.repository.sail.SailRepositoryConnection;
@@ -40,9 +39,11 @@ public class MemoryRDFSRepository extends SailRepository {
 		InputStream stream = loader.getResourceAsStream(resource);
 		if (stream==null) throw new IOException("Deploy resource not found: "+resource+" in "+loader);
 		SailRepositoryConnection connection = getConnection();
-		SPARQLer.defaultNamespaces(connection);
-		Scorpio4SesameDeployer deployer = new Scorpio4SesameDeployer(new FactSpace(connection, "classpath:"+resource));
+		SPARQLRules.defaultNamespaces(connection);
+
+		Scorpio4SesameDeployer deployer = new Scorpio4SesameDeployer("classpath:"+resource, connection);
 		deployer.deploy(resource, stream);
+
 		connection.close();
 		return this;
 	}

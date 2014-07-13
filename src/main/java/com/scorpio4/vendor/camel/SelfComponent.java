@@ -1,8 +1,8 @@
 package com.scorpio4.vendor.camel;
 
-import com.scorpio4.iq.exec.Executor;
 import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.camel.self.*;
+import org.apache.camel.CamelException;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.bean.BeanEndpoint;
 import org.apache.camel.component.bean.BeanProcessor;
@@ -40,11 +40,15 @@ public class SelfComponent extends ClassComponent {
 		} else if (remaining.startsWith("asset:")) {
 			executable = new AssetBase(engine, remaining.substring(6));
 		} else if (remaining.startsWith("deploy:")) {
-			executable = new Deploy(engine, remaining.substring(7));
-		} else if (remaining.startsWith("exec:")) {
-			executable = new Executor(engine.getFactSpace());
+			log.debug("Deploying: "+uri+" @ "+remaining);
+			String assetURI = remaining.substring(7);
+			if (assetURI.equals("")) assetURI = engine.getIdentity();
+			executable = new Deploy(engine, assetURI);
+//		} else if (remaining.startsWith("exec:")) {
+//			executable = new Executor(engine, remaining.substring(5));
 		}
-		return executable==null?null:new BeanEndpoint(uri, this, new BeanProcessor(executable, getCamelContext()));
+		if (executable==null) throw new CamelException("Unknown SELF command: "+remaining);
+		return new BeanEndpoint(uri, this, new BeanProcessor(executable, getCamelContext()));
 	}
 
 }

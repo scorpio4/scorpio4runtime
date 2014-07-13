@@ -55,8 +55,8 @@ public class SesameAssetRegister extends BaseAssetRegister {
 				Value object = statement.getObject();
 				if (object instanceof Literal) {
 					Literal literal = (Literal)object;
+					URI datatype = literal.getDatatype();
 					if (type!=null) {
-						URI datatype = literal.getDatatype();
 						if (type.equals(datatype.toString())) {
 							script = literal.stringValue();
 							log.info("Typed Script: "+statement.getSubject());
@@ -66,8 +66,8 @@ public class SesameAssetRegister extends BaseAssetRegister {
 						}
 
 					} else if (script == null || script.equals("")) {
+						type = datatype==null?null:datatype.toString();
 						script = literal.stringValue();
-                        type = literal.getDatatype().toString();
 						log.warn("Default Script: "+statement.getSubject()+" -> "+type);
 					} else {
 						log.debug("Skipping: "+statement.getSubject());

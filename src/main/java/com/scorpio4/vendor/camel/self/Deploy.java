@@ -1,16 +1,18 @@
 package com.scorpio4.vendor.camel.self;
 
-import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.deploy.Scorpio4SesameDeployer;
 import com.scorpio4.oops.AssetNotSupported;
 import com.scorpio4.oops.FactException;
 import com.scorpio4.oops.IQException;
+import com.scorpio4.runtime.ExecutionEnvironment;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
@@ -26,30 +28,35 @@ import java.util.concurrent.ExecutionException;
 public class Deploy extends Base {
 	static protected final Logger log = LoggerFactory.getLogger(Deploy.class);
 
-	public Deploy(ExecutionEnvironment engine, String uri) throws IOException {
+	public Deploy(ExecutionEnvironment engine, String uri) throws IOException, FactException {
 		super(engine, uri);
+
 	}
 
 	@Handler
 	public void execute(Exchange exchange) throws RepositoryException, ExecutionException, IQException, InterruptedException, IOException, AssetNotSupported, FactException {
+		RepositoryConnection connection = engine.getRepository().getConnection();
+		Scorpio4SesameDeployer deployer = new Scorpio4SesameDeployer(engine.getIdentity(), connection);
+		deployer.setDeployScripts(false);
+		deployer.setDeployRDF(true);
+
 		Map<String, Object> headers = exchange.getIn().getHeaders();
-		Object body = exchange.getIn().getBody();
+		File file = exchange.getIn().getBody(File.class);
+		log.info("Exec deploy:"+uri+" -> "+file);
 
-		Scorpio4SesameDeployer scorpio4SesameDeployer = new Scorpio4SesameDeployer(getEngine().getFactSpace());
-		scorpio4SesameDeployer.setDeployScripts(true);
-		scorpio4SesameDeployer.setDeployRDF(true);
-
-		if (uri.equals("") && body!=null) {
+		if (file!=null) {
 			String from = exchange.getFromEndpoint().getEndpointUri();
-			log.info("Deploy From: "+from);
-			log.info("\t"+headers);
-//			sesameDeployer.deploy(from, new StringInputStream());
-		} else {
-			log.info("Deploy URL: "+uri);
-			scorpio4SesameDeployer.deploy(new URL(uri));
+//			log.info("Deploy File: "+from+" -> "+file.getAbsolutePath());
+//			log.info("\t"+headers);
+			deployer.deploy(file.getParentFile(), file);
 		}
+		if (!uri.equals("")) {
+//			log.info("Deploy URL: "+uri);
+			deployer.deploy(new URL(uri));
+		}
+		connection.close();
 
-		exchange.getOut().setBody(body);
+		exchange.getOut().setBody(file);
 		exchange.getOut().setHeaders(headers);
 	}
 

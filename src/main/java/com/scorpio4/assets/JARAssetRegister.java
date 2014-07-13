@@ -72,7 +72,7 @@ public class JARAssetRegister extends BaseAssetRegister {
 		    uri = uri.substring("classpath:".length());
 	    }
         String scriptPath = fromURNToPath(uri);
-        log.debug("getScript: "+uri+" from: "+classLoader);
+        log.debug("getScriptJAR: "+uri+" from: "+classLoader);
         if (mimeType!=null&&!mimeType.equals("") && uri.indexOf(".")<0) {
             String extn = (String) mimeToExtension.get(mimeType);
             scriptPath+=extn;

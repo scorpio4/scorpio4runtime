@@ -5,6 +5,7 @@ import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.SesameAssetRegister;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.iq.exec.Scripting;
+import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.util.RDFCollections;
 import com.scorpio4.vocab.COMMON;
 import org.apache.camel.*;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,13 +37,13 @@ import java.util.Map;
  * Date  : 21/06/2014
  * Time  : 5:58 PM
  */
-public class RDFCamelPlanner extends FLOSupport {
+public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 	static protected final Logger log = LoggerFactory.getLogger(RDFCamelPlanner.class);
 
 	FactSpace factSpace = null;
 	int count = 0;
 	AssetRegister assetRegister = null;
-	String vocabURI = COMMON.CAMEL_FLO;
+	String vocabURI = COMMON.ACTIVE_FLO;
 	URI TO = null;
 
 	public RDFCamelPlanner(CamelContext camelContext, FactSpace factSpace) throws Exception {
@@ -49,7 +51,7 @@ public class RDFCamelPlanner extends FLOSupport {
 		init(factSpace);
 	}
 
-	private void init(FactSpace factSpace) {
+	private void init(FactSpace factSpace) throws RepositoryException {
 		this.factSpace=factSpace;
 		assetRegister = new SesameAssetRegister(factSpace.getConnection());
 		TO = factSpace.getConnection().getValueFactory().createURI(getVocabURI() + "to");
@@ -89,12 +91,13 @@ public class RDFCamelPlanner extends FLOSupport {
 					log.debug("Configure Route ("+_routeID+") -> "+_from);
 					String from = _from.stringValue();
 					log.debug("\troute -> "+from+" @ "+_routeID);
-					RouteDefinition tried = from(from);
+					RouteDefinition trying = from(from);
+					trying.setId(getIdentity()+"@"+from);
 //					tried.doTry();
 
-					log.debug("\ttry -> " + tried);
-					ProcessorDefinition ended = tryResource(connection, tried, (Resource) _from);
-					log.debug("\tended -> " + ended+" <- "+tried);
+					log.debug("\ttrying: " + trying);
+					ProcessorDefinition ended = tryResource(connection, trying, (Resource) _from);
+					log.debug("\tended: " + ended+" <- "+trying);
 
 					if (ended.getOutputs().isEmpty()) {
 						log.warn("NO ENDPOINT: "+_from);
@@ -118,7 +121,7 @@ public class RDFCamelPlanner extends FLOSupport {
 	}
 
 	protected ProcessorDefinition tryResource(final RepositoryConnection connection, final ProcessorDefinition fromRoute, final Resource from) throws RepositoryException, CamelException, ClassNotFoundException, IOException {
-		log.debug("TRY from: "+from+" -> "+fromRoute);
+		log.debug("TRY from: "+fromRoute.getId()+" --> "+from);
 
 		RepositoryResult<Statement> plannedRoutes = connection.getStatements(from, null, null, false);
 		while(plannedRoutes.hasNext()) {
@@ -220,7 +223,7 @@ public class RDFCamelPlanner extends FLOSupport {
 			if (_to instanceof BNode) {
 				return tryResource(connection, from.multicast(),  _to);
 			}
-			// otherwise, we must either be a bean or a route
+			// otherwise, we must either be a bean or a singleton route
 			String next = _to.stringValue();
 			Object bean = context.getRegistry().lookupByName(next);
 			if (bean!=null) {
@@ -233,10 +236,17 @@ public class RDFCamelPlanner extends FLOSupport {
 		}
 
 		Collection<Value> pipeline = collection.getList(_to);
-		log.debug("\tTO pipeline: "+_to+" x "+pipeline.size());
-		for(Value pipe: pipeline) {
-			if (pipe instanceof Resource) from = tryResource(connection, from, (BNode) pipe);
-			else log.warn("Invalid TO: "+pipe);
+		log.debug("\tTO pipeline: "+_to+" x "+pipeline.size()+" -> "+ Arrays.toString(pipeline.toArray()));
+		for(Value to: pipeline) {
+			if (to instanceof BNode) {
+				ValueFactory vf = connection.getValueFactory();
+				from = tryResource(connection, from, (BNode)to);
+			} else if (to instanceof URI) {
+				log.info("Route : "+from+" -> "+to);
+				from = from.to(to.stringValue());
+			} else {
+				log.warn("Invalid TO: "+to);
+			}
 		}
 		return from;
 	}
@@ -370,6 +380,10 @@ public class RDFCamelPlanner extends FLOSupport {
 	}
 
 
+	@Override
+	public String getIdentity() {
+		return factSpace.getIdentity();
+	}
 }
 class RDFBasedPredicate implements Predicate {
 	RepositoryConnection connection;
