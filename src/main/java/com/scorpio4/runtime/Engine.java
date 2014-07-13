@@ -3,7 +3,8 @@ package com.scorpio4.runtime;
 import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.AssetRegisters;
 import com.scorpio4.fact.FactSpace;
-import com.scorpio4.iq.DefaultActiveVocabularies;
+import com.scorpio4.iq.vocab.ActiveVocabulary;
+import com.scorpio4.iq.vocab.Scorpio4ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.RepositoryManager;
 import com.scorpio4.vendor.spring.CachedBeanFactory;
@@ -38,7 +39,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	boolean isRunning = false;
 	Map<String,String> properties = null;
 
-	DefaultActiveVocabularies defaultActiveVocabularies;
+	ActiveVocabulary activeVocabulary;
 	private CachedBeanFactory beanFactory;
 
 	protected Engine() {
@@ -72,19 +73,23 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		RepositoryConnection connection = repository.getConnection();
 		factSpace = new FactSpace( connection, identity );
 		assetRegister = new AssetRegisters(connection);
-		defaultActiveVocabularies = new DefaultActiveVocabularies(this);
+		activeVocabulary = new Scorpio4ActiveVocabularies(this);
+	}
+
+	public void setActiveVocabulary(ActiveVocabulary activeVocabulary) {
+		this.activeVocabulary = activeVocabulary;
 	}
 
 	public void start() throws Exception {
 		log.debug("Starting Engine");
 		final Engine self = this;
 
-		defaultActiveVocabularies.start();
+		activeVocabulary.start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void xrun() {
 				try {
-					defaultActiveVocabularies.trigger("direct:self:graceful");
+					activeVocabulary.activate("direct:self:graceful", self);
 					log.error("Graceful shutdown ...");
 					self.stop();
 				} catch (Exception e) {
@@ -93,7 +98,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 			}
 		});
 		isRunning = true;
-		defaultActiveVocabularies.trigger("direct:self:started");
+		activeVocabulary.activate("direct:self:started", self);
 	}
 
 	public void reboot() throws Exception {
@@ -114,9 +119,9 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	}
 
 	public void stop() throws Exception {
-		defaultActiveVocabularies.trigger("direct:self:stopping");
+		activeVocabulary.activate("direct:self:stopping", this);
 		log.debug("Stopping Engine");
-		defaultActiveVocabularies.stop();
+		activeVocabulary.stop();
 		factSpace.getConnection().close();
 		repository.shutDown();
 		isRunning = false;
@@ -138,8 +143,8 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		return factSpace;
 	}
 
-	public DefaultActiveVocabularies ActiveVocabularies() {
-		return defaultActiveVocabularies;
+	public ActiveVocabulary getActiveVocabulary() {
+		return activeVocabulary;
 	}
 
 	public Map<String, String> getConfig() {

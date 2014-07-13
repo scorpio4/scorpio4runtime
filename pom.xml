@@ -4,12 +4,12 @@
     <parent>
         <groupId>com.scorpio4</groupId>
         <artifactId>scorpio4</artifactId>
-        <version>0.06-SNAPSHOT</version>
+        <version>0.08-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>scorpio4runtime</artifactId>
-    <packaging>maven-plugin</packaging>
+    <packaging>jar</packaging>
 
     <name>Scorpio4 Runtime</name>
     <url>http://www.scorpio4.com</url>
@@ -124,16 +124,9 @@
 
         <dependency>
             <groupId>com.scorpio4</groupId>
-            <artifactId>scorpio4dba</artifactId>
+            <artifactId>scorpio4utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.scorpio4</groupId>
-            <artifactId>scorpio4rdf</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
 
         <!--<dependency>-->
             <!--<groupId>org.apache.camel</groupId>-->
@@ -283,10 +276,42 @@
             <version>${camel.version}</version>
             <!-- use the same version as your Camel core version -->
         </dependency>
+
+        <!-- RFC6570 - URITemplates -->
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>uri-template</artifactId>
+            <version>0.9</version>
+        </dependency>
+
+        <!-- Utilities -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.11</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.1</version>
         </dependency>
 
         <!-- R language -->
