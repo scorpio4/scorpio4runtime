@@ -45,39 +45,40 @@ public class ActiveBeansVocabulary implements ActiveVocabulary {
 		rdfBeanReader = new RDFBeanDefinitionReader(connection, (BeanDefinitionRegistry)registry);
 
 		SesameCRUD crud = new SesameCRUD(factSpace);
+
 		Collection<Map> prototypes = crud.read("self/prototypes.sparql", engine.getConfig());
-		for(Map bean:prototypes) {
-			String beanURI = (String)bean.get("this");
-			try {
-				rdfBeanReader.loadBeanDefinitions(beanURI);
-			} catch(Exception e) {
-				log.error("Bean: "+beanURI);
-			}
-		}
+		registerBeans(prototypes);
 		log.debug("Registered "+prototypes.size()+" Prototypes");
 
 		Collection<Map> singletons = crud.read("self/singletons.sparql", engine.getConfig());
-		for(Map bean:singletons) {
-			String beanURI = (String)bean.get("this");
-			try {
-				rdfBeanReader.loadBeanDefinitions(beanURI);
-			} catch(Exception e) {
-				log.error("Bean: "+beanURI);
-			}
-		}
+		registerBeans(singletons);
 		log.debug("Registered "+singletons.size()+" Singletons");
 
 		connection.close();
 	}
 
+	private int registerBeans(Collection<Map> beans) {
+		int c = 0;
+		for(Map bean:beans) {
+			String beanURI = (String)bean.get("this");
+			try {
+				c+=rdfBeanReader.loadBeanDefinitions(beanURI);
+				log.debug("Registered Bean: "+beanURI);
+			} catch(Exception e) {
+				log.error("Bean ERROR: "+beanURI+" -> "+e.getMessage());
+			}
+		}
+		return c;
+	}
+
 	@Override
 	public void start() throws Exception {
-
+		// NO-OP
 	}
 
 	@Override
 	public void stop() throws Exception {
-
+		// NO-OP
 	}
 
 	@Override

@@ -359,7 +359,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 					}
 				};
 			}
-			asset = new Asset(to.stringValue(), dataType==null?null:dataType.stringValue());
+			asset = new Asset(to.stringValue(), to.stringValue(), dataType==null?null:dataType.stringValue());
 		}
 
 		final Scripting scripting = new Scripting();

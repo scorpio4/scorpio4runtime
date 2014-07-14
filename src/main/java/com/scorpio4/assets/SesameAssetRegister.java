@@ -77,7 +77,7 @@ public class SesameAssetRegister extends BaseAssetRegister {
 				}
 			}
 			log.info("Found "+type+" @ "+uri+" --> "+(script!=null?true:false));
-			return script==null?null:new Asset(script,type);
+			return script==null?null:new Asset(uri, script,type);
 		} catch (RepositoryException e) {
 			throw new IOException(e.getMessage(),e);
 		}

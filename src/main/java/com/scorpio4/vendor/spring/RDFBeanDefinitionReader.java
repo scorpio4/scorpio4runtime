@@ -128,8 +128,7 @@ public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implem
 
 	private int readSingleton(URI resourceURI) throws RepositoryException, ClassNotFoundException {
 		int count = 0;
-		log.debug("Bean Singleton: "+resourceURI);
-		RepositoryResult<Statement> beans = connection.getStatements( resourceURI, vf.createURI(LIST), null, true);
+		RepositoryResult<Statement> beans = connection.getStatements( resourceURI, vf.createURI(RDFS_TYPE), null, true);
 		while(beans.hasNext()) {
 			Statement bean = beans.next();
 			boolean isBean = bean.getObject().stringValue().startsWith("bean:");
@@ -137,8 +136,13 @@ public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implem
 			if (!knownBean && isBean && bean.getObject() instanceof org.openrdf.model.Resource) {
 				org.openrdf.model.Resource classURI = (org.openrdf.model.Resource) bean.getObject();
 				count+= readBean(bean.getSubject(), classURI, BeanDefinition.SCOPE_SINGLETON);
+//			} else {
+//				log.warn("Can't Register Singleton: "+resourceURI);
 			}
 		}
+		if (count>0) log.debug("Read Bean Singleton: "+resourceURI);
+		else log.debug("UNKNOWN Bean Singleton: "+resourceURI);
+
 		return count;
 	}
 

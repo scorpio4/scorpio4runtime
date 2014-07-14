@@ -24,7 +24,7 @@ public class Scorpio4ActiveVocabularies implements ActiveVocabulary {
 	public void boot(ExecutionEnvironment engine) throws Exception {
 		this.springBeans=new ActiveBeansVocabulary(engine);
 		this.flo = new ActiveFLOVocabulary(engine);
-		log.debug("Activating Vocabularies");
+		log.debug("Booted Active Vocabularies");
 	}
 
 	@Override

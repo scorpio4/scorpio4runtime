@@ -25,7 +25,7 @@ public class AssetHelper {
         try {
             PicoTemplate picoTemplate = new PicoTemplate(asset.toString());
             String translate = picoTemplate.translate(parameters);
-            return new Asset(translate, asset.getMimeType());
+            return new Asset(asset.getIdentity(), translate, asset.getMimeType());
         } catch (ConfigException e) {
             throw new IOException(e.getMessage(),e);
         }

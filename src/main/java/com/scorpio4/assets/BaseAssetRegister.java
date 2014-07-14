@@ -13,7 +13,7 @@ public abstract class BaseAssetRegister implements AssetRegister {
 
     @Override
     public Asset getAsset(String uri, String mimeType) throws IOException {
-        return new Asset(getString(uri, mimeType));
+        return new Asset(uri, getString(uri, mimeType), mimeType);
     }
 
     public abstract String getString(String uri, String mimeType) throws IOException;

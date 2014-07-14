@@ -48,6 +48,16 @@ public class SesameVocabulary implements Vocabulary {
 	}
 
 	@Override
+	public boolean isKnown(String uri) {
+		ValueFactory vf = connection.getValueFactory();
+		try {
+			return connection.hasStatement(vf.createURI(uri), RDFS.ISDEFINEDBY, null, false);
+		} catch (RepositoryException e) {
+			return false;
+		}
+	}
+
+	@Override
 	public String getLabel(String uri) {
 		return getObject(uri, RDFS.LABEL.stringValue());
 	}
