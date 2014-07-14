@@ -276,6 +276,11 @@
             <version>${camel.version}</version>
             <!-- use the same version as your Camel core version -->
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-cxf</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
 
         <!-- RFC6570 - URITemplates -->
         <dependency>

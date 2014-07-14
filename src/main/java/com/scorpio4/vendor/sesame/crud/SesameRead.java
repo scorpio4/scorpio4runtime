@@ -4,6 +4,7 @@ import com.scorpio4.oops.FactException;
 import com.scorpio4.vendor.sesame.util.QueryTools;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,17 +22,22 @@ import java.util.Map;
  */
 public class SesameRead {
     private static final Logger log = LoggerFactory.getLogger(SesameRead.class);
-    private final SesameCRUD sesameCRUD;
     String sparql = null;
+	RepositoryConnection connection;
 
-    public SesameRead(SesameCRUD sesameCRUD, String sparql) {
-        this.sesameCRUD=sesameCRUD;
+    public SesameRead(RepositoryConnection connection, String sparql) {
+        this.connection=connection;
         this.sparql = sparql;
     }
 
+	public SesameRead(SesameCRUD crud, String sparql) {
+		this.connection=crud.getConnection();
+		this.sparql = sparql;
+	}
+
     public Collection<Map> execute() throws FactException {
         try {
-            return QueryTools.toCollection(sesameCRUD.getConnection(), sparql);
+            return QueryTools.toCollection(connection, sparql);
         } catch (IOException e) {
             throw new FactException(e.getMessage(),e);
         } catch (RepositoryException e) {

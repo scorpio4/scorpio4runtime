@@ -9,6 +9,7 @@ import com.scorpio4.crud.Model;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.ConfigException;
 import com.scorpio4.oops.FactException;
+import com.scorpio4.util.Identifiable;
 import com.scorpio4.vocab.COMMON;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -31,6 +32,8 @@ public class SesameCRUD implements CRUD {
 
     RepositoryConnection connection;
     String context = null;
+
+	String idAttribute = "this";
     AssetRegister assetRegister;
 
     public SesameCRUD(FactSpace factSpace) throws FactException, RepositoryException {
@@ -43,7 +46,7 @@ public class SesameCRUD implements CRUD {
 
     public SesameCRUD(RepositoryConnection connection, String context, AssetRegister assetRegister) {
         this.connection=connection;
-        this.assetRegister=assetRegister==null?new JARAssetRegister():assetRegister;
+        setAssetRegister(assetRegister==null?new JARAssetRegister():assetRegister);
         this.context = context;
     }
 
@@ -91,11 +94,35 @@ public class SesameCRUD implements CRUD {
 
     @Override
     public Model identify(Map model) throws FactException {
-        return null;
+	    if (Model.class.isInstance(model)) return (Model) model;
+	    return new GenericModel(model,idAttribute);
     }
+
+	@Override
+	public Identifiable identity(Map model) throws FactException {
+		if (Identifiable.class.isInstance(model)) return (Identifiable) model;
+		return identify(model);
+	}
 
 	@Override
 	public String getIdentity() {
 		return context;
 	}
+
+	public String getIdAttribute() {
+		return idAttribute;
+	}
+
+	public void setIdAttribute(String idAttribute) {
+		this.idAttribute = idAttribute;
+	}
+
+	public AssetRegister getAssetRegister() {
+		return assetRegister;
+	}
+
+	public void setAssetRegister(AssetRegister assetRegister) {
+		this.assetRegister = assetRegister;
+	}
+
 }

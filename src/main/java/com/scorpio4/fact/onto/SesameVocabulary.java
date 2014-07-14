@@ -19,10 +19,10 @@ import java.util.List;
  * Date  : 26/06/2014
  * Time  : 9:28 AM
  */
-public class SesameOntology implements Ontology {
+public class SesameVocabulary implements Vocabulary {
 	RepositoryConnection connection;
 
-	public SesameOntology(RepositoryConnection connection) {
+	public SesameVocabulary(RepositoryConnection connection) {
 		this.connection=connection;
 	}
 

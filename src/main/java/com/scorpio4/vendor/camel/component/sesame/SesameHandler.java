@@ -1,5 +1,6 @@
 package com.scorpio4.vendor.camel.component.sesame;
 
+import com.scorpio4.vendor.sesame.util.QueryTools;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
 import org.apache.camel.Message;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -35,22 +37,35 @@ public class SesameHandler implements Processor {
 	boolean inferred = true, autoClose = false;
 	private int maxQueryTime = -1;
 	String sparql = null;
+	String outputType;
 
-	public SesameHandler(RepositoryConnection connection, String sparql, boolean isInferred, int maxQueryTime, boolean autoClose) {
+	public SesameHandler(RepositoryConnection connection, String sparql, boolean isInferred, int maxQueryTime, String outputType, boolean autoClose) {
 		this.connection=connection;
 		this.sparql=sparql;
 		this.inferred=isInferred;
 		this.maxQueryTime=maxQueryTime;
 		this.autoClose=autoClose;
-		log.debug("SPARQLHandler: "+sparql);
+		this.outputType = outputType;
+		log.debug("SesameHandler: "+ outputType +" -> "+sparql);
 	}
 
 	@Override
 	@Handler
 	public void process(Exchange exchange) throws Exception {
 		Map<String,Object> headers = exchange.getIn().getHeaders();
+		Message out = exchange.getIn();
+		out.setHeaders(headers);
 
+		// SPARQL query is specified in message Body not in declaration
 		if (sparql==null||sparql.equals ("")) {
+
+			String contentType = this.outputType;
+			contentType = contentType==null? ExchangeHelper.getContentType(exchange):contentType;
+			if (contentType==null||contentType.equals("")) {
+				log.debug("Accept-Types:"+headers.get("Accept"));
+				contentType = (String) headers.get("Accept");
+			}
+
 			sparql = exchange.getIn().getBody(String.class);
 			if ( sparql==null||sparql.equals ("") ) {
 				sparql = (String) headers.get("sparql.query");
@@ -60,29 +75,29 @@ public class SesameHandler implements Processor {
 			} else log.debug("Body SPARQL: "+sparql);
 		} else log.debug("Parameter SPARQL: "+sparql);
 
-		String contentType = ExchangeHelper.getContentType(exchange);
-		if (contentType==null||contentType.equals("")) {
-			log.debug("Accept-Types:"+headers.get("Accept"));
-			contentType = (String) headers.get("Accept");
-		}
 
-		TupleQueryResultFormat parserFormatForMIMEType = QueryResultIO.getParserFormatForMIMEType(contentType, TupleQueryResultFormat.JSON);
-		headers.put("Content-Type", parserFormatForMIMEType.getDefaultMIMEType()+";"+parserFormatForMIMEType.getCharset());
+		TupleQueryResultFormat parserFormatForMIMEType = QueryResultIO.getParserFormatForMIMEType(outputType, null);
+		if (parserFormatForMIMEType!=null) {
+			headers.put("Content-Type", parserFormatForMIMEType.getDefaultMIMEType()+";"+parserFormatForMIMEType.getCharset());
+		}
 
 //		headers.put("sparql.query", sparql);
 
 		// prepare SPARQL/XML results
-		StringWriter stringWriter = handle(sparql, parserFormatForMIMEType);
-		log.trace(stringWriter.toString());
+		log.debug("FLO SPARQL: "+parserFormatForMIMEType+" -> "+sparql);
+		if (parserFormatForMIMEType!=null) {
+			StringWriter stringWriter = handle(sparql, parserFormatForMIMEType);
+			log.trace(stringWriter.toString());
 
-		// output message
-		String results = stringWriter.toString();
-		log.debug("SPARQL HEADERS: "+contentType+"\n"+headers);
-		log.debug("\tQuery: "+sparql);
+			// output message
+			String results = stringWriter.toString();
+			out.setBody(results);
+		} else {
+			Collection<Map> body = QueryTools.toCollection(connection, sparql);
+			out.setBody(body);
+		}
 
-		Message out = exchange.getIn();
-		out.setBody(results);
-		out.setHeaders(headers);
+		log.debug("SPARQL HEADERS: "+ outputType +"\n"+headers);
 //		exchange.setPattern(ExchangePattern.InOut);
 //		out.setAttachments(exchange.getIn().getAttachments());
 		if (autoClose) {

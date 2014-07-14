@@ -62,7 +62,7 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 		// TODO: Find a better way to register them
 		camel.addComponent("self", new SelfComponent(engine));
 		camel.addComponent("any23", new Any23Component());
-		camel.addComponent("sparql", new SesameComponent(engine.getRepositoryManager()));
+		camel.addComponent("sparql", new SesameComponent(engine));
 //		camel.addComponent("curate", new CurateComponent(engine));
 
 		FactSpace factSpace = new FactSpace(engine.getIdentity(), engine.getRepository());

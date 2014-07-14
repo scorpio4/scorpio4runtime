@@ -86,7 +86,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		activeVocabulary.start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void xrun() {
+			public void run() {
 				try {
 					activeVocabulary.activate("direct:self:graceful", self);
 					log.error("Graceful shutdown ...");

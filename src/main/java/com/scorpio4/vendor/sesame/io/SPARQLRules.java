@@ -1,6 +1,6 @@
 package com.scorpio4.vendor.sesame.io;
 /*
- *   Scorpio4 - CONFIDENTIAL
+ *   Scorpio4 - Apache Licensed
  *   Copyright (c) 2009-2014 Lee Curtis, All Rights Reserved.
  *
  *  25/04/2014 re-licensed BSD License [Lee Curtis].
