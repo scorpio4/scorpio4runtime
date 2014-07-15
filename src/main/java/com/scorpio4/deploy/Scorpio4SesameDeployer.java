@@ -12,7 +12,7 @@ import com.scorpio4.oops.FactException;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.util.Steps;
 import com.scorpio4.util.io.StreamCopy;
-import com.scorpio4.vendor.sesame.io.SPARQLRules;
+import com.scorpio4.vendor.sesame.util.SesameHelper;
 import com.scorpio4.vocab.COMMON;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
@@ -121,7 +121,7 @@ public class Scorpio4SesameDeployer implements Identifiable {
         try {
             getConnection().clear(this.provenanceContext);
 	        getConnection().commit();
-	        SPARQLRules.defaultNamespaces(getConnection());
+	        SesameHelper.defaultNamespaces(getConnection());
         } catch (RepositoryException e) {
             throw new FactException("Obliterate failed: "+e.getMessage(), e);
         }

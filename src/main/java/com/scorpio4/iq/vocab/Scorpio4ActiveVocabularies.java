@@ -58,5 +58,6 @@ public class Scorpio4ActiveVocabularies implements ActiveVocabulary {
 		while ( getCamelContext().isStartingRoutes()) {
 			Thread.sleep(100);
 		}
+		log.debug("FLO has finished booting.");
 	}
 }

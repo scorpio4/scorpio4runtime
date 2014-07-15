@@ -16,6 +16,10 @@ import java.io.IOException;
  * User  : lee
  * Date  : 1/05/2014
  * Time  : 3:35 PM
+ *
+ * RDF-based Asset Register that default to core:hasAsset
+ * Attempts any literal, but a correctly typed literal is preferred.
+ *
  */
 public class SesameAssetRegister extends BaseAssetRegister {
 	private static final Logger log = LoggerFactory.getLogger(SesameAssetRegister.class);
@@ -51,24 +55,24 @@ public class SesameAssetRegister extends BaseAssetRegister {
 			RepositoryResult<Statement> statements = connection.getStatements(s , p, null, inferred);
 			String script = null;
 			log.info("getSesameAsset(): "+s+" -> "+p+" -> "+statements.hasNext());
-			for(Statement statement: statements.asList()) {
+			while(statements.hasNext()) {
+				Statement statement = statements.next();
 				Value object = statement.getObject();
 				if (object instanceof Literal) {
 					Literal literal = (Literal)object;
 					URI datatype = literal.getDatatype();
-					if (type!=null) {
+					if (type!=null && datatype!=null) {
 						if (type.equals(datatype.toString())) {
 							script = literal.stringValue();
-							log.info("Typed Script: "+statement.getSubject());
+							log.info("Matched Script: "+statement.getSubject());
 						} else {
-							script = literal.stringValue();
-							log.info("Mis-typed ("+datatype.toString()+" & "+type+"): "+statement.getSubject());
+							log.warn("Mis-typed (" + datatype.toString() + " & " + type + "): " + statement.getSubject());
 						}
 
 					} else if (script == null || script.equals("")) {
 						type = datatype==null?null:datatype.toString();
 						script = literal.stringValue();
-						log.warn("Default Script: "+statement.getSubject()+" -> "+type);
+						log.debug("Data-Typed: " + statement.getSubject() + " -> " + type);
 					} else {
 						log.debug("Skipping: "+statement.getSubject());
 					}
@@ -77,7 +81,9 @@ public class SesameAssetRegister extends BaseAssetRegister {
 				}
 			}
 			log.info("Found "+type+" @ "+uri+" --> "+(script!=null?true:false));
-			return script==null?null:new Asset(uri, script,type);
+			if (type==null) throw new IOException("Unknown data-type for Asset: "+uri);
+//			if (script==null) throw new IOException("Unknown data-type for Asset: "+uri);
+			return script==null?null:new Asset(uri, script, type);
 		} catch (RepositoryException e) {
 			throw new IOException(e.getMessage(),e);
 		}

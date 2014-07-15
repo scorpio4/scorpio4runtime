@@ -6,7 +6,7 @@ import com.scorpio4.oops.FactException;
 import com.scorpio4.oops.IQException;
 import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.template.PicoTemplate;
-import com.scorpio4.vendor.sesame.util.QueryTools;
+import com.scorpio4.vendor.sesame.util.SesameHelper;
 import org.apache.camel.Exchange;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -39,7 +39,8 @@ public class SPARQL extends Base {
 
 		PicoTemplate picoTemplate = new PicoTemplate(asset.toString());
 		RepositoryConnection connection = getEngine().getRepository().getConnection();
-		Collection<Map> result = QueryTools.toCollection(connection, picoTemplate.translate(headers));
+
+		Collection<Map> result = SesameHelper.toMapCollection(connection, picoTemplate.translate(headers));
 		exchange.getOut().setBody(result);
 		connection.close();
 

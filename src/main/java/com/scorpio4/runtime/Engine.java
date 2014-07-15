@@ -40,6 +40,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 
 	ActiveVocabulary activeVocabulary;
 	private CachedBeanFactory beanFactory;
+	private ClassLoader classloader;
 
 	protected Engine() {
 	}
@@ -52,6 +53,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		log.debug("Engine: "+identity);
 		this.properties=properties;
 		this.manager=manager;
+		this.classloader = Thread.currentThread().getContextClassLoader();
 		boot(identity);
 	}
 
@@ -104,6 +106,15 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		stop();
 		boot(getIdentity());
 		start();
+	}
+
+	@Override
+	public ClassLoader getClassLoader() {
+		return classloader;
+	}
+
+	public void setClassLoader(ClassLoader classloader) {
+		this.classloader = classloader;
 	}
 
 	public void run() {

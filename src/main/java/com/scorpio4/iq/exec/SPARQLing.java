@@ -4,7 +4,7 @@ import com.scorpio4.assets.Asset;
 import com.scorpio4.oops.ConfigException;
 import com.scorpio4.oops.IQException;
 import com.scorpio4.template.PicoTemplate;
-import com.scorpio4.vendor.sesame.util.QueryTools;
+import com.scorpio4.vendor.sesame.util.SesameHelper;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
@@ -58,7 +58,7 @@ class NotSPARQLFuture implements Future {
 
     public NotSPARQLFuture(SPARQLing sparqLing, Asset asset, Map paramaters) throws IQException, RepositoryException, QueryEvaluationException, MalformedQueryException, IOException, ConfigException {
         PicoTemplate picoTemplate = new PicoTemplate(asset.toString());
-        result = QueryTools.toCollection(sparqLing.connection, picoTemplate.translate(paramaters));
+        result = SesameHelper.toMapCollection(sparqLing.connection, picoTemplate.translate(paramaters));
     }
 
     @Override

@@ -34,7 +34,7 @@ public class SelfComponent extends ClassComponent {
 		} else if (remaining.startsWith("infer:")) {
 			executable = new Infer(engine, remaining.substring(6));
 		} else if (remaining.startsWith("template:")) {
-			executable = new AssetTemplate(engine, remaining.substring(8));
+			executable = new AssetTemplate(engine, remaining.substring(9));
 		} else if (remaining.startsWith("sparql:")) {
 			executable = new SPARQL(engine, remaining.substring(7));
 		} else if (remaining.startsWith("asset:")) {

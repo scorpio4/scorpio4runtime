@@ -23,7 +23,7 @@ import java.util.Date;
  * Date  : 31/12/2013
  * Time  : 9:24 PM
  */
-public class BeanConverter implements ConvertsType {
+public class XSD2POJOConverter implements ConvertsType {
     public final static String NULL = "null";
 
     public static boolean isBasicType(Class type) {

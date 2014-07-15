@@ -1,7 +1,7 @@
 package com.scorpio4.vendor.sesame.crud;
 
 import com.scorpio4.oops.FactException;
-import com.scorpio4.vendor.sesame.util.QueryTools;
+import com.scorpio4.vendor.sesame.util.SesameHelper;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
@@ -37,7 +37,7 @@ public class SesameRead {
 
     public Collection<Map> execute() throws FactException {
         try {
-            return QueryTools.toCollection(connection, sparql);
+            return SesameHelper.toMapCollection(connection, sparql);
         } catch (IOException e) {
             throw new FactException(e.getMessage(),e);
         } catch (RepositoryException e) {

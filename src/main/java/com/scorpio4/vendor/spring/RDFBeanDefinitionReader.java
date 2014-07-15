@@ -1,6 +1,6 @@
 package com.scorpio4.vendor.spring;
 
-import com.scorpio4.iq.bean.BeanConverter;
+import com.scorpio4.iq.bean.XSD2POJOConverter;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.util.RDFCollections;
 import com.scorpio4.vendor.sesame.util.RDFScalars;
@@ -47,7 +47,7 @@ public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implem
 	String ontology = NS;
 	RepositoryConnection connection;
 	ValueFactory vf = null;
-	BeanConverter converter = new BeanConverter();
+	XSD2POJOConverter converter = new XSD2POJOConverter();
 	protected Map reserved = new HashMap();
 	RDFCollections rdfCollections;
 	RDFScalars rdfScalars;

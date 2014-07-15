@@ -14,6 +14,10 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.impl.DefaultFactoryFinderResolver;
+import org.apache.camel.spi.ClassResolver;
+import org.apache.camel.spi.FactoryFinder;
+import org.apache.camel.spi.FactoryFinderResolver;
 import org.apache.camel.spring.spi.ApplicationContextRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,23 +55,19 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 	}
 
 	protected void bootCamel(ExecutionEnvironment engine) throws Exception {
-		ApplicationContext registry = engine.getRegistry();
 
-		// Camel
-		this.camel = new DefaultCamelContext(new ApplicationContextRegistry(registry));
-		camel.setProperties(engine.getConfig());
-		camel.setTracing(tracing);
+		createCamel(engine);
 
-		// custom Scorpio4 components
+		FactSpace factSpace = new FactSpace(engine.getIdentity(), engine.getRepository());
+		SesameCRUD crud = new SesameCRUD(factSpace);
+
+		// Custom Components
 		// TODO: Find a better way to register them
+		camel.addComponent("crud", new CRUDComponent(crud));
 		camel.addComponent("self", new SelfComponent(engine));
 		camel.addComponent("any23", new Any23Component());
 		camel.addComponent("sparql", new SesameComponent(engine));
 //		camel.addComponent("curate", new CurateComponent(engine));
-
-		FactSpace factSpace = new FactSpace(engine.getIdentity(), engine.getRepository());
-		SesameCRUD crud = new SesameCRUD(factSpace);
-		camel.addComponent("crud", new CRUDComponent(crud));
 
 		floSupport = new RDFCamelPlanner(camel, factSpace );
 
@@ -76,6 +76,45 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 		factSpace.close();
 
 		log.debug("Active FLO Booted: "+engine.getIdentity());
+	}
+
+	private void createCamel(ExecutionEnvironment engine) {
+		// Camel
+		ApplicationContext registry = engine.getRegistry();
+		this.camel = new DefaultCamelContext(new ApplicationContextRegistry(registry));
+		camel.setProperties(engine.getConfig());
+		camel.setTracing(tracing);
+		camel.setTypeConverterStatisticsEnabled(true);
+//		camel.setApplicationContextClassLoader(engine.getClassLoader());
+		final DefaultFactoryFinderResolver defaultFactoryFinderResolver = new DefaultFactoryFinderResolver();
+// EXPERIMENT - what does this do? Will it solve the JAXRS service resolution problem?
+		camel.setFactoryFinderResolver(new FactoryFinderResolver() {
+
+			/**
+			 * Creates a new default factory finder using a default resource path.
+			 *
+			 * @param classResolver the class resolver to use
+			 * @return a factory finder.
+			 */
+			@Override
+			public FactoryFinder resolveDefaultFactoryFinder(ClassResolver classResolver) {
+				log.debug("resolveDefaultFactoryFinder: "+classResolver);
+				return defaultFactoryFinderResolver.resolveDefaultFactoryFinder(classResolver);
+			}
+
+			/**
+			 * Creates a new factory finder.
+			 *
+			 * @param classResolver the class resolver to use
+			 * @param resourcePath  the resource path as base to lookup files within
+			 * @return a factory finder.
+			 */
+			@Override
+			public FactoryFinder resolveFactoryFinder(ClassResolver classResolver, String resourcePath) {
+				log.debug("resolveDefaultFactoryFinder: "+resourcePath+" @ "+classResolver);
+				return defaultFactoryFinderResolver.resolveFactoryFinder(classResolver, resourcePath);
+			}
+		});
 	}
 
 	private void bootSelf(final ExecutionEnvironment engine) throws Exception {
@@ -99,7 +138,7 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 //				});
 			}
 		};
-		camel.addRoutes(routeBuilder);
+		addRoutes(routeBuilder);
 
 		routeBuilder = new RouteBuilder() {
 			@Override
@@ -118,15 +157,16 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 //				});
 			}
 		};
-		camel.addRoutes(routeBuilder);
+		addRoutes(routeBuilder);
 	}
 
 	public void start() throws Exception {
 		camel.start();
 	}
 
-	public void addRoutes(RouteBuilder routeBuilder) throws Exception {
+	protected void addRoutes(RouteBuilder routeBuilder) throws Exception {
 		camel.addRoutes(routeBuilder);
+		log.trace("Route Added: "+routeBuilder);
 	}
 
 	public void stop() throws Exception {

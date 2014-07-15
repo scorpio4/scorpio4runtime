@@ -1,6 +1,5 @@
 package com.scorpio4.vendor.camel.component;
 
-import com.scorpio4.oops.IQException;
 import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.camel.component.sesame.SesameHandler;
 import org.apache.camel.Endpoint;
@@ -9,7 +8,6 @@ import org.apache.camel.component.bean.BeanProcessor;
 import org.apache.camel.component.bean.ClassComponent;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.config.RepositoryResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,13 +56,9 @@ public class SesameComponent extends ClassComponent {
 		if (remaining.equals("self")) remaining = identity;
 		repository = manager.getRepository(remaining);
 
-		RepositoryConnection connection = repository.getConnection();
-
-		if (connection==null) throw new IQException("Failed to resolve connection: "+remaining);
 		log.debug("SPARQL Repository: "+remaining);
-		log.debug("SPARQL ("+contentType+") Query: "+sparql);
 		return new BeanEndpoint(uri, this, new BeanProcessor(
-			new SesameHandler(connection, sparql, isInferred, maxQueryTime, contentType, true ), getCamelContext()));
+			new SesameHandler(repository, sparql, isInferred, maxQueryTime, contentType ), getCamelContext()));
 	}
 
 }

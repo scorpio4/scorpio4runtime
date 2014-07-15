@@ -46,7 +46,7 @@ public class BeanBuilder implements FactStream {
 	public String INSTANCE_OF = baseURI+"asa";
 
 	protected Object delegate = null;
-	protected ConvertsType convertsType = new BeanConverter();
+	protected ConvertsType convertsType = new XSD2POJOConverter();
 	protected boolean buildExamples = true;
 
 	public BeanBuilder() {

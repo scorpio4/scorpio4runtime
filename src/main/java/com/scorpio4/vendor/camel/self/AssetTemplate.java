@@ -7,11 +7,13 @@ import com.scorpio4.oops.FactException;
 import com.scorpio4.oops.IQException;
 import com.scorpio4.runtime.ExecutionEnvironment;
 import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -31,14 +33,27 @@ public class AssetTemplate extends Base {
 
 	@Override
 	public void execute(Exchange exchange) throws RepositoryException, ExecutionException, IQException, InterruptedException, IOException, AssetNotSupported, FactException, ConfigException, QueryEvaluationException, MalformedQueryException {
-		Map<String,Object> headers = exchange.getIn().getHeaders();
-		exchange.getOut().setHeaders(headers);
-		exchange.getOut().setAttachments(exchange.getIn().getAttachments());
+		Message in = exchange.getIn();
+		Map<String,Object> headers = in.getHeaders();
+		Message out = exchange.getOut();
 
 		Templating templating = new Templating();
-		Future done = templating.execute(asset, headers);
-		exchange.getOut().setBody(done.get());
+		Map bindings = new HashMap();
 
+		bindings.put("config", getEngine().getConfig());
+		bindings.put("in", in);
+		bindings.put("headers", headers);
+		bindings.put("attachments", in.getAttachments() );
+
+
+		bindings.put("body", in.getBody());
+
+		log.debug("Template Bindings: "+bindings);
+		Future done = templating.execute(asset, bindings);
+
+		out.setBody(done.get(), String.class);
+		out.setHeaders(headers);
+		out.setAttachments(exchange.getIn().getAttachments());
 	}
 
 }
