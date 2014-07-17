@@ -27,8 +27,8 @@ import java.util.Map;
  *
  *
  */
-public class Sesame2ASQ implements ASQParser {
-	static protected final Logger log = LoggerFactory.getLogger(Sesame2ASQ.class);
+public class ASQ4Sesame implements ASQParser {
+	static protected final Logger log = LoggerFactory.getLogger(ASQ4Sesame.class);
 
 	private ASQ asq = null;
 	private RepositoryConnection connection;
@@ -36,7 +36,7 @@ public class Sesame2ASQ implements ASQParser {
 	String vocabURI = COMMON.CORE+"asq/";
 	Map patternVerbs = new HashMap();
 
-	public Sesame2ASQ(RepositoryConnection connection, String  asqURI) throws RepositoryException, ASQException {
+	public ASQ4Sesame(RepositoryConnection connection, String asqURI) throws RepositoryException, ASQException {
 		build(connection, asqURI);
 	}
 

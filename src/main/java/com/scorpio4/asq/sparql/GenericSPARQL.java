@@ -8,9 +8,7 @@ import com.scorpio4.asq.ASQ;
 import com.scorpio4.asq.core.LiteralTerm;
 import com.scorpio4.asq.core.Pattern;
 import com.scorpio4.asq.core.Term;
-import com.scorpio4.oops.ASQException;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -31,8 +29,7 @@ public abstract class GenericSPARQL {
         Collection<Pattern> patterns = asq.getPatterns();
         if (patterns==null||patterns.size()==0) return;
 
-        for(String key: asq.getBindings().keySet()) {
-            Term term = asq.getBindings().get(key);
+        for(Term term: asq.getSelects()) {
             buildProjection(sparql, term);
         }
     }
@@ -114,11 +111,11 @@ public abstract class GenericSPARQL {
         }
     }
 
-    public void bind(String var, String term) throws ASQException {
-        ArrayList terms = new ArrayList();
-        terms.add(new Term(null, term));
-        bind(var,terms);
-    }
+//    public void bind(String var, String term) throws ASQException {
+//        ArrayList terms = new ArrayList();
+//        terms.add(new Term(null, term));
+//        bind(var,terms);
+//    }
 
     public void bind(String var, Collection<Term> terms) {
         sparql.append("BINDINGS ").append(var).append(" { (");

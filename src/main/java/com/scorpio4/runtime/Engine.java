@@ -77,10 +77,6 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		activeVocabulary = new Scorpio4ActiveVocabularies(this);
 	}
 
-	public void setActiveVocabulary(ActiveVocabulary activeVocabulary) {
-		this.activeVocabulary = activeVocabulary;
-	}
-
 	public void start() throws Exception {
 		log.debug("Starting Engine");
 		final Engine self = this;

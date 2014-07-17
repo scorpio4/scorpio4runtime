@@ -5,7 +5,6 @@ import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vendor.spring.RDFBeanDefinitionReader;
 import com.scorpio4.vocab.COMMON;
-import org.openrdf.repository.RepositoryConnection;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 
@@ -24,7 +23,6 @@ public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
 
 	public ActiveBeansVocabulary(ExecutionEnvironment engine) throws Exception {
 		super(COMMON.CORE+"bean/",engine, true);
-		start();
 	}
 
 	@Override

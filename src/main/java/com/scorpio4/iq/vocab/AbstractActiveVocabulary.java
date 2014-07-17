@@ -24,8 +24,12 @@ public abstract class AbstractActiveVocabulary  implements ActiveVocabulary {
 	protected ValueFactory vf = null;
 
 	public AbstractActiveVocabulary(String vocabURI, ExecutionEnvironment engine, boolean useInferencing) throws Exception {
+		if (vocabURI==null) throw new IQException("Missing Vocabulary URI");
+		if (engine==null) throw new IQException("Missing Vocabulary Engine");
+
 		this.vocabURI=vocabURI;
 		this.useInferencing=useInferencing;
+
 		boot(engine);
 	}
 

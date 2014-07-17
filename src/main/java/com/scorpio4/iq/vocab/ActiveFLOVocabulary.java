@@ -31,13 +31,12 @@ import org.springframework.context.ApplicationContext;
 public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 	public final static String DO_BOOTSTRAP = "direct:self:active";
 
-	private RDFCamelPlanner floSupport;
-	private CamelContext camel = null;
-	private boolean tracing = true;
+	protected RDFCamelPlanner floSupport;
+	protected CamelContext camel = null;
+	protected boolean tracing = true;
 
 	public ActiveFLOVocabulary(ExecutionEnvironment engine) throws Exception {
 		super(COMMON.ACTIVE_FLO, engine, true);
-		start();
 	}
 
 	@Override
@@ -45,11 +44,9 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 		bootCamel(engine);
 		bootSelf(engine);
 		activate(DO_BOOTSTRAP, engine.getConfig());
-
 	}
 
 	protected void bootCamel(final ExecutionEnvironment engine) throws Exception {
-
 		createCamel(engine);
 
 		FactSpace factSpace = new FactSpace(engine.getIdentity(), engine.getRepository());
@@ -110,6 +107,7 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 				return defaultFactoryFinderResolver.resolveFactoryFinder(classResolver, resourcePath);
 			}
 		});
+		log.debug("Create Camel");
 	}
 
 	private void bootSelf(final ExecutionEnvironment engine) throws Exception {

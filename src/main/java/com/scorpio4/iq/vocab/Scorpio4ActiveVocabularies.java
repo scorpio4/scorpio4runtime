@@ -2,8 +2,6 @@ package com.scorpio4.iq.vocab;
 
 import com.scorpio4.runtime.ExecutionEnvironment;
 import org.apache.camel.CamelContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * scorpio4-oss (c) 2014
@@ -13,7 +11,6 @@ import org.slf4j.LoggerFactory;
  * Time  : 11:47 PM
  */
 public class Scorpio4ActiveVocabularies extends AbstractActiveVocabulary {
-	final Logger log = LoggerFactory.getLogger(this.getClass());
 	ActiveBeansVocabulary springBeans;
 	ActiveFLOVocabulary flo;
 	ASQVocabulary asq;
@@ -23,11 +20,11 @@ public class Scorpio4ActiveVocabularies extends AbstractActiveVocabulary {
 	}
 
 	public void boot(ExecutionEnvironment engine) throws Exception {
+		this.asq = new ASQVocabulary(engine);
 		this.springBeans = new ActiveBeansVocabulary(engine);
 		this.flo = new ActiveFLOVocabulary(engine);
-		this.asq = new ASQVocabulary(engine);
 
-		log.debug("Booted Active Vocabularies: "+engine.getIdentity());
+		log.debug("Booted Active Vocabularies: "+engine);
 	}
 
 	@Override

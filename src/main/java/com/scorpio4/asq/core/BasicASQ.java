@@ -26,6 +26,7 @@ public class BasicASQ implements ASQ, Bindable {
     Set<Pattern> functions = new HashSet();
     private Map<String,Term> bindings = new HashMap();
     private Properties ns = JarHelper.loadProperties("META-INF/rdf.namespace.props");
+	private List<Term> selects = new ArrayList();
 
     public BasicASQ(String _baseURI) {
         this.identity = _baseURI;
@@ -123,6 +124,15 @@ public class BasicASQ implements ASQ, Bindable {
         }
         return _this;
     }
+
+	public void select(Term term) {
+		selects.add(term);
+	}
+
+	public Collection<Term> getSelects() {
+		if (selects.isEmpty()) return getBindings().values();
+		return selects;
+	}
 
     public boolean isEmpty() {
         return clauses.isEmpty();

@@ -10,6 +10,7 @@ import com.scorpio4.asq.core.Term;
 import com.scorpio4.oops.ASQException;
 import com.scorpio4.util.Identifiable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,6 @@ public interface ASQ extends Identifiable {
 
     public Term bind(Term term);
     public Map<String,Term> getBindings();
-
+	public Collection<Term> getSelects();
     public Set<Pattern> getFunctions();
 }

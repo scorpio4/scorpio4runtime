@@ -1,6 +1,6 @@
 package com.scorpio4.iq.vocab;
 
-import com.scorpio4.asq.parser.Sesame2ASQ;
+import com.scorpio4.asq.parser.ASQ4Sesame;
 import com.scorpio4.asq.sparql.ConstructSPARQL;
 import com.scorpio4.asq.sparql.SelectSPARQL;
 import com.scorpio4.assets.SesameAssetRegister;
@@ -80,7 +80,7 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 				SelectSPARQL sparql = toSPARQL(aThis, select);
 				if (sparql!=null) {
 					updateAsset(aThis, sparql);
-					seen.put(aThis,true);
+					seen.put(aThis, true);
 				}
 			}
 		}
@@ -138,7 +138,7 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 		if (isQuery || isInference) {
 			try {
 				log.debug("toSELECT: "+queryURI);
-				Sesame2ASQ selectASQ = new Sesame2ASQ(connection, asqURI);
+				ASQ4Sesame selectASQ = new ASQ4Sesame(connection, asqURI);
 				return new SelectSPARQL(selectASQ.getASQ());
 			} catch (RepositoryException e) {
 				e.printStackTrace();
@@ -155,8 +155,8 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 		URI whenURI = scalars.getURI(queryURI, whenVerb);
 		if (whenURI!=null) {
 			log.debug("Learn: "+learnURI+" -> "+whenURI);
-			Sesame2ASQ whenASQ = new Sesame2ASQ(connection,whenURI.stringValue());
-			Sesame2ASQ learnASQ = new Sesame2ASQ(connection,learnURI.stringValue());
+			ASQ4Sesame whenASQ = new ASQ4Sesame(connection,whenURI.stringValue());
+			ASQ4Sesame learnASQ = new ASQ4Sesame(connection,learnURI.stringValue());
 			return new ConstructSPARQL(learnASQ.getASQ(), whenASQ.getASQ());
 		}
 		throw new ASQException("Unbound ASQ: No 'when' for 'learn' in: "+learnURI);

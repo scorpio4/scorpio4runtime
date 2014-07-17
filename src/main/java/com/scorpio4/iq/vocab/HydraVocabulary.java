@@ -22,7 +22,6 @@ public class HydraVocabulary extends AbstractActiveVocabulary {
 
 	public HydraVocabulary(ExecutionEnvironment engine) throws Exception {
 		super(BASE, engine, false);
-		start();
 	}
 
 	@Override
