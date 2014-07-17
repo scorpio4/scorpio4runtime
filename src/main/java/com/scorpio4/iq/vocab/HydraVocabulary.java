@@ -8,8 +8,6 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * scorpio4-oss (c) 2014
@@ -18,24 +16,18 @@ import org.slf4j.LoggerFactory;
  * Date  : 9/07/2014
  * Time  : 12:40 AM
  */
-public class HydraVocabulary implements ActiveVocabulary {
-	static final Logger log = LoggerFactory.getLogger(HydraVocabulary.class);
+public class HydraVocabulary extends AbstractActiveVocabulary {
 
 	public static String BASE = "http://www.w3.org/ns/hydra/core#";
-	boolean useInferencing = false;
-
-	public HydraVocabulary() {
-	}
 
 	public HydraVocabulary(ExecutionEnvironment engine) throws Exception {
-		boot(engine);
+		super(BASE, engine, false);
+		start();
 	}
 
 	@Override
 	public void boot(ExecutionEnvironment engine) throws Exception {
-		RepositoryConnection connection = engine.getRepository().getConnection();
-		ValueFactory vf = connection.getValueFactory();
-
+		super.boot(engine);
 		RepositoryResult<Statement> apiDocs = connection.getStatements(vf.createURI(engine.getIdentity()), vf.createURI(BASE + "apiDocumentation"), null, useInferencing);
 		while(apiDocs.hasNext()) {
 			bootAPI(connection, apiDocs.next().getObject());
@@ -59,16 +51,6 @@ public class HydraVocabulary implements ActiveVocabulary {
 			Statement template = templates.next();
 			log.debug("Hydra Template: "+template);
 		}
-	}
-
-	@Override
-	public void start() throws Exception {
-
-	}
-
-	@Override
-	public void stop() throws Exception {
-
 	}
 
 	@Override

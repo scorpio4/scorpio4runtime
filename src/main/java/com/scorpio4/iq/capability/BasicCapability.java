@@ -12,12 +12,18 @@ import java.util.Map;
  * Time  : 12:32 AM
  */
 public class BasicCapability implements Bindable {
+	Map bindings;
 
     public BasicCapability() {
     }
 
     @Override
     public void bind(Map bindings) {
-
+		this.bindings=bindings;
     }
+
+	@Override
+	public Map getBindings() {
+		return bindings;
+	}
 }

@@ -33,9 +33,15 @@ public class SPARQLRules {
     String ctx = null;
     boolean isInferred = false;
 
-	public SPARQLRules(RepositoryConnection from, String ctx) {
+	public SPARQLRules(RepositoryConnection from, String ctx, boolean isInferred) {
 		this.from = from;
         this.ctx = ctx;
+		this.isInferred=isInferred;
+	}
+
+	public SPARQLRules(RepositoryConnection from, String ctx) {
+		this.from = from;
+		this.ctx = ctx;
 	}
 
     public void clean(RepositoryConnection to) throws RepositoryException {

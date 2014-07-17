@@ -1,15 +1,20 @@
 package com.scorpio4.vendor.camel.flo;
 
+import com.github.fge.uritemplate.URITemplateParseException;
 import com.scorpio4.assets.Asset;
 import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.SesameAssetRegister;
-import com.scorpio4.fact.FactSpace;
 import com.scorpio4.iq.exec.Scripting;
+import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.util.RDFCollections;
+import com.scorpio4.vendor.util.IRITemplate;
 import com.scorpio4.vocab.COMMON;
 import org.apache.camel.*;
-import org.apache.camel.builder.*;
+import org.apache.camel.builder.DataFormatClause;
+import org.apache.camel.builder.ExpressionBuilder;
+import org.apache.camel.builder.PredicateBuilder;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.ChoiceDefinition;
 import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
@@ -26,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * Scorpio (c) 2014
@@ -37,21 +43,29 @@ import java.util.Map;
 public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 	static protected final Logger log = LoggerFactory.getLogger(RDFCamelPlanner.class);
 
-	FactSpace factSpace = null;
 	int count = 0;
+	RepositoryConnection connection;
 	AssetRegister assetRegister = null;
 	String vocabURI = COMMON.ACTIVE_FLO;
 	URI TO = null;
+	private ExecutionEnvironment engine;
 
-	public RDFCamelPlanner(CamelContext camelContext, FactSpace factSpace) throws Exception {
-		super(camelContext);
-		init(factSpace);
+	public void setEngine(ExecutionEnvironment engine) {
+		this.engine = engine;
 	}
 
-	private void init(FactSpace factSpace) throws RepositoryException {
-		this.factSpace=factSpace;
-		assetRegister = new SesameAssetRegister(factSpace.getConnection());
-		TO = factSpace.getConnection().getValueFactory().createURI(getVocabURI() + "to");
+	boolean useInferencing = false;
+
+	public RDFCamelPlanner(CamelContext camelContext, ExecutionEnvironment engine) throws Exception {
+		super(camelContext);
+		init(engine);
+	}
+
+	private void init(ExecutionEnvironment engine) throws RepositoryException {
+		this.engine=engine;
+		this.connection = engine.getRepository().getConnection();
+		assetRegister = new SesameAssetRegister(connection);
+		TO = connection.getValueFactory().createURI(getVocabURI() + "to");
 	}
 
 	public void setVocabURI(String prefix) {
@@ -63,15 +77,14 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 	}
 
 	public int plan() throws Exception {
-		return plan(factSpace.getIdentity());
+		return plan(getIdentity());
 	}
 
 	public int plan(final String routeURI) throws Exception {
-		final RepositoryConnection connection = factSpace.getConnection();
 		final ValueFactory vf = connection.getValueFactory();
 		String FROM = toVocabURI("from");
 		log.debug("Plan Route: "+routeURI+" -> "+FROM);
-		RepositoryResult<Statement> froms = connection.getStatements(vf.createURI(routeURI), vf.createURI(FROM), null, false);
+		RepositoryResult<Statement> froms = connection.getStatements(vf.createURI(routeURI), vf.createURI(FROM), null, useInferencing);
 		Map seen = new HashMap();
 		while(froms.hasNext()){
 			Statement next = froms.next();
@@ -87,13 +100,18 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 //					errorHandler(deadLetterChannel("mock:error"));
 					log.debug("Configure Route ("+_routeID+") -> "+_from);
 					String from = _from.stringValue();
+					if (IRITemplate.isTemplated(from)) {
+						IRITemplate toTemplate = new IRITemplate(from, engine.getConfig());
+						log.debug("FROM Template: "+from+" -> "+toTemplate);
+						from = toTemplate.toString();
+					}
+
 					log.debug("\troute -> "+from+" @ "+_routeID);
 					RouteDefinition trying = from(from);
 					trying.setId(getIdentity()+"@"+from);
 //					tried.doTry();
-
 					log.debug("\ttrying: " + trying);
-					ProcessorDefinition ended = tryResource(this, connection, trying, (Resource) _from);
+					ProcessorDefinition ended = tryResource(this, trying, (Resource) _from);
 					log.debug("\tended: " + ended+" <- "+trying);
 
 					if (ended.getOutputs().isEmpty()) {
@@ -113,16 +131,16 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		return count;
 	}
 
-	protected ProcessorDefinition tryResource(RouteBuilder routeBuilder, final RepositoryConnection connection, final ProcessorDefinition fromRoute, final Resource from) throws RepositoryException, CamelException, ClassNotFoundException, IOException {
+	protected ProcessorDefinition tryResource(RouteBuilder routeBuilder, final ProcessorDefinition fromRoute, final Resource from) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
 		log.debug("TRY from: "+fromRoute.getId()+" --> "+from);
 
-		RepositoryResult<Statement> plannedRoutes = connection.getStatements(from, null, null, false);
+		RepositoryResult<Statement> plannedRoutes = connection.getStatements(from, null, null, useInferencing);
 		while(plannedRoutes.hasNext()) {
 			Statement next = plannedRoutes.next();
 			String action = next.getPredicate().stringValue();
 			Value to = next.getObject();
 			if (action.startsWith(getVocabURI()) ) {
-				tryAction(routeBuilder, connection, fromRoute, to, next.getPredicate(), action.substring(getVocabURI().length()));
+				tryAction(routeBuilder, fromRoute, to, next.getPredicate(), action.substring(getVocabURI().length()));
 			} else {
 				log.debug("Ignored Predicate: " + action);
 			}
@@ -130,8 +148,13 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		return fromRoute;
 	}
 
-	protected ProcessorDefinition tryAction(RouteBuilder routeBuilder, RepositoryConnection connection, ProcessorDefinition from, Value _to, URI predicate, String action) throws RepositoryException, CamelException, ClassNotFoundException, IOException {
+	protected ProcessorDefinition tryAction(RouteBuilder routeBuilder, ProcessorDefinition from, Value _to, URI predicate, String action) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
 		String to = _to.stringValue();
+		if (IRITemplate.isTemplated(to)) {
+			IRITemplate toTemplate = new IRITemplate(to, engine.getConfig());
+			to = toTemplate.toString();
+		}
+
 		if (to.equals(toVocabURI("stop"))) return from.stop();
 		if (to.equals(toVocabURI("end"))) return from.end();
 		if (to.equals(toVocabURI("endChoice"))) return from.endChoice();
@@ -139,7 +162,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		log.debug("TRY action ->"+ action+" -> "+to);
 
 		if (action.equals("to") || action.equals("do") && _to instanceof Resource) {
-			from = doRouting(routeBuilder, connection, from, (Resource)_to, predicate);
+			from = doRouting(routeBuilder,  from, (Resource)_to, predicate);
 		} else if (action.equals("bean") ) {
 			log.info("to-bean: "+to);
 			from = from.beanRef(to);
@@ -153,13 +176,15 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 			from = from.validate(toExpression(connection, _to, action));
 		} else if (action.equals("multicast")) {
 			from = from.multicast().to(to);
+		} else if (action.equals("log")) {
+			from = from.log(LoggingLevel.DEBUG, to);
 		} else if (action.equals("loadbalance")) {
 			from = from.loadBalance().to(to);
 		} else if (action.startsWith("script")) {
 			from = from.process( toScriptProcessor(connection,_to, action) );
 		} else if (action.startsWith("split")) {
 			if (_to instanceof Literal && _to.stringValue().equals("")) {
-				from = from.split(routeBuilder.body());
+				from = from.split(routeBuilder.body()).shareUnitOfWork();
 			} else {
 				from = from.split(toExpression(connection, _to, action));
 			}
@@ -195,14 +220,14 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		} else if (action.startsWith("delay")) {
 			from = from.delay(toExpression(connection, _to, action));
 		} else if (action.equals("choice")) {
-			from = doChoice(routeBuilder, connection, from.choice(), action, _to);
+			from = doChoice(routeBuilder,  from.choice(), action, _to);
 		} else if (action.equals("when") && from instanceof ChoiceDefinition) {
-			from = doChoice(routeBuilder, connection, (ChoiceDefinition)from, action, _to);
+			from = doChoice(routeBuilder,  (ChoiceDefinition)from, action, _to);
 		} else if (action.equals("otherwise") && from instanceof ChoiceDefinition) {
 			ChoiceDefinition choice = (ChoiceDefinition)from;
 			from = choice.otherwise().to(to);
 		} else if (action.equals("if")) {
-			from = doChoice(routeBuilder, connection, from.choice(), action, _to);
+			from = doChoice(routeBuilder,  from.choice(), action, _to);
 		} else if (action.startsWith("transform")) {
 			from = from.transform(toExpression(connection, _to, action));
 		} else log.warn("??? action: " + action);
@@ -210,13 +235,13 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		return from;
 	}
 
-	private ProcessorDefinition doRouting(RouteBuilder routeBuilder, RepositoryConnection connection, ProcessorDefinition from, Resource _to, URI predicate) throws RepositoryException, CamelException, ClassNotFoundException, IOException {
-		RDFCollections collection = new RDFCollections(connection);
+	private ProcessorDefinition doRouting(RouteBuilder routeBuilder, ProcessorDefinition from, Resource _to, URI predicate) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
+		RDFCollections collection = new RDFCollections(this.connection);
 		if ( !collection.isList(_to) ) {
 			if (_to instanceof BNode) {
 				log.debug("\tTO bnode: "+_to);
 				// blank nodes are multi-cast
-				return tryResource(routeBuilder, connection, from,  _to);
+				return tryResource(routeBuilder, from,  _to);
 			}
 			// otherwise, we must either be a bean or a singleton route
 			String next = _to.stringValue();
@@ -234,7 +259,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		log.debug("\tTO pipeline: "+_to+" x "+pipeline.size()+" -> "+ Arrays.toString(pipeline.toArray()));
 		for(Value to: pipeline) {
 			if (to instanceof BNode) {
-				from = tryResource(routeBuilder, connection, from, (BNode) to);
+				from = tryResource(routeBuilder, from, (BNode) to);
 			} else if (to instanceof URI) {
 				log.info("Route : "+from+" -> "+to);
 				from = from.to(to.stringValue());
@@ -245,16 +270,20 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		return from;
 	}
 
-	ProcessorDefinition doChoice(RouteBuilder routeBuilder, RepositoryConnection connection, ChoiceDefinition from, String action, Value to) throws RepositoryException, CamelException, ClassNotFoundException, IOException {
+
+
+	ProcessorDefinition doChoice(RouteBuilder routeBuilder, ChoiceDefinition from, String action, Value to) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
 		if (to instanceof BNode) {
-			return tryResource(routeBuilder, connection,from,(Resource)to).endChoice();
+			return tryResource(routeBuilder, from,(Resource)to).endChoice();
 		} else if (to instanceof Literal) {
 			return from.when(new LanguageExpression(getActionLanguage(action), to.stringValue())).endChoice();
 		} else if (to instanceof Resource) {
-			return tryResource(routeBuilder, connection,from.when(toPredicate(connection, to, action)),(Resource)to).endChoice();
+			return tryResource(routeBuilder, from.when(toPredicate(connection, to, action)),(Resource)to).endChoice();
 		}
 		return from;
 	}
+
+
 
 	private ProcessorDefinition doConvertBodyTo(ProcessorDefinition from, String to) throws ClassNotFoundException {
 		if (to.startsWith("bean:")) {
@@ -353,7 +382,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 					}
 				};
 			}
-			asset = new Asset(to.stringValue(), to.stringValue(), dataType==null?null:dataType.stringValue());
+			asset = new Asset(to.stringValue(), to.stringValue(), dataType.stringValue());
 		}
 
 		final Scripting scripting = new Scripting();
@@ -377,9 +406,21 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		return getVocabURI()+localName;
 	}
 
+	public boolean isUseInferencing() {
+		return useInferencing;
+	}
+
+	public void setUseInferencing(boolean useInferencing) {
+		this.useInferencing = useInferencing;
+	}
+
+	public ExecutionEnvironment getEngine() {
+		return engine;
+	}
+
 	@Override
 	public String getIdentity() {
-		return factSpace.getIdentity();
+		return engine.getIdentity();
 	}
 }
 class RDFBasedPredicate implements Predicate {
@@ -431,8 +472,8 @@ class ScriptProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		Object body =  scripting.execute(asset, exchange.getIn().getHeaders());
-		exchange.getOut().setBody(body);
+		Future body =  scripting.execute(asset, exchange.getIn().getHeaders());
+		exchange.getOut().setBody(body.get());
 		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 		exchange.getOut().setAttachments(exchange.getIn().getAttachments());
 

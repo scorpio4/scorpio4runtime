@@ -1,6 +1,7 @@
 package com.scorpio4.vendor.sesame.util;
 
 import org.openrdf.model.*;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -28,7 +29,7 @@ public class RDFScalars {
 
 	public RDFScalars(RepositoryConnection connection, String context) {
 		this.connection=connection;
-		vf = connection.getValueFactory();
+		vf = this.connection.getValueFactory();
 		if (context!=null) this.context = vf.createURI(context);
 	}
 
@@ -46,6 +47,11 @@ public class RDFScalars {
 			}
 		}
 		return found;
+	}
+
+	public boolean isTypeOf(Resource s, URI type) throws RepositoryException {
+		if (context!=null) return connection.hasStatement(s, RDF.TYPE, type, useInferred, context);
+		else return connection.hasStatement(s, RDF.TYPE, type, useInferred);
 	}
 
 	public URI getURI(Resource s, URI p) throws RepositoryException {

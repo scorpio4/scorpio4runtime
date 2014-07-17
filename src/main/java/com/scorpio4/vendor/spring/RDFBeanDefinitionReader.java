@@ -45,6 +45,7 @@ public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implem
 	String NS = COMMON.CORE+"bean/";
 	String BEAN = NS +"Bean";
 	String ontology = NS;
+	boolean useInferencing = true;
 	RepositoryConnection connection;
 	ValueFactory vf = null;
 	XSD2POJOConverter converter = new XSD2POJOConverter();
@@ -128,7 +129,7 @@ public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implem
 
 	private int readSingleton(URI resourceURI) throws RepositoryException, ClassNotFoundException {
 		int count = 0;
-		RepositoryResult<Statement> beans = connection.getStatements( resourceURI, vf.createURI(RDFS_TYPE), null, true);
+		RepositoryResult<Statement> beans = connection.getStatements(resourceURI, vf.createURI(RDFS_TYPE), null, useInferencing);
 		while(beans.hasNext()) {
 			Statement bean = beans.next();
 			boolean isBean = bean.getObject().stringValue().startsWith("bean:");
@@ -153,7 +154,7 @@ public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implem
 	private int readBean(org.openrdf.model.Resource resource, org.openrdf.model.Resource classURI, String scope) throws RepositoryException, ClassNotFoundException {
 		int count = 0;
 		log.debug("readBean("+scope+") -> "+ resource+" @ "+classURI);
-		RepositoryResult<Statement> beans = connection.getStatements(classURI, vf.createURI(A), vf.createURI(BEAN), true);
+		RepositoryResult<Statement> beans = connection.getStatements(classURI, vf.createURI(A), vf.createURI(BEAN), useInferencing);
 		while(beans.hasNext()) {
 			Statement bean = beans.next();
 			String beanClass = bean.getSubject().stringValue();
@@ -257,7 +258,7 @@ public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implem
 	protected MutablePropertyValues defineBeanProperties(org.openrdf.model.Resource beanURI, AbstractBeanDefinition defineBean) throws RepositoryException {
 		// properties
 		MutablePropertyValues propertyValues = defineBean.getPropertyValues();
-		RepositoryResult<Statement> statements = connection.getStatements(beanURI, null, null, false);
+		RepositoryResult<Statement> statements = connection.getStatements(beanURI, null, null, useInferencing);
 		while(statements.hasNext()) {
 			Statement next = statements.next();
 			URI pURI = next.getPredicate();

@@ -19,8 +19,6 @@ import org.apache.camel.spi.ClassResolver;
 import org.apache.camel.spi.FactoryFinder;
 import org.apache.camel.spi.FactoryFinderResolver;
 import org.apache.camel.spring.spi.ApplicationContextRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -30,20 +28,16 @@ import org.springframework.context.ApplicationContext;
  * Date  : 7/07/2014
  * Time  : 8:37 PM
  */
-public class ActiveFLOVocabulary implements ActiveVocabulary {
-	final Logger log = LoggerFactory.getLogger(this.getClass());
+public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 	public final static String DO_BOOTSTRAP = "direct:self:active";
 
 	private RDFCamelPlanner floSupport;
-	CamelContext camel = null;
-
+	private CamelContext camel = null;
 	private boolean tracing = true;
 
-	public ActiveFLOVocabulary() {
-	}
-
 	public ActiveFLOVocabulary(ExecutionEnvironment engine) throws Exception {
-		boot(engine);
+		super(COMMON.ACTIVE_FLO, engine, true);
+		start();
 	}
 
 	@Override
@@ -54,7 +48,7 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 
 	}
 
-	protected void bootCamel(ExecutionEnvironment engine) throws Exception {
+	protected void bootCamel(final ExecutionEnvironment engine) throws Exception {
 
 		createCamel(engine);
 
@@ -66,12 +60,13 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 		camel.addComponent("crud", new CRUDComponent(crud));
 		camel.addComponent("self", new SelfComponent(engine));
 		camel.addComponent("any23", new Any23Component());
+
 		camel.addComponent("sparql", new SesameComponent(engine));
 //		camel.addComponent("curate", new CurateComponent(engine));
 
-		floSupport = new RDFCamelPlanner(camel, factSpace );
+		floSupport = new RDFCamelPlanner(camel, engine);
 
-		floSupport.setVocabURI(COMMON.ACTIVE_FLO);
+		floSupport.setVocabURI(getIdentity());
 		floSupport.plan();
 		factSpace.close();
 
@@ -166,7 +161,7 @@ public class ActiveFLOVocabulary implements ActiveVocabulary {
 
 	protected void addRoutes(RouteBuilder routeBuilder) throws Exception {
 		camel.addRoutes(routeBuilder);
-		log.trace("Route Added: "+routeBuilder);
+		log.trace("Route Added: " + routeBuilder);
 	}
 
 	public void stop() throws Exception {

@@ -12,36 +12,41 @@ import org.slf4j.LoggerFactory;
  * Date  : 3/07/2014
  * Time  : 11:47 PM
  */
-public class Scorpio4ActiveVocabularies implements ActiveVocabulary {
+public class Scorpio4ActiveVocabularies extends AbstractActiveVocabulary {
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 	ActiveBeansVocabulary springBeans;
 	ActiveFLOVocabulary flo;
+	ASQVocabulary asq;
 
 	public Scorpio4ActiveVocabularies(ExecutionEnvironment engine) throws Exception {
-		boot(engine);
+		super(engine.getIdentity(), engine, false);
 	}
 
 	public void boot(ExecutionEnvironment engine) throws Exception {
-		this.springBeans=new ActiveBeansVocabulary(engine);
+		this.springBeans = new ActiveBeansVocabulary(engine);
 		this.flo = new ActiveFLOVocabulary(engine);
-		log.debug("Booted Active Vocabularies");
+		this.asq = new ASQVocabulary(engine);
+
+		log.debug("Booted Active Vocabularies: "+engine.getIdentity());
 	}
 
 	@Override
 	public void start() throws Exception {
+		asq.start();
 		springBeans.start();
 		flo.start();
 	}
 
 	@Override
 	public void stop() throws Exception {
-		springBeans.stop();
 		flo.stop();
+		springBeans.stop();
+		asq.stop();
 	}
 
 	public Object activate(String triggerURI, Object body) {
 		try {
-			return flo.activate(triggerURI, null);
+			return flo.activate(triggerURI, body);
 		} catch (Exception e) {
 			log.warn("Faulty Trigger: "+triggerURI+" ->"+e.getCause().getMessage());
 			return null;
@@ -54,10 +59,10 @@ public class Scorpio4ActiveVocabularies implements ActiveVocabulary {
 
 	public void startAndWait() throws Exception {
 		start();
-		log.debug("Waiting for startup");
+		log.debug("Waiting until FLOs are active ...");
 		while ( getCamelContext().isStartingRoutes()) {
 			Thread.sleep(100);
 		}
-		log.debug("FLO has finished booting.");
+		log.debug("Active Vocabularies are ready.");
 	}
 }

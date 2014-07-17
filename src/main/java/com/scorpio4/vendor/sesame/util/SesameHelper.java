@@ -1,7 +1,9 @@
 package com.scorpio4.vendor.sesame.util;
 
-import com.scorpio4.iq.bean.XSD2POJOConverter;
+import com.scorpio4.asq.ASQ;
+import com.scorpio4.asq.sparql.SelectSPARQL;
 import com.scorpio4.iq.bean.ConvertsType;
+import com.scorpio4.iq.bean.XSD2POJOConverter;
 import com.scorpio4.vocab.COMMON;
 import org.openrdf.model.Namespace;
 import org.openrdf.query.*;
@@ -12,7 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Scorpio4 (c) 2014
@@ -48,6 +53,11 @@ public class SesameHelper {
 
 	public static Collection<Map> toMapCollection(RepositoryConnection connection, String sparql) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
 		return toMapCollection(connection, sparql, new XSD2POJOConverter());
+	}
+
+	public static Collection<Map> toMapCollection(RepositoryConnection connection, ASQ asq) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
+		SelectSPARQL sparql = new SelectSPARQL(asq);
+		return toMapCollection(connection, sparql.toString(), new XSD2POJOConverter());
 	}
 
 	public static Collection<Map> toMapCollection(RepositoryConnection connection, String sparql, ConvertsType convertsType) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
