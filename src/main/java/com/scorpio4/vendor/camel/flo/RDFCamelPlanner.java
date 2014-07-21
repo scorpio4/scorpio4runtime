@@ -36,7 +36,7 @@ import java.util.concurrent.Future;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel
- * User  : lee
+ * @author lee
  * Date  : 21/06/2014
  * Time  : 5:58 PM
  */
@@ -132,25 +132,26 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 	}
 
 	protected ProcessorDefinition tryResource(RouteBuilder routeBuilder, final ProcessorDefinition fromRoute, final Resource from) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
-		log.debug("TRY from: "+fromRoute.getId()+" --> "+from);
+		log.debug("FLO from: "+from);
 
 		RepositoryResult<Statement> plannedRoutes = connection.getStatements(from, null, null, useInferencing);
+		ProcessorDefinition _from = fromRoute;
 		while(plannedRoutes.hasNext()) {
 			Statement next = plannedRoutes.next();
 			String action = next.getPredicate().stringValue();
 			Value to = next.getObject();
 			if (action.startsWith(getVocabURI()) ) {
-				tryAction(routeBuilder, fromRoute, to, next.getPredicate(), action.substring(getVocabURI().length()));
+				_from = tryAction(routeBuilder, _from, to, next.getPredicate(), action.substring(getVocabURI().length()));
 			} else {
 				log.debug("Ignored Predicate: " + action);
 			}
 		}
-		return fromRoute;
+		return _from;
 	}
 
 	protected ProcessorDefinition tryAction(RouteBuilder routeBuilder, ProcessorDefinition from, Value _to, URI predicate, String action) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
 		String to = _to.stringValue();
-		if (IRITemplate.isTemplated(to)) {
+		if (_to instanceof URI && IRITemplate.isTemplated(to)) {
 			IRITemplate toTemplate = new IRITemplate(to, engine.getConfig());
 			to = toTemplate.toString();
 		}
@@ -161,8 +162,12 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 
 		log.debug("TRY action ->"+ action+" -> "+to);
 
-		if (action.equals("to") || action.equals("do") && _to instanceof Resource) {
-			from = doRouting(routeBuilder,  from, (Resource)_to, predicate);
+		if (action.equals("to")) {
+			// handle HTTP(s) and FILE as direct: routes
+			from = doRouting(routeBuilder, from, normalizeTo(_to));
+		} else	if (action.equals("io") || action.equals("do")) {
+			// HTTP(s) and FILE produce messages act as true Camel routes
+			from = doRouting(routeBuilder, from, _to);
 		} else if (action.equals("bean") ) {
 			log.info("to-bean: "+to);
 			from = from.beanRef(to);
@@ -181,7 +186,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		} else if (action.equals("loadbalance")) {
 			from = from.loadBalance().to(to);
 		} else if (action.startsWith("script")) {
-			from = from.process( toScriptProcessor(connection,_to, action) );
+			from = from.process( toScriptProcessor(_to, action) );
 		} else if (action.startsWith("split")) {
 			if (_to instanceof Literal && _to.stringValue().equals("")) {
 				from = from.split(routeBuilder.body()).shareUnitOfWork();
@@ -222,64 +227,99 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		} else if (action.equals("choice")) {
 			from = doChoice(routeBuilder,  from.choice(), action, _to);
 		} else if (action.equals("when") && from instanceof ChoiceDefinition) {
-			from = doChoice(routeBuilder,  (ChoiceDefinition)from, action, _to);
+			from = doChoice(routeBuilder, (ChoiceDefinition) from, action, _to);
 		} else if (action.equals("otherwise") && from instanceof ChoiceDefinition) {
 			ChoiceDefinition choice = (ChoiceDefinition)from;
 			from = choice.otherwise().to(to);
 		} else if (action.equals("if")) {
-			from = doChoice(routeBuilder,  from.choice(), action, _to);
+			from = doChoice(routeBuilder, from.choice(), action, _to);
 		} else if (action.startsWith("transform")) {
 			from = from.transform(toExpression(connection, _to, action));
 		} else log.warn("??? action: " + action);
 
+		if (_to instanceof Resource) {
+			from = tryResource(routeBuilder, from, (Resource)_to);
+			from = from.end();
+		}
+
 		return from;
 	}
 
-	private ProcessorDefinition doRouting(RouteBuilder routeBuilder, ProcessorDefinition from, Resource _to, URI predicate) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
-		RDFCollections collection = new RDFCollections(this.connection);
-		if ( !collection.isList(_to) ) {
-			if (_to instanceof BNode) {
-				log.debug("\tTO bnode: "+_to);
-				// blank nodes are multi-cast
-				return tryResource(routeBuilder, from,  _to);
+	private Value normalizeTo(Value to) {
+		if (to instanceof URI) {
+			// preserve concepts of linked data ... don't trigger Camel http: scheme
+			if (to.stringValue().startsWith("http:") || to.stringValue().startsWith("https:") || to.stringValue().startsWith("file:")) {
+				ValueFactory vf = connection.getValueFactory();
+				return vf.createURI("direct:"+to.stringValue());
 			}
-			// otherwise, we must either be a bean or a singleton route
+		}
+		return to;
+	}
+
+	private ProcessorDefinition doRouting(RouteBuilder routeBuilder, ProcessorDefinition from, Value _to) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
+		if ( isTemplated(_to.stringValue()) ) {
+//			from.recipientList().
+		}
+		// not a list, so a direct reference to a resource
+		if (_to instanceof Resource) {
+			RDFCollections collection = new RDFCollections(this.connection);
+
+			if (!collection.isList(_to)) {
+				log.debug("TO route: "+_to);
+				// point-to-point route
+				return doRoute(routeBuilder, from, _to);
+			} else {
+				// process as a pipeline
+				Collection<Value> pipeline = collection.getList((Resource)_to);
+				log.debug("\tTO pipeline: "+_to+" x "+pipeline.size()+" -> "+ Arrays.toString(pipeline.toArray()));
+				for(Value to: pipeline) {
+					from = doRoute(routeBuilder, from, to);
+				}
+			}
+
+		}
+		return from;
+	}
+
+	private boolean isTemplated(String s) {
+		return (s.contains("{"));
+	}
+
+	protected ProcessorDefinition doRoute(RouteBuilder routeBuilder, ProcessorDefinition from, Value _to) throws RepositoryException, ClassNotFoundException, URITemplateParseException, CamelException, IOException {
+		if (_to instanceof BNode) {
+			// blank nodes are skipped ... recursively resolve
+			log.debug("\tTO bnode: "+_to);
+			return tryResource(routeBuilder, from,  (BNode)_to);
+		}
+		if (_to instanceof URI) {
+			// if reference a bean ...
 			String next = _to.stringValue();
 			Object bean = context.getRegistry().lookupByName(next);
 			if (bean!=null) {
 				log.debug("\tTO bean: "+_to);
 				return from.bean(bean);
-			} else {
-				log.debug("\tTO: "+_to);
-				return from.to(next);
 			}
+			// it's just a route
+			log.debug("\tTO: "+_to);
+			return from.to(next);
 		}
-
-		Collection<Value> pipeline = collection.getList(_to);
-		log.debug("\tTO pipeline: "+_to+" x "+pipeline.size()+" -> "+ Arrays.toString(pipeline.toArray()));
-		for(Value to: pipeline) {
-			if (to instanceof BNode) {
-				from = tryResource(routeBuilder, from, (BNode) to);
-			} else if (to instanceof URI) {
-				log.info("Route : "+from+" -> "+to);
-				from = from.to(to.stringValue());
-			} else {
-				log.warn("Invalid TO: "+to);
-			}
+		if (_to instanceof Literal) {
+			log.debug("\tTO script: "+_to);
+			return from.process( toScriptProcessor(_to, "simple") );
 		}
 		return from;
 	}
 
 
-
-	ProcessorDefinition doChoice(RouteBuilder routeBuilder, ChoiceDefinition from, String action, Value to) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
+	protected ProcessorDefinition doChoice(RouteBuilder routeBuilder, ChoiceDefinition from, String action, Value to) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException {
 		if (to instanceof BNode) {
 			return tryResource(routeBuilder, from,(Resource)to).endChoice();
+		} else if (to instanceof Resource) {
+			return tryResource(routeBuilder, from.when(toPredicate(connection, to, action)), (Resource) to).endChoice();
 		} else if (to instanceof Literal) {
 			return from.when(new LanguageExpression(getActionLanguage(action), to.stringValue())).endChoice();
-		} else if (to instanceof Resource) {
-			return tryResource(routeBuilder, from.when(toPredicate(connection, to, action)),(Resource)to).endChoice();
 		}
+		// we should never get here
 		return from;
 	}
 
@@ -363,7 +403,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		return new RDFBasedPredicate(connection, to.stringValue());
 	}
 
-	private Processor toScriptProcessor(RepositoryConnection connection, final Value to, final String language) throws IOException {
+	private Processor toScriptProcessor(final Value to, final String language) throws IOException {
 		Asset asset = null;
 		if (to instanceof Resource) {
 			asset = assetRegister.getAsset(to.stringValue(), null);
@@ -404,6 +444,11 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 
 	private String toVocabURI(String localName) {
 		return getVocabURI()+localName;
+	}
+
+	private String getLocalNameOrNull(String globalName) {
+		if (globalName.startsWith(getVocabURI())) return globalName.substring(getVocabURI().length());
+		return null;
 	}
 
 	public boolean isUseInferencing() {

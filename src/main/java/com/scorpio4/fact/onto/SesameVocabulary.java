@@ -10,12 +10,11 @@ import org.openrdf.repository.RepositoryResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.fact.onto
- * User  : lee
+ * @author lee
  * Date  : 26/06/2014
  * Time  : 9:28 AM
  */
@@ -27,7 +26,7 @@ public class SesameVocabulary implements Vocabulary {
 	}
 
 	public String getObject(String subject, String predicate) {
-		Collection<String> objects = null;
+		Collection<String> objects;
 		try {
 			objects = getObjects(subject, predicate);
 			return objects.isEmpty()?null:objects.iterator().next();
@@ -39,7 +38,7 @@ public class SesameVocabulary implements Vocabulary {
 	public Collection<String> getObjects(String subject, String predicate) throws RepositoryException {
 		ValueFactory vf = connection.getValueFactory();
 		RepositoryResult<Statement> statements = connection.getStatements(vf.createURI(subject), vf.createURI(predicate), null, false);
-		List<String> objs = new ArrayList();
+		Collection<String> objs = new ArrayList();
 		while(statements.hasNext()) {
 			Statement statement = statements.next();
 			objs.add(statement.getObject().stringValue());

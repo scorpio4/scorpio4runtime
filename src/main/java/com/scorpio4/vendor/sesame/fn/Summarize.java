@@ -14,7 +14,7 @@ import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
 /**
  * scorpio4 (c) 2013
  * Module: com.scorpio4.vendor.sesame.fn
- * User  : lee
+ * @author lee
  * Date  : 29/10/2013
  * Time  : 7:22 PM
  */

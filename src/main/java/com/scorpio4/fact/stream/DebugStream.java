@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 /**
  * scorpio4 (c) 2013
  * Module: com.scorpio4.fact.stream
- * User  : lee
+ * @author lee
  * Date  : 25/10/2013
  * Time  : 10:45 PM
  */

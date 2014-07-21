@@ -1,4 +1,4 @@
-prefix bean: 		<http://scorpio4.com/vocab/v1/bean/>
+prefix bean: 		<http://scorpio4.com/v1/vocab/bean/>
 
 SELECT DISTINCT ?this WHERE {
 	?this a ?class.

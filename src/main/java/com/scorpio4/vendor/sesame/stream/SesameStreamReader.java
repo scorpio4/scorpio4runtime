@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * FactCore (c) 2013
  * Module: com.factcore.vendor.sparql
- * User  : lee
+ * @author lee
  * Date  : 22/11/2013
  * Time  : 5:06 PM
  */

@@ -59,7 +59,7 @@ public class RepositoryManager extends LocalRepositoryManager implements Identif
 
 	private Repository getNewRepository(String repositoryId) throws RepositoryException, RepositoryConfigException {
 		log.debug("getNewRepository() "+repositoryId);
-		RepositoryConfig repositoryConfig = newDiskRepositoryConfig(repositoryId, true);
+		RepositoryConfig repositoryConfig = newMemoryRepositoryConfig(repositoryId, false, true);
 		addRepositoryConfig(repositoryConfig);
 		return super.getRepository(repositoryId);
 	}

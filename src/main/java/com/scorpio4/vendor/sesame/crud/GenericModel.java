@@ -1,6 +1,7 @@
 package com.scorpio4.vendor.sesame.crud;
 
 import com.scorpio4.crud.Model;
+import com.sun.istack.NotNull;
 
 import java.util.Collection;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Set;
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.vendor.sesame.crud
- * User  : lee
+ * @author lee
  * Date  : 15/07/2014
  * Time  : 12:30 AM
  */
@@ -231,6 +232,7 @@ public class GenericModel implements Model {
 	 * @throws IllegalArgumentException if some property of a key or value in
 	 *         the specified map prevents it from being stored in this map
 	 */
+	@NotNull
 	public void putAll(Map m) {
 		model.putAll(m);
 	}

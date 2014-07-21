@@ -18,7 +18,7 @@ import org.openrdf.repository.RepositoryException;
 /**
  * FactCore (c) 2013
  * Module: com.factcore.vendor.sparql
- * User  : lee
+ * @author lee
  * Date  : 26/10/2013
  * Time  : 8:54 PM
  */
@@ -34,7 +34,6 @@ public class SesameStreamWriter implements FactStream {
 
     public SesameStreamWriter(RepositoryConnection conn, String context_uri) throws RepositoryException {
         this.conn = conn;
-        this.conn.setAutoCommit(true);
         this.vf = this.conn.getValueFactory();
         this.context = vf.createURI(context_uri);
     }

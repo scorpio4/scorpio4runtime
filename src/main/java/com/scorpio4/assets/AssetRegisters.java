@@ -7,13 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
  * CueBicControls (c) 2014
  * Module: com.cuebic.assets
- * User  : lee
+ * @author lee
  * Date  : 27/05/2014
  * Time  : 9:28 AM
  */
@@ -21,7 +21,7 @@ public class AssetRegisters extends BaseAssetRegister {
 	private static final Logger log = LoggerFactory.getLogger(AssetRegisters.class);
 	private static final String CLASSPATH = "classpath:";
 
-	List<AssetRegister> assets = new ArrayList();
+	Collection<AssetRegister> assets = new ArrayList();
     Map bindings = null;
 	JARAssetRegister jarAssets = null;
 

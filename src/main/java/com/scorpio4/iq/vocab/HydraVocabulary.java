@@ -12,7 +12,7 @@ import org.openrdf.repository.RepositoryResult;
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.vendor.hydra
- * User  : lee
+ * @author lee
  * Date  : 9/07/2014
  * Time  : 12:40 AM
  */
@@ -22,6 +22,7 @@ public class HydraVocabulary extends AbstractActiveVocabulary {
 
 	public HydraVocabulary(ExecutionEnvironment engine) throws Exception {
 		super(BASE, engine, false);
+		boot(engine);
 	}
 
 	@Override

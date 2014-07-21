@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Scorpio4 (c) 2014
  * Module: com.scorpio4.iq
- * User  : lee
+ * @author lee
  * Date  : 17/06/2014
  * Time  : 10:11 PM
  */
@@ -40,15 +40,15 @@ public class SPARQLing implements Executable {
         try {
             return new NotSPARQLFuture(this, asset, bindings);
         } catch (RepositoryException e) {
-            throw new IQException(e.getMessage());
+            throw new IQException(" Repository Error: "+e.getMessage(),e);
         } catch (QueryEvaluationException e) {
-            throw new IQException(e.getMessage());
+            throw new IQException("Query Error: "+e.getMessage(),e);
         } catch (MalformedQueryException e) {
-            throw new IQException(e.getMessage());
+            throw new IQException("Query SyntaxError: "+e.getMessage(),e);
         } catch (IOException e) {
-            throw new IQException(e.getMessage());
+            throw new IQException("Asset Error: "+e.getMessage(),e);
         } catch (ConfigException e) {
-            throw new IQException(e.getMessage());
+            throw new IQException("Config Error: "+e.getMessage(),e);
         }
     }
 }

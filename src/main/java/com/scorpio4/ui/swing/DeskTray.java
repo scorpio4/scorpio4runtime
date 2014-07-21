@@ -20,14 +20,14 @@ import java.util.Map;
 /**
  * scorpio4 (c) 2013
  * Module: com.scorpio4.ui.desktop
- * User  : lee
+ * @author lee
  * Date  : 5/11/2013
  * Time  : 3:41 PM
  */
 public class DeskTray {
     private static final Logger log = LoggerFactory.getLogger(DeskTray.class);
     TrayIcon trayIcon = null;
-    Map<String,MenuItem> menus = new HashMap<String, MenuItem>();
+    Map<String,MenuItem> menus = new HashMap();
     String title = "Scorpio4", tooltip = "Not Configured", icon = null;
     PopupMenu popup = new PopupMenu();
 

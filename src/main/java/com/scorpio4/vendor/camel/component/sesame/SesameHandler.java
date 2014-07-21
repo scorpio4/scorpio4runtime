@@ -14,6 +14,8 @@ import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,7 @@ import java.util.Map;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel.component.sparql
- * User  : lee
+ * @author lee
  * Date  : 25/06/2014
  * Time  : 11:33 AM
  */
@@ -83,7 +85,6 @@ public class SesameHandler implements Processor {
 
 		} else log.debug("Parameter SPARQL: "+sparql);
 
-
 		TupleQueryResultFormat parserFormatForMIMEType = QueryResultIO.getParserFormatForMIMEType(contentType, null);
 		if (parserFormatForMIMEType!=null) {
 			headers.put("Content-Type", parserFormatForMIMEType.getDefaultMIMEType()+";"+parserFormatForMIMEType.getCharset());
@@ -127,6 +128,16 @@ public class SesameHandler implements Processor {
 		TupleQueryResultWriter resultWriter = QueryResultIO.createWriter(parserFormatForMIMEType, out);
 		resultWriter.startQueryResult(new ArrayList());
 		tupleQuery.evaluate(resultWriter);
+	}
+
+	public void handleGraph(RepositoryConnection connection, String sparql, OutputStream out, RDFFormat format) throws MalformedQueryException, RepositoryException, QueryResultHandlerException, QueryEvaluationException, IOException, RDFHandlerException {
+		// handle query and result set
+		GraphQuery query = connection.prepareGraphQuery(QueryLanguage.SPARQL, sparql);
+		query.setIncludeInferred(isInferred());
+		if (maxQueryTime>0) query.setMaxQueryTime(getMaxQueryTime());
+		GraphQueryResult graphQueryResult = query.evaluate();
+
+		QueryResultIO.write(graphQueryResult, format, out);
 	}
 
 	public boolean isInferred() {

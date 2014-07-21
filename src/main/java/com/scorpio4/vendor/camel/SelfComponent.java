@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel
- * User  : lee
+ * @author lee
  * Date  : 22/06/2014
  * Time  : 11:51 PM
  */
@@ -31,7 +31,7 @@ public class SelfComponent extends ClassComponent {
 		Object executable = null;
 		if (remaining.startsWith("script:")) {
 			executable = new Script(engine, remaining.substring(7));
-		} else if (remaining.startsWith("infer:")) {
+		} else if (remaining.startsWith("infer:")||remaining.startsWith("learn:")) {
 			executable = new Infer(engine, remaining.substring(6));
 		} else if (remaining.startsWith("template:")) {
 			executable = new AssetTemplate(engine, remaining.substring(9));
@@ -44,8 +44,6 @@ public class SelfComponent extends ClassComponent {
 			String assetURI = remaining.substring(7);
 			if (assetURI.equals("")) assetURI = engine.getIdentity();
 			executable = new Deploy(engine, assetURI);
-//		} else if (remaining.startsWith("exec:")) {
-//			executable = new Executor(engine, remaining.substring(5));
 		}
 		if (executable==null) throw new CamelException("Unknown SELF command: "+remaining);
 		return new BeanEndpoint(uri, this, new BeanProcessor(executable, getCamelContext()));

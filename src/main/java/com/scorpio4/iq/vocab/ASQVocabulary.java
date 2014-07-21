@@ -1,6 +1,6 @@
 package com.scorpio4.iq.vocab;
 
-import com.scorpio4.asq.parser.ASQ4Sesame;
+import com.scorpio4.vendor.sesame.asq.ASQ4Sesame;
 import com.scorpio4.asq.sparql.ConstructSPARQL;
 import com.scorpio4.asq.sparql.SelectSPARQL;
 import com.scorpio4.assets.SesameAssetRegister;
@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.iq.vocab
- * User  : lee
+ * @author lee
  * Date  : 16/07/2014
  * Time  : 10:56 PM
  *
@@ -40,6 +40,7 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 
 	public ASQVocabulary(ExecutionEnvironment engine) throws Exception {
 		super(COMMON.CORE + "asq/", engine, false);
+		boot(engine);
 	}
 
 	public void start() throws Exception {
@@ -60,6 +61,7 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 	public void reboot() throws Exception {
 		SesameCRUD crud = new SesameCRUD(connection, getIdentity(), engine.getAssetRegister() );
 
+		// cache ASQ as Assets
 		Map<String,Boolean> seen = new HashMap();
 		connection.begin();
 		Collection<Map> selects = crud.read("self/asq/selects", engine.getConfig());
@@ -102,6 +104,8 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 			SelectSPARQL sparql = toSPARQL(asqURI, null);
 			if (sparql==null) throw new ASQException("ASQ not found: "+asqURI);
 			else if (sparql instanceof ConstructSPARQL) {
+				SPARQLRules sparqlRules = new SPARQLRules(connection, asqURI, true);
+				sparqlRules.apply(sparql.toString());
 				return new SelectSPARQL( ((ConstructSPARQL)sparql).getConstruct() );
 			} else return sparql;
 		} catch (RepositoryException e) {
@@ -111,28 +115,30 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 		} catch (MalformedQueryException e) {
 			throw new IQException("Query Syntax Error",e);
 		} catch (ASQException e) {
-			throw new IQException("ASQ Error",e);
+			throw new IQException("ASQ Error: "+e.getMessage(),e);
 		}
 	}
 
 	protected SelectSPARQL toSPARQL(String asqURI, Map meta) throws RepositoryException, QueryEvaluationException, MalformedQueryException, ASQException {
-		if (!asqURI.contains(":")) return null;
+		if (!asqURI.contains(":")) {
+			throw new ASQException("ASQ not a URI: "+asqURI);
+		}
 		RDFScalars scalars = new RDFScalars(connection);
 		Resource queryURI = vf.createURI(asqURI);
 
-		boolean isQuery  = scalars.isTypeOf(queryURI, vf.createURI(getIdentity() + "Query"));
+		URI queryType = vf.createURI(getIdentity() + "Query");
+		boolean isQuery  = scalars.isTypeOf(queryURI, queryType);
 		boolean isInference = scalars.isTypeOf(queryURI, vf.createURI(getIdentity() + "Inference"));
 		boolean isIntuition = scalars.isTypeOf(queryURI, vf.createURI(getIdentity() + "Intuition"));
+
+		log.debug("ASQ type: "+queryURI+" q: "+isQuery+", inf: "+isInference+", int: "+isUseInferencing());
 
 		if (isIntuition) {
 			URI learnVerb = vf.createURI(getIdentity() + "learn");
 			URI learnURI = scalars.getURI(queryURI, learnVerb);
 			log.debug("toCONSTRUCT: "+learnURI);
 
-			ConstructSPARQL sparql = learn(scalars, queryURI, learnURI);
-			SPARQLRules sparqlRules = new SPARQLRules(connection, learnURI.stringValue(), true);
-			sparqlRules.apply(sparql.toString());
-			return sparql;
+			return toSPARQL(scalars, queryURI, learnURI, meta);
 		}
 
 		if (isQuery || isInference) {
@@ -146,11 +152,10 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 				e.printStackTrace();
 			}
 		}
-		log.debug("UNKNOWN: "+queryURI+" "+isInference);
-		return null;
+		throw new ASQException("Unknown ASQ: "+asqURI);
 	}
 
-	private ConstructSPARQL learn(RDFScalars scalars, Resource queryURI, URI learnURI) throws RepositoryException, ASQException, QueryEvaluationException, MalformedQueryException {
+	private ConstructSPARQL toSPARQL(RDFScalars scalars, Resource queryURI, URI learnURI, Map meta) throws RepositoryException, ASQException, QueryEvaluationException, MalformedQueryException {
 		URI whenVerb = vf.createURI(getIdentity() + "when");
 		URI whenURI = scalars.getURI(queryURI, whenVerb);
 		if (whenURI!=null) {

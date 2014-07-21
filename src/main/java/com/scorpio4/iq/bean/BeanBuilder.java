@@ -28,7 +28,7 @@ import java.util.Map;
  * from Lee Curtis.
  *
  * Module: com.scorpio4.iq
- * User  : lee
+ * @author lee
  * Date  : 3/12/2013
  * Time  : 11:42 PM
  */
@@ -36,11 +36,11 @@ public class BeanBuilder implements FactStream {
 	public static final Logger log = LoggerFactory.getLogger(BeanBuilder.class);
 
 	private ClassLoader classLoader = null;
-	protected HashMap<String, Object> idComponentMap = new HashMap<String, Object>();
-	protected HashMap<Object, String> componentIdMap = new HashMap<Object, String>();
-	protected HashMap<String, Tuple> containerMap = new HashMap<String, Tuple>();
+	protected HashMap<String, Object> idComponentMap = new HashMap();
+	protected HashMap<Object, String> componentIdMap = new HashMap();
+	protected HashMap<String, Tuple> containerMap = new HashMap();
 	protected HashMap<String, Map<String, String>> attributesMap = new HashMap();
-	protected HashMap<String, String> classMap = new HashMap<String, String>();
+	protected HashMap<String, String> classMap = new HashMap();
 
 	public String baseURI = COMMON.CORE+"bean/";
 	public String INSTANCE_OF = baseURI+"asa";
@@ -157,7 +157,7 @@ public class BeanBuilder implements FactStream {
 	}
 
 	protected void setBeanAttributes(Object object, Map<String, String> metaUI) throws IQException {
-		BeanInfo bi = null;
+		BeanInfo bi;
 		log.debug("Set Bean Attributes: "+ object+"  -> "+metaUI);
 		try {
 			bi = Introspector.getBeanInfo(object.getClass());
@@ -187,6 +187,7 @@ public class BeanBuilder implements FactStream {
 		if (metaUI.containsKey(name)) {
 			log.trace("+Method: " + id + " -> " + name + " --> "+ Arrays.toString(type)+" => "+value);
 		} else {
+			// do nothing
 //            log.trace("Method: " + id + " -> " + name + " --> "+Arrays.toString(type)+" => "+value);
 		}
 	}

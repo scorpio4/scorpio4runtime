@@ -12,7 +12,7 @@ import java.io.File;
 /**
  * KnowPoint (c) 2013
  * Module: com.cuebic.persist
- * User  : lee
+ * @author lee
  * Date  : 13/12/2013
  * Time  : 11:36 PM
  */

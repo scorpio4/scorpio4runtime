@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.iq.vocab
- * User  : lee
+ * @author lee
  * Date  : 16/07/2014
  * Time  : 11:22 PM
  */
@@ -29,8 +29,6 @@ public abstract class AbstractActiveVocabulary  implements ActiveVocabulary {
 
 		this.vocabURI=vocabURI;
 		this.useInferencing=useInferencing;
-
-		boot(engine);
 	}
 
 	@Override
@@ -67,4 +65,9 @@ public abstract class AbstractActiveVocabulary  implements ActiveVocabulary {
 	public String getIdentity() {
 		return vocabURI;
 	}
+
+	public ExecutionEnvironment getEngine() {
+		return engine;
+	}
+
 }

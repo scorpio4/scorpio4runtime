@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.runtime
- * User  : lee
+ * @author lee
  * Date  : 24/06/2014
  * Time  : 12:00 AM
  */
@@ -32,7 +32,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 
 	Repository repository = null;
 	AssetRegister assetRegister = null;
-//	FactSpace factSpace = null;
+	RepositoryConnection connection = null;
 	ApplicationContext applicationContext;
 
 	boolean isRunning = false;
@@ -60,6 +60,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	protected void boot(String identity) throws Exception {
 		this.identity=identity;
 		this.beanFactory = new CachedBeanFactory();
+//		ApplicationContextRegistry
 		this.applicationContext = new GenericApplicationContext(this.beanFactory);
 
 		beanFactory.cache("engine", this);
@@ -71,13 +72,13 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		repository = manager.getRepository(identity);
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
 
-		RepositoryConnection connection = repository.getConnection();
-//		factSpace = new FactSpace( connection, identity );
-		assetRegister = new AssetRegisters(connection);
 		activeVocabulary = new Scorpio4ActiveVocabularies(this);
 	}
 
 	public void start() throws Exception {
+		connection = repository.getConnection();
+		assetRegister = new AssetRegisters(connection);
+
 		log.debug("Starting Engine");
 		final Engine self = this;
 
@@ -126,8 +127,11 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 
 	public void stop() throws Exception {
 		activeVocabulary.activate("direct:self:stopping", this);
+
 		log.debug("Stopping Engine");
 		activeVocabulary.stop();
+
+		connection.close();
 		repository.shutDown();
 		isRunning = false;
 	}

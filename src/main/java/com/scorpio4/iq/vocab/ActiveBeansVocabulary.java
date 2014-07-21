@@ -1,20 +1,23 @@
 package com.scorpio4.iq.vocab;
 
 import com.scorpio4.fact.FactSpace;
+import com.scorpio4.oops.ConfigException;
+import com.scorpio4.oops.FactException;
 import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vendor.spring.RDFBeanDefinitionReader;
 import com.scorpio4.vocab.COMMON;
+import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.context.ApplicationContext;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.iq
- * User  : lee
+ * @author lee
  * Date  : 7/07/2014
  * Time  : 8:41 PM
  */
@@ -23,6 +26,7 @@ public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
 
 	public ActiveBeansVocabulary(ExecutionEnvironment engine) throws Exception {
 		super(COMMON.CORE+"bean/",engine, true);
+		boot(engine);
 	}
 
 	@Override
@@ -31,10 +35,29 @@ public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
 		// Engine's dependencies
 		log.debug("Active Beans Vocabulary: "+getIdentity());
 
-		ApplicationContext registry = engine.getRegistry();
+	}
 
+	@Override
+	public void start() throws Exception {
+		super.start();
+		isActive=false;
+		try {
+			_start();
+			isActive=true;
+		} catch (RepositoryException e) {
+			log.error(e.getMessage(), e);
+		} catch (ConfigException e) {
+			log.error(e.getMessage(), e);
+		} catch (FactException e) {
+			log.error(e.getMessage(), e);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+
+	public void _start() throws RepositoryException, FactException, IOException, ConfigException {
 		FactSpace factSpace = new FactSpace(engine.getIdentity(), engine.getRepository());
-		rdfBeanReader = new RDFBeanDefinitionReader(connection, (BeanDefinitionRegistry)registry);
+		rdfBeanReader = new RDFBeanDefinitionReader(connection, (BeanDefinitionRegistry) getEngine().getRegistry());
 
 		SesameCRUD crud = new SesameCRUD(factSpace);
 
@@ -60,16 +83,6 @@ public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
 			}
 		}
 		return c;
-	}
-
-	@Override
-	public void start() throws Exception {
-		// NO-OP
-	}
-
-	@Override
-	public void stop() throws Exception {
-		// NO-OP
 	}
 
 	@Override

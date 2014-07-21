@@ -10,7 +10,7 @@ import com.scorpio4.util.string.PrettyString;
 
 /**
  * Fact:Core (c) 2012
- * User: lee
+ * @author lee
  * Date: 31/07/13
  * Time: 9:53 AM
  * <p/>
@@ -22,18 +22,26 @@ public class Term {
     protected ASQ asq = null;
 	protected String term = null;
 
-	public Term(ASQ asq, String _term) throws ASQException {
-        if (asq==null|| _term==null ||_term.equals("")) throw new ASQException("urn:factcore:fact:domain:oops:invalid-term");
+	public Term(String _term) throws ASQException {
+        if (_term==null ||_term.equals("")) throw new ASQException("urn:factcore:fact:domain:oops:invalid-term");
 		this.term = _term.trim();
-        this.asq = asq;
+	}
+
+	public Term(Term _term) throws ASQException {
+		this.term = _term.toString();
+	}
+
+	public void bind(ASQ asq) {
+		this.asq=asq;
 	}
 
     public boolean isBinding() {
-        return (term.startsWith("?")|| term.startsWith(":")||term.startsWith("#") || isLocal() );
+	    if (asq==null) return false;
+        return (term.startsWith("?")|| term.startsWith(":")|| term.startsWith("#") || isDefined() || term.indexOf(":")<0 );
     }
 
-    public boolean isLocal() {
-        return asq!=null && term.startsWith(asq.getIdentity());
+    public boolean isDefined() {
+	    return (asq!=null && term!=null && term.startsWith(asq.getIdentity()));
     }
 
     public boolean isFunction() {
@@ -44,7 +52,7 @@ public class Term {
 
     public String toString() {
         if (!isBinding()) return term;
-        if (isLocal()) return PrettyString.prettySafe(term.substring(asq.getIdentity().length()));
-        return term.substring(1);
+        if (isDefined()) return PrettyString.prettySafe(term.substring(asq.getIdentity().length()));
+        return term;
     }
 }

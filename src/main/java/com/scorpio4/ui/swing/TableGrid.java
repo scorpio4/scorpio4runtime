@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * scorpio4 (c) 2013
  * Module: com.scorpio4.ui.swing
- * User  : lee
+ * @author lee
  * Date  : 8/11/2013
  * Time  : 6:07 PM
  */

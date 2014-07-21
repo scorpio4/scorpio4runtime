@@ -6,7 +6,7 @@ import org.apache.camel.CamelContext;
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.iq
- * User  : lee
+ * @author lee
  * Date  : 3/07/2014
  * Time  : 11:47 PM
  */
@@ -17,6 +17,7 @@ public class Scorpio4ActiveVocabularies extends AbstractActiveVocabulary {
 
 	public Scorpio4ActiveVocabularies(ExecutionEnvironment engine) throws Exception {
 		super(engine.getIdentity(), engine, false);
+		boot(engine);
 	}
 
 	public void boot(ExecutionEnvironment engine) throws Exception {
@@ -42,8 +43,12 @@ public class Scorpio4ActiveVocabularies extends AbstractActiveVocabulary {
 	}
 
 	public Object activate(String triggerURI, Object body) {
+		return activate(triggerURI, body, Object.class);
+	}
+
+	public Object activate(String triggerURI, Object body, Class type) {
 		try {
-			return flo.activate(triggerURI, body);
+			return flo.activate(triggerURI, body, type);
 		} catch (Exception e) {
 			log.warn("Faulty Trigger: "+triggerURI+" ->"+e.getCause().getMessage());
 			return null;

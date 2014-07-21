@@ -7,7 +7,7 @@ package com.scorpio4.asq;
 /**
  * FactCore (c) 2013
  * Module: com.factcore.fact.domain.parser
- * User  : lee
+ * @author lee
  * Date  : 16/11/2013
  * Time  : 12:02 AM
  */

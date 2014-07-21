@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * scorpio4 (c) 2013
  * Module: com.scorpio4.ui.splash
- * User  : lee
+ * @author lee
  * Date  : 31/10/2013
  * Time  : 5:37 PM
  */

@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * scorpio4 (c) 2013
  * Module: com.scorpio4.scripts
- * User  : lee
+ * @author lee
  * Date  : 1/05/2014
  * Time  : 3:35 PM
  *

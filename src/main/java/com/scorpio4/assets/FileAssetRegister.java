@@ -7,7 +7,7 @@ import java.io.*;
 /**
  * cuebic (c) 2013
  * Module: com.cuebic.util
- * User  : lee
+ * @author lee
  * Date  : 26/02/2014
  * Time  : 11:24 PM
  */

@@ -19,7 +19,7 @@ import java.net.URL;
 /**
  * scorpio4 (c) 2013
  * Module: com.scorpio4.ui.splash
- * User  : lee
+ * @author lee
  * Date  : 31/10/2013
  * Time  : 5:26 PM
  */

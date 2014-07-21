@@ -13,7 +13,7 @@ import javax.swing.*;
 /**
  * Scorpio4 (c) 2013
  * Module: com.scorpio4.ui.swing
- * User  : lee
+ * @author lee
  * Date  : 8/01/2014
  * Time  : 11:33 PM
  */

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.sesame.util
- * User  : lee
+ * @author lee
  * Date  : 30/06/2014
  * Time  : 10:53 PM
  */
@@ -47,6 +47,10 @@ public class RDFScalars {
 			}
 		}
 		return found;
+	}
+
+	public boolean isTypeOf(String s, String t) throws RepositoryException {
+		return isTypeOf(vf.createURI(s),vf.createURI(t));
 	}
 
 	public boolean isTypeOf(Resource s, URI type) throws RepositoryException {

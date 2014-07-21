@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel.component
- * User  : lee
+ * @author lee
  * Date  : 26/06/2014
  * Time  : 11:20 PM
  */
@@ -32,6 +32,6 @@ public class FingerPrintComponent extends ClassComponent {
 
 	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
 		Map<String, Object> params = IntrospectionSupport.extractProperties(parameters, "scorpio4.");
-		return new BeanEndpoint(uri,this, new BeanProcessor(new FingerprintHandler(params), getCamelContext() ));
+		return new BeanEndpoint(uri,this, new BeanProcessor(new FingerprintHandler(), getCamelContext() ));
 	}
 }

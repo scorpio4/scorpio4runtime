@@ -18,7 +18,7 @@ import java.util.Properties;
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.runtime
- * User  : lee
+ * @author lee
  * Date  : 3/07/2014
  * Time  : 3:32 AM
  */

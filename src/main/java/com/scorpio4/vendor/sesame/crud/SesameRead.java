@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * cuebic (c) 2013
  * Module: com.cuebic.sparql
- * User  : lee
+ * @author lee
  * Date  : 12/12/2013
  * Time  : 2:20 AM
  */
@@ -38,13 +38,7 @@ public class SesameRead {
     public Collection<Map> execute() throws FactException {
         try {
             return SesameHelper.toMapCollection(connection, sparql);
-        } catch (IOException e) {
-            throw new FactException(e.getMessage(),e);
-        } catch (RepositoryException e) {
-            throw new FactException(e.getMessage(),e);
-        } catch (MalformedQueryException e) {
-            throw new FactException(e.getMessage(),e);
-        } catch (QueryEvaluationException e) {
+        } catch (Exception e) {
             throw new FactException(e.getMessage(),e);
         }
     }

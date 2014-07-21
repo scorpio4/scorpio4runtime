@@ -55,11 +55,11 @@ public class HTML2PDF implements IOProcessor {
 
 	public void process(Source src, OutputStream out) throws IOException {
 		try {
-			FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
+			FOUserAgent foAgent = fopFactory.newFOconferenceAgent();
 			out = new java.io.BufferedOutputStream(out);
 			try {
 				// Construct fop with desired output format and output stream
-				Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);
+				Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foAgent, out);
 				// Setup Identity Transformer
 				TransformerFactory factory = TransformerFactory.newInstance();
 				Transformer transformer = factory.newTransformer(xslt); // identity transformer

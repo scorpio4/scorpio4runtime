@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.vendor.spring
- * User  : lee
+ * @author lee
  * Date  : 4/07/2014
  * Time  : 2:24 AM
  */
@@ -20,7 +20,8 @@ public class CachedBeanFactory extends DefaultListableBeanFactory {
 	}
 
 	public void cache(String name, Object bean) {
-		beans.put(name,bean);
+		Object put = beans.put(name, bean);
+		assert put!=null;
 	}
 
 	@Override

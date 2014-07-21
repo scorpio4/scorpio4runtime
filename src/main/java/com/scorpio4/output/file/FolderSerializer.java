@@ -64,7 +64,7 @@ public class FolderSerializer implements N3Serializer {
 		DateXSD dateXSD = new DateXSD();
 		String home = this.getHome().getCanonicalPath();
 		String local = folder.getCanonicalPath();
-		String uri = getBaseURI() +"#"+local.substring(home.length());
+//		String uri = getBaseURI() +"#"+local.substring(home.length());
 
 		n3.append("<").append(toRelativePath(folder)).append(">");
 		if (folder.isDirectory()) {
@@ -83,10 +83,13 @@ public class FolderSerializer implements N3Serializer {
 
 		if (folder.isDirectory()) {
 			File[] files = folder.listFiles();
-			for(int i=0;i<files.length;i++) {
-				if (!files[i].isHidden()) {
-					n3.append("<").append(toRelativePath(folder)).append("> drive:contains ").append("<").append(toRelativePath(files[i])).append(">.\n");
-					scanN3(n3, files[i]);
+			if (files==null) {
+				return;
+			}
+			for(File file: files) {
+				if (!file.isHidden()) {
+					n3.append("<").append(toRelativePath(folder)).append("> drive:contains ").append("<").append(toRelativePath(file)).append(">.\n");
+					scanN3(n3, file);
 				}
 			}
 		}
@@ -100,7 +103,7 @@ public class FolderSerializer implements N3Serializer {
 
 	public static void main(String args[]) {
 		try {
-			FolderSerializer learner = new FolderSerializer(new File("/opt/IQKernel/IQ/FactDrive"), "urn:example:user");
+			FolderSerializer learner = new FolderSerializer(new File("/opt/IQKernel/IQ/FactDrive"), "urn:example:conference");
 			System.err.println(learner.toN3());
 		} catch (Exception e) {
 			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.

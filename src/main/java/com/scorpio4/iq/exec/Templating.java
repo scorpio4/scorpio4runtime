@@ -20,12 +20,12 @@ import java.util.concurrent.TimeoutException;
 /**
  * Scorpio4 (c) 2014
  * Module: com.scorpio4.iq
- * User  : lee
+ * @author lee
  * Date  : 17/06/2014
  * Time  : 9:56 PM
  */
 public class Templating implements Executable {
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+//    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public Templating() {
     }
@@ -37,9 +37,9 @@ public class Templating implements Executable {
         } catch (ScriptException e) {
             throw new IQException(e.getMessage());
         } catch (IOException e) {
-            throw new IQException(e.getMessage());
+            throw new IQException("IO Error: "+e.getMessage(),e);
         } catch (ClassNotFoundException e) {
-            throw new IQException(e.getMessage());
+            throw new IQException("Class Path: " +e.getMessage(), e);
         }
     }
 }
@@ -47,7 +47,7 @@ public class Templating implements Executable {
 class NotFutureTemplate implements Future {
     private final Logger log = LoggerFactory.getLogger(Templating.class);
     SimpleTemplateEngine templateEngine = new SimpleTemplateEngine();
-    Object result = null;
+    Writable result = null;
 
     public NotFutureTemplate(Asset script, Map paramaters) throws ScriptException, IQException, IOException, ClassNotFoundException {
         result = execute(script, paramaters);
@@ -55,7 +55,7 @@ class NotFutureTemplate implements Future {
 
     public Writable execute(Asset script, Map parameters) throws ScriptException, IQException, IOException, ClassNotFoundException {
         Template template = templateEngine.createTemplate(script.toString());
-        Map bindings = new HashMap();
+        Map<Object, Object> bindings = new HashMap<Object, Object>();
         bindings.putAll(parameters);
         log.debug("Template with {} ", bindings);
         return template.make(bindings);

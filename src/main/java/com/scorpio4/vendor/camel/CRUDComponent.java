@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel
- * User  : lee
+ * @author lee
  * Date  : 22/06/2014
  * Time  : 11:51 PM
  */

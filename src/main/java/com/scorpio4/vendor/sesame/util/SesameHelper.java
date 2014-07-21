@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Scorpio4 (c) 2014
  * Module: com.scorpio4.vendor.sesame.util
- * User  : lee
+ * @author lee
  * Date  : 17/06/2014
  * Time  : 10:16 PM
  */

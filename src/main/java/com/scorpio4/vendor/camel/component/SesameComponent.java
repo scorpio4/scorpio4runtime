@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel
- * User  : lee
+ * @author lee
  * Date  : 22/06/2014
  * Time  : 11:51 PM
  */
@@ -52,7 +52,7 @@ public class SesameComponent extends ClassComponent {
 		String contentType = getAndRemoveParameter(parameters, "outputType", String.class);
 		contentType = outputType2contentType.containsKey(contentType)?outputType2contentType.get(contentType):contentType;
 
-		Repository repository = null;
+		Repository repository;
 		if (remaining.equals("self")) remaining = identity;
 		repository = manager.getRepository(remaining);
 

@@ -25,22 +25,22 @@ import java.util.Properties;
 /**
  * FactCore (c) 2013
  * Module: com.factcore.fact.domain.parser
- * User  : lee
+ * @author lee
  * Date  : 16/11/2013
  * Time  : 12:02 AM
  */
-public class JSON2ASQ implements ASQParser {
-    private static final Logger log = LoggerFactory.getLogger(JSON2ASQ.class);
+public class ASQ4JSON implements ASQParser {
+    private static final Logger log = LoggerFactory.getLogger(ASQ4JSON.class);
 
 	Gson gson = new Gson();
     ASQ asq = null;
     Properties ns = JarHelper.loadProperties("META-INF/rdf.namespace.props");
 
-    public JSON2ASQ(File file) throws IOException, ASQException {
+    public ASQ4JSON(File file) throws IOException, ASQException {
         this(new FileInputStream(file));
     }
 
-    public JSON2ASQ(InputStream in) throws IOException, ASQException {
+    public ASQ4JSON(InputStream in) throws IOException, ASQException {
 	    
 	    String text = StreamCopy.toString(in);
         System.err.println("JSON: " + text);
@@ -48,12 +48,12 @@ public class JSON2ASQ implements ASQParser {
         parse(asqMap);
     }
 
-    public JSON2ASQ(String json) throws IOException, ASQException {
+    public ASQ4JSON(String json) throws IOException, ASQException {
         Map asqMap = gson.fromJson(json, Map.class);
         parse(asqMap);
     }
 
-    public JSON2ASQ(Map asqMap) throws IOException, ASQException {
+    public ASQ4JSON(Map asqMap) throws IOException, ASQException {
         parse(asqMap);
     }
 
@@ -62,7 +62,9 @@ public class JSON2ASQ implements ASQParser {
         String id = (String)asqMap.get("this");
         if (asqMap.containsKey("where")) {
             Object where = asqMap.get("where");
-            if (where instanceof Collection) this.asq = makeWhere(id, (Collection)where);
+            if (where instanceof Collection) {
+	            this.asq = makeWhere(id, (Collection)where);
+            }
             else throw new ASQException("urn:factcore:fact:domain:parser:oops:invalid-where#"+where.toString());
         }
     }
@@ -76,8 +78,8 @@ public class JSON2ASQ implements ASQParser {
             String _that = asq.cname((String) term.get("that"));
             String _type = asq.cname((String) term.get("type"));
             Boolean optional = (Boolean)term.get("optional");
-            if (optional==null) optional = Boolean.valueOf(false);
-            asq.where(_this, _has, _that, _type, optional.booleanValue());
+            if (optional==null) optional = false;
+            asq.where(_this, _has, _that, _type, optional);
 
             log.trace("this:"+_this+", _that: "+_has+", that:"+_that);
         }

@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
 /**
  * Scorpio4 (c) 2014
  * Module: com.scorpio4.vendor.sesame.iq
- * User  : lee
+ * @author lee
  * Date  : 18/06/2014
  * Time  : 9:57 AM
  */

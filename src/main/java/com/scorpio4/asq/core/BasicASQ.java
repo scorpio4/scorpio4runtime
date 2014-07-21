@@ -13,7 +13,7 @@ import java.util.*;
 
 /**
  * Fact:Core (c) 2012
- * User: lee
+ * @author lee
  * Date: 30/07/13
  * Time: 10:37 AM
  *
@@ -22,7 +22,7 @@ import java.util.*;
 public class BasicASQ implements ASQ, Bindable {
 	private String identity = null;
 	private Map binding = null;
-	private List<Pattern> clauses = new ArrayList();
+	private List<Pattern> patterns = new ArrayList();
     Set<Pattern> functions = new HashSet();
     private Map<String,Term> bindings = new HashMap();
     private Properties ns = JarHelper.loadProperties("META-INF/rdf.namespace.props");
@@ -52,30 +52,30 @@ public class BasicASQ implements ASQ, Bindable {
 	}
 
 	public ASQ where(String _this, String _has, String _that) throws ASQException {
-		Pattern pattern = new Pattern(this, _this, _has, _that, false);
+		Pattern pattern = new Pattern(_this, _has, _that, false);
         return where(pattern);
 	}
 
     public ASQ where(String _this, String _has, String _that, String type) throws ASQException {
-        Pattern pattern = new Pattern(this, _this, _has, _that, type, false);
+        Pattern pattern = new Pattern(_this, _has, _that, type, false);
         return where(pattern);
     }
 
     public ASQ where(String _this, String _has, String _that, String _type, boolean optional) throws ASQException {
-        Pattern pattern = new Pattern(this, _this, _has, _that, _type, optional);
+        Pattern pattern = new Pattern(_this, _has, _that, _type, optional);
         return where(pattern);
     }
 
     public ASQ where(String _this, String _has, String _that, boolean optional) throws ASQException {
-        Pattern pattern = new Pattern(this, _this, _has, _that, optional);
+        Pattern pattern = new Pattern(_this, _has, _that, optional);
         return where(pattern);
     }
 
 
     public ASQ where(Pattern pattern) {
-	    pattern.bind();
+	    pattern.bind(this);
         if (pattern.isFunctional()) functions.add(pattern);
-        else clauses.add(pattern);
+        else patterns.add(pattern);
         return this;
     }
 
@@ -95,11 +95,11 @@ public class BasicASQ implements ASQ, Bindable {
     }
 
     public void clear() {
-		this.clauses.clear();
+		this.patterns.clear();
 	}
 
-	public List<Pattern> getPatterns() {
-		return this.clauses;
+	public Collection<Pattern> getPatterns() {
+		return this.patterns;
 	}
 
     public Set<Pattern> getFunctions() {
@@ -107,8 +107,11 @@ public class BasicASQ implements ASQ, Bindable {
     }
 
     @Override
-    public Term bind(Term term) {
-        return this.bindings.put(term.toString(), term);
+    public void bind(Term term) {
+	    term.bind(this);
+	    if (term.isBinding()) {
+		    this.bindings.put(term.toString(), term);
+	    }
     }
 
     @Override
@@ -135,7 +138,7 @@ public class BasicASQ implements ASQ, Bindable {
 	}
 
     public boolean isEmpty() {
-        return clauses.isEmpty();
+        return patterns.isEmpty();
     }
 
 	@Override

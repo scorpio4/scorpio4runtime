@@ -8,17 +8,20 @@ import com.scorpio4.asq.ASQ;
 import com.scorpio4.asq.core.LiteralTerm;
 import com.scorpio4.asq.core.Pattern;
 import com.scorpio4.asq.core.Term;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
 /**
  * Fact:Core (c) 2013
  * Module: com.factcore.fact.domain.sparql
- * User  : lee
+ * @author lee
  * Date  : 11/01/2014
  * Time  : 9:39 PM
  */
 public abstract class GenericSPARQL {
+	protected static final Logger log = LoggerFactory.getLogger(GenericSPARQL.class);
     protected StringBuilder sparql = new StringBuilder();
 
     protected GenericSPARQL() {

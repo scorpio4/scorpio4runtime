@@ -1,0 +1,427 @@
+package com.scorpio4.jaxrs;
+
+import com.scorpio4.oops.FactException;
+import com.scorpio4.vocab.COMMON;
+import com.sun.xml.internal.dtdparser.MessageCatalog;
+import org.apache.commons.httpclient.HttpStatus;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.model.impl.ValueFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.*;
+
+/**
+ * scorpio4-oss (c) 2014
+ * Module: com.scorpio4.jaxrs
+ * User  : lee
+ * Date  : 19/07/2014
+ * Time  : 10:44 PM
+ */
+public class LOD {
+	protected static final Logger log = LoggerFactory.getLogger(LOD.class);
+
+	private static final String MAGIC_BN = "_:magic";
+	private static final String URI_COUNTER = "URI_COUNTER", REST_PATH = "id/";
+
+	@Context
+	ServletContext _context;
+
+	@DELETE
+	@Path("{id}")
+	// @Profiled(tag = "delete")
+	public Response delete(@Context UriInfo info, @Context HttpServletRequest request) {
+
+		try {
+
+			final String uriAsString = requestURI(info);
+//			final Store store = ((Store) _context.getAttribute(ConfigParams.STORE));
+//			final Iterator<Statement> removeIterator = store.describe(ValueFactoryImpl.getInstance().createURI(uriAsString), false);
+
+//			if (removeIterator.hasNext()) {
+//				store.removeData(removeIterator);
+//				return Response.ok().build();
+//			} else {
+//				return Response.status(Response.Status.NOT_FOUND).build();
+//			}
+
+		} catch (final FactException exception) {
+			log.error(MessageCatalog._00025_CUMULUS_SYSTEM_INTERNAL_FAILURE, exception);
+			return Response.status(
+					HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("====== StoreException ====== \n" + exception.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path("{id}")
+	@Produces(ContentType.MIME_HTML)
+	// @Profiled(tag = "getHTML")
+	public Response getHTML(@Context final UriInfo info, @Context HttpServletRequest request) {
+		return getInternal(info, request, "[getHTML]", ContentType.MIME_HTML);
+	}
+
+	@GET
+	@Path("")
+	@Produces(COMMON.MIME_HTML)
+	// @Profiled(tag = "getHTML")
+	public Response getHTMLDefaultPage(@Context final UriInfo info) {
+		String defaultPage = "";
+		return Response.status(HttpStatus.SC_BAD_REQUEST).entity(defaultPage).build();
+	}
+
+	private Response getInternal(UriInfo info, HttpServletRequest request, String log_head, String content_type) {
+//
+//		try {
+//
+//			String url_strg = requestURI(info);
+//
+//			Store store = ((Store) _context.getAttribute(ConfigParams.STORE));
+//			Iterator<Statement> data = store.describe(ValueFactoryImpl.getInstance().createURI(url_strg), false, Integer.MAX_VALUE, Integer.MAX_VALUE);
+//
+//			if (!data.hasNext()) {
+//				return Response.status(HttpStatus.SC_NOT_FOUND).build();
+//
+//			} else {
+//				return Response.ok(getOutput(content_type, data)).build();
+//			}
+//		} catch (final FactException exception) {
+//			log.error(MessageCatalog._00025_CUMULUS_SYSTEM_INTERNAL_FAILURE, exception);
+//			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("====== StoreException ====== \n" + exception.getMessage()).build();
+//		}
+	}
+
+	@GET
+	@Path("{id}")
+	@Produces(ContentType.MIME_PLAIN)
+	// @Profiled(tag = "getNT")
+	public Response getNT(@Context final UriInfo info, @Context HttpServletRequest request) {
+		return getInternal(info, request, "[getNT]", ContentType.MIME_PLAIN);
+	}
+
+	// @Profiled(tag = "getOutput")
+	private StreamingOutput getOutput(final String mediaType, final Iterator<Statement> triples) {
+		return new StreamingOutput() {
+			@Override
+			public void write(OutputStream output) throws IOException {
+//				SerializationFormat formatter = Environment.getSerializationFormat(mediaType);
+//				PrintWriter pw = new PrintWriter(output);
+//				formatter.print(triples, pw);
+//				pw.close();
+			}
+		};
+	}
+
+	private StreamingOutput getOutput(final String mediaType, final List<Statement> triples) {
+		return getOutput(mediaType, triples.iterator());
+	}
+
+	@GET
+	@Path("{id}")
+	@Produces(ContentType.MIME_RDFXML)
+	// @Profiled(tag = "getXML")
+	public Response getXML(@Context final UriInfo info, @Context HttpServletRequest request) {
+		return getInternal(info, request, "[getXML]", ContentType.MIME_RDFXML);
+	}
+
+	// @Profiled(tag = "handleBlanks")
+	private List<Statement> handleBlanks(final List<Statement> triples, final UriInfo info) {
+
+		final String rest_base_url = baseURI(info);
+		final Map<String, Value> blanks = new HashMap<String, Value>();
+
+		for (Statement n : triples) {
+			final Resource subject = n.getSubject();
+			final Value object = n.getObject();
+			if (subject instanceof BNode && subject.toString().startsWith(MAGIC_BN)) {
+				blanks.put(subject.toString(), null);
+			}
+			if (object instanceof BNode && object.toString().startsWith(MAGIC_BN)) {
+				blanks.put(object.toString(), null);
+			}
+		}
+
+		for (String s : blanks.keySet()) {
+			blanks.put(s, ValueFactoryImpl.getInstance().createURI(rest_base_url + s));
+		}
+
+		final List<Statement> replaced = new ArrayList<Statement>();
+
+		for (Iterator<Statement> iterator = replaced.iterator(); iterator.hasNext();) {
+			final Statement n = iterator.next();
+			Resource subject = n.getSubject();
+			Value object = n.getObject();
+
+			boolean mustBeReplaced = false;
+
+			if (subject instanceof BNode && subject.toString().startsWith(MAGIC_BN)) {
+				subject = (Resource) blanks.get(subject.toString());
+				mustBeReplaced = true;
+			}
+
+			if (object instanceof BNode && object.toString().startsWith(MAGIC_BN)) {
+				object = blanks.get(object.toString());
+				mustBeReplaced = true;
+			}
+
+			if (mustBeReplaced) {
+				replaced.add(ValueFactoryImpl.getInstance().createStatement(subject, n.getPredicate(), object));
+				iterator.remove();
+			}
+		}
+
+		triples.addAll(replaced);
+		return triples;
+	}
+
+	private Response postInternal(UriInfo info, List<Statement> toCommit, String input, String log_head, String content_type) {
+
+//		try {
+//
+//			if (toCommit.isEmpty() && input.isEmpty()) {
+//				log.info(log_head + " input was empty");
+//				return Response.status(HttpStatus.SC_NOT_MODIFIED).entity("input was empty").build();
+//			}
+//
+//			if (toCommit.isEmpty() && !input.isEmpty()) {
+//				log.error(log_head + " parsed data is empty - probably due to parsing problem");
+//				return Response.status(HttpStatus.SC_BAD_REQUEST).entity("parsed data is empty - probably due to parsing problem").build();
+//			}
+//
+//			AbstractCassandraRdfHector crdf = (AbstractCassandraRdfHector) _context.getAttribute(ConfigParams.STORE);
+//
+//			toCommit = handleBlanks(toCommit, info, crdf.getCounterFactory().getCounter(URI_COUNTER));
+//
+//			crdf.addData(toCommit.iterator());
+//
+//			return Response.status(HttpStatus.SC_CREATED).entity(getOutput(content_type, toCommit)).build();
+//
+//		} catch (final FactException exception) {
+//			log.error(MessageCatalog._00025_CUMULUS_SYSTEM_INTERNAL_FAILURE, exception);
+//			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("====== StoreException ====== \n" + exception.getMessage()).build();
+//		}
+		return null;
+	}
+
+	@POST
+	@Path("")
+	@Consumes(ContentType.REDIRECTS_TEXT)
+	// @Profiled(tag = "postXMLtoXML")
+	public Response postNTRedirects(String input, @Context UriInfo info) {
+
+		input = input.trim();
+		List<Statement> toCommit = Util.parseNX(input);
+
+		if (toCommit.isEmpty() && !input.isEmpty()) {
+			return Response.status(HttpStatus.SC_BAD_REQUEST).entity("====== syntax error ====== \nNo input").build();
+		}
+
+		if (toCommit.isEmpty() && input.isEmpty()) {
+			return Response.status(HttpStatus.SC_NOT_MODIFIED).entity("input was empty").build();
+		}
+
+		Store store = (Store) _context.getAttribute(ConfigParams.STORE);
+
+		if (store instanceof CassandraRdfHectorQuads) {
+			return Response.status(HttpStatus.SC_CREATED).build();
+		} else {
+			return Response.status(HttpStatus.SC_BAD_REQUEST).entity("Cumulus store not instance of CassandraRdfHectorQuads.").build();
+		}
+	}
+
+	@POST
+	@Path("")
+	@Consumes(ContentType.MIME_PLAIN)
+	@Produces(ContentType.MIME_PLAIN)
+	// @Profiled(tag = "postNTtoNT")
+	public Response postNTtoNT(String input, @Context UriInfo info) {
+
+		try {
+			input = input.trim();
+			List<Statement> toCommit = Util.parseNX(input);
+
+			return postInternal(info, toCommit, input, "[postNTtoNT]", ContentType.MIME_PLAIN);
+
+		} catch (StringIndexOutOfBoundsException e) {
+
+			log.error("[postNTtoXML] ParseException\n" + e.getMessage());
+			return Response.status(HttpStatus.SC_BAD_REQUEST).entity("====== syntax error ====== \n" + e.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path("")
+	@Consumes(ContentType.MIME_PLAIN)
+	@Produces(ContentType.MIME_RDFXML)
+	// @Profiled(tag = "postNTtoXML")
+	public Response postNTtoXML(String input, @Context UriInfo info) {
+
+		try {
+
+			input = input.trim();
+			List<Statement> toCommit = Util.parseNX(input);
+
+			return postInternal(info, toCommit, input, "[postNTtoXML]", ContentType.MIME_RDFXML);
+
+		} catch (StringIndexOutOfBoundsException e) {
+
+			log.error("[postNTtoXML] ParseException\n" + e.getMessage());
+			return Response.status(HttpStatus.SC_BAD_REQUEST).entity("====== syntax error ====== \n" + e.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path("")
+	@Consumes(ContentType.MIME_RDFXML)
+	@Produces(ContentType.MIME_PLAIN)
+	// @Profiled(tag = "postXMLtoNT")
+	public Response postXMLtoNT(String input, @Context UriInfo info) {
+
+		try {
+
+			input = input.trim();
+			List<Statement> toCommit = Util.parseXML(input);
+
+			return postInternal(info, toCommit, input, "[postXMLtoNT]", ContentType.MIME_PLAIN);
+
+		} catch (final Exception exception) {
+			log.error(MessageCatalog._00026_NWS_SYSTEM_INTERNAL_FAILURE, exception);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("====== Exception ====== \n" + exception.getMessage()).build();
+		}
+	}
+
+	@POST
+	@Path("")
+	@Consumes(ContentType.MIME_RDFXML)
+	@Produces(ContentType.MIME_RDFXML)
+	// @Profiled(tag = "postXMLtoXML")
+	public Response postXMLtoXML(String input, @Context UriInfo info) {
+
+		try {
+
+			input = input.trim();
+			List<Statement> toCommit = Util.parseXML(input);
+
+			return postInternal(info, toCommit, input, "[postXMLtoXML]", ContentType.MIME_RDFXML);
+
+		} catch (final Exception exception) {
+			log.error(MessageCatalog._00026_NWS_SYSTEM_INTERNAL_FAILURE, exception);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("====== Exception ====== \n" + exception.getMessage()).build();
+		}
+	}
+
+	private Response putInternal(UriInfo info, List<Statement> data, String input, String log_head) {
+
+		try {
+
+			if (data.isEmpty() && input.isEmpty()) {
+				return Response.status(HttpStatus.SC_NOT_MODIFIED).entity("input was empty").build();
+			}
+
+			if (data.isEmpty() && !input.isEmpty()) {
+				return Response.status(HttpStatus.SC_BAD_REQUEST).entity("parsed data is empty - probably due to parsing problem").build();
+			}
+
+			if (data.size() != 2) {
+				return Response.status(HttpStatus.SC_BAD_REQUEST).entity("input data is not valid: " + data).build();
+			}
+
+			final Value[] old_triple = new Value[] { data.get(0).getSubject(), data.get(0).getPredicate(), data.get(0).getObject() };
+			final Statement new_triple = data.get(1);
+
+			Statement firstMatchingTriple = null;
+			AbstractCassandraRdfHector crdf = (AbstractCassandraRdfHector) _context.getAttribute(ConfigParams.STORE);
+
+			if (Util.CONTAINS_VAR.apply(old_triple)) {
+
+				Iterator<Statement> result = crdf.query(old_triple, 1);
+
+				if (result.hasNext()) {
+					firstMatchingTriple = result.next();
+				} else {
+					return Response.status(HttpStatus.SC_BAD_REQUEST).entity("no data found: " + Arrays.toString(old_triple)).build();
+				}
+			} else
+			{
+				firstMatchingTriple = ValueFactoryImpl.getInstance().createStatement((Resource)old_triple[0], (URI)old_triple[1], old_triple[2]);
+			}
+
+			crdf.removeData(new Value[]{firstMatchingTriple.getSubject(), firstMatchingTriple.getPredicate(), firstMatchingTriple.getObject()});
+			crdf.addData(new_triple);
+
+			return Response.status(HttpStatus.SC_OK).build();
+		} catch (final Exception exception) {
+			log.error(MessageCatalog._00026_NWS_SYSTEM_INTERNAL_FAILURE, exception);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("====== Exception ====== \n" + exception.getMessage()).build();
+		}
+	}
+
+	@PUT
+	@Path("")
+	@Consumes(ContentType.MIME_PLAIN)
+	public Response putNT(String input, @Context UriInfo info) {
+
+		try {
+
+			return putInternal(info, Util.parseNX(input.trim()), input, "[putNT]");
+
+		} catch (StringIndexOutOfBoundsException e) {
+
+			log.error("[putNTtoNT] ParseException\n" + e.getMessage());
+			return Response.status(HttpStatus.SC_BAD_REQUEST).entity("====== syntax error ====== \n" + e.getMessage()).build();
+		}
+	}
+
+	@PUT
+	@Path("")
+	@Consumes(ContentType.MIME_RDFXML)
+	public Response putXML(String input, @Context UriInfo info) {
+
+		try {
+
+			return putInternal(info, Util.parseXML(input.trim()), input, "[putXML]");
+
+		} catch (StringIndexOutOfBoundsException e) {
+
+			log.error("[putNTtoNT] StringIndexOutOfBoundsException\n" + e.getMessage());
+			return Response.status(HttpStatus.SC_BAD_REQUEST).entity("====== syntax error ====== \n" + e.getMessage()).build();
+
+		} catch (final Exception exception) {
+			log.error(MessageCatalog._00026_NWS_SYSTEM_INTERNAL_FAILURE, exception);
+			return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity("====== Exception ====== \n" + exception.getMessage()).build();
+		}
+	}
+
+	private String requestURI(UriInfo info) {
+
+		String rest_url = (String) _context.getAttribute(ConfigParams.REST_SERVLET_URL);
+
+		if (rest_url != null) {
+			List<PathSegment> segments = info.getPathSegments(false);
+			String local = segments.get(segments.size() - 1).getPath();
+			return rest_url + local;
+		}
+
+		return info.getRequestUri().toString();
+	}
+
+	/**
+	 * Setter for pojo-based tests using mocked ServletContext instances.
+	 *
+	 * @param context
+	 */
+	public void setServletContext(ServletContext context) {
+		_context = context;
+	}
+}

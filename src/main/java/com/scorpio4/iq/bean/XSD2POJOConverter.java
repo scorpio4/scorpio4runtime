@@ -19,7 +19,7 @@ import java.util.Date;
 /**
  * scorpio4 (c) 2013
  * Module: com.scorpio4.iq.bean
- * User  : lee
+ * @author lee
  * Date  : 31/12/2013
  * Time  : 9:24 PM
  */

@@ -8,7 +8,7 @@ import com.scorpio4.asq.ASQ;
 
 /**
  * Fact:Core (c) 2012
- * User: lee
+ * @author lee
  * Date: 30/07/13
  * Time: 1:12 PM
  *

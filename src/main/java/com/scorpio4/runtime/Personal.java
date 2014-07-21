@@ -18,7 +18,7 @@ import java.util.Properties;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.runtime
- * User  : lee
+ * @author lee
  * Date  : 24/06/2014
  * Time  : 12:00 AM
  */
@@ -29,7 +29,7 @@ public class Personal extends Engine {
 
 	public Personal(String identity, File rootDir, Map<String,String> properties) throws Exception {
 		log.debug("Working directory: " + rootDir.getAbsolutePath());
-		rootDir.mkdirs();
+		boolean done = rootDir.mkdirs();
 		init(identity, new RepositoryManager(rootDir), properties);
 	}
 

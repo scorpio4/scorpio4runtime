@@ -14,7 +14,7 @@ import org.openrdf.repository.RepositoryResult;
  *
  * scorpio4 (c) 2011-2013
  * Module: com.scorpio4.util
- * User  : lee
+ * @author lee
  * Date  : 7/05/2014
  * Time  : 1:16 PM
  */
@@ -22,9 +22,10 @@ public class RDFPrefixer {
 
 
 	public static String addSPARQLPrefix(RepositoryConnection repositoryConnection, String query) throws RepositoryException {
-		StringBuffer names$ = new StringBuffer();
+		StringBuilder names$ = new StringBuilder();
 		RepositoryResult<Namespace> allns = repositoryConnection.getNamespaces();
-		for(Namespace ns: allns.asList()) {
+		while(allns.hasNext() ) {
+			Namespace ns = allns.next();
 			if (!ns.getPrefix().equals("")) {
 				names$.
 						append("PREFIX ").
@@ -39,9 +40,10 @@ public class RDFPrefixer {
 	}
 
 	public static String addN3Prefix(RepositoryConnection repositoryConnection, String n3s) throws RepositoryException {
-		StringBuffer names$ = new StringBuffer();
+		StringBuilder names$ = new StringBuilder();
 		RepositoryResult<Namespace> allns = repositoryConnection.getNamespaces();
-		for(Namespace ns: allns.asList()) {
+		while(allns.hasNext() ) {
+			Namespace ns = allns.next();
 			if (!ns.getPrefix().equals("")) {
 				names$.
 						append("@prefix ").

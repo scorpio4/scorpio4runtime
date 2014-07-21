@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel.component.asset
- * User  : lee
+ * @author lee
  * Date  : 23/06/2014
  * Time  : 3:28 AM
  */
@@ -31,7 +31,14 @@ abstract public class Base implements Identifiable {
 	protected String uri;
 	protected Asset asset;
 
+	protected Base() throws IOException {
+	}
+
 	public Base(ExecutionEnvironment engine, String uri) throws IOException {
+		init(engine,uri);
+	}
+
+	public void init(ExecutionEnvironment engine, String uri) throws IOException {
 		this.engine = engine;
 		this.uri=uri;
 		if (uri!=null && !uri.equals("")) {

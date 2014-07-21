@@ -9,13 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel
- * User  : lee
+ * @author lee
  * Date  : 19/06/2014
  * Time  : 8:22 AM
  */
@@ -66,17 +65,17 @@ public class FLOSupport {
 	}
 
 
-	public Object trigger(String from, Object body) {
-		return trigger(from, body, new HashMap());
-	}
+//	public Object trigger(String from, Object body) {
+//		return trigger(from, body, new HashMap(), Object.class);
+//	}
 
-	public Object trigger(String from, Object body, Map header) {
+	public Object trigger(String from, Object body, Map header, Class type) {
 		try {
 			ProducerTemplate producer = context.createProducerTemplate();
-			Object result = producer.requestBodyAndHeaders(from, body, header);
+			Object result = producer.requestBodyAndHeaders(from, body, header, type);
 			return result;
 		} catch(Exception e) {
-			log.error("Faulty Trigger: " + from + " --> " + e.getMessage());
+			log.error("Faulty Trigger: " + from + " --> " + e.getMessage(), e);
 			return body;
 		}
 	}

@@ -1,4 +1,4 @@
-package com.scorpio4.asq.parser;
+package com.scorpio4.vendor.sesame.asq;
 
 import com.scorpio4.asq.ASQ;
 import com.scorpio4.asq.ASQParser;
@@ -19,11 +19,11 @@ import java.util.Map;
 /**
  * scorpio4-oss (c) 2014
  * Module: com.scorpio4.asq.parser
- * User  : lee
+ * @author lee
  * Date  : 16/07/2014
  * Time  : 1:32 PM
  *
- *
+ * Build an ASQ query object by following terms of the ASQ Vocabulary
  *
  *
  */
@@ -92,7 +92,7 @@ public class ASQ4Sesame implements ASQParser {
 	}
 
 	private Pattern buildPattern(Pattern pattern, String name, Value object) throws ASQException, RepositoryException {
-		if (pattern==null) pattern = new Pattern(asq);
+		if (pattern==null) pattern = new Pattern();
 		switch(name) {
 			case "this":
 				pattern.setThis( object.stringValue());

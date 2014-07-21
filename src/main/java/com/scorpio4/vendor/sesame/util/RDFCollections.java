@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * Scorpio4 (c) 2014
  * Module: com.scorpio4.vendor.sesame.util
- * User  : lee
+ * @author lee
  * Date  : 27/05/2014
  * Time  : 11:04 PM
  * Apache Licensed.
@@ -23,7 +23,7 @@ public class RDFCollections {
     private static final Logger log = LoggerFactory.getLogger(RDFCollections.class);
 
     RepositoryConnection connection = null;
-    URI LIST = null, rdfFirst = null, rdfRest = null, rdfNil = null, context = null;
+    URI rdfFirst = null, rdfRest = null, rdfNil = null, context = null;
     boolean useInferred = true;
     Map seen = new HashMap();
 
@@ -40,10 +40,9 @@ public class RDFCollections {
         if (context!=null) this.context = vf.createURI(context);
     }
 
-	public boolean isList(Resource head) throws RepositoryException {
-		if (head==null) return false;
-		boolean isList = connection.hasStatement(head, RDF.TYPE, RDF.LIST, useInferred);
-		return isList;
+	public boolean isList(Value head) throws RepositoryException {
+		return (head==null || head instanceof Literal)  &&
+				connection.hasStatement( (Resource)head, RDF.TYPE, RDF.LIST, useInferred);
 	}
 
 	public Collection<Value> getList(String head, String predicate) throws RepositoryException {
@@ -52,7 +51,7 @@ public class RDFCollections {
     }
 
     public Collection<Value> getList(Resource head, URI predicate) throws RepositoryException {
-        List<Value> list = new ArrayList();
+        Collection<Value> list = new ArrayList();
         log.debug("\tgetList: "+head+" -> "+predicate+" @ "+context);
         RepositoryResult<Statement> statements = getStatements(head,predicate);
 

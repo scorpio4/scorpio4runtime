@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * Scorpio4 (c) 2014
  * Module: com.scorpio4.assets
- * User  : lee
+ * @author lee
  * Date  : 17/06/2014
  * Time  : 5:45 PM
  */

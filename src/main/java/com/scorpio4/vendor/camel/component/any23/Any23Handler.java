@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Scorpio (c) 2014
  * Module: com.scorpio4.vendor.camel.component.any23
- * User  : lee
+ * @author lee
  * Date  : 24/06/2014
  * Time  : 10:29 PM
  */
@@ -32,7 +32,7 @@ public class Any23Handler  {
 	public void handle(Exchange exchange) throws Exception {
 		log.debug("ANY23: "+exchange);
 		Any23 runner = new Any23();
-		runner.setHTTPUserAgent("x-any23-camel-agent");
+		runner.setHTTPUserAgent("x-camel-any23-handler");
 
 		String contentType = ExchangeHelper.getContentType(exchange);
 		String body = exchange.getIn().getBody(String.class);
@@ -48,7 +48,7 @@ public class Any23Handler  {
 		try {
 			runner.extract(source, handler);
 		} catch(Exception e) {
-
+			// do nothing
 		} finally {
 			handler.close();
 		}

@@ -15,7 +15,7 @@ import java.util.Properties;
 /**
  * scorpio4 (c) 2013-2014
  * Module: com.scorpio4
- * User  : lee
+ * @author lee
  * Date  : 1/05/2014
  * Time  : 3:08 PM
  */
@@ -40,16 +40,16 @@ public class JARAssetRegister extends BaseAssetRegister {
 
 
     private void init() {
-        mimeToExtension.put(COMMON.MIME_GROOVY, ".groovy");
-        mimeToExtension.put(COMMON.MIME_JAVASCRIPT, ".js");
-        mimeToExtension.put(COMMON.MIME_JSON, ".json");
-        mimeToExtension.put(COMMON.MIME_SPARQL, ".sparql");
-        mimeToExtension.put(COMMON.MIME_SQL, ".sql");
-        mimeToExtension.put(COMMON.MIME_PLAIN, ".txt");
-        mimeToExtension.put(COMMON.MIME_XHTML, ".xhtml");
-        mimeToExtension.put(COMMON.MIME_HTML, ".html");
-        mimeToExtension.put(COMMON.MIME_XML, ".xml");
-        mimeToExtension.put(COMMON.MIME_CSV, ".csv");
+	    Object put = mimeToExtension.put(COMMON.MIME_GROOVY, ".groovy");
+	    put = mimeToExtension.put(COMMON.MIME_JAVASCRIPT, ".js");
+	    put = mimeToExtension.put(COMMON.MIME_JSON, ".json");
+	    put = mimeToExtension.put(COMMON.MIME_SPARQL, ".sparql");
+	    put = mimeToExtension.put(COMMON.MIME_SQL, ".sql");
+	    put = mimeToExtension.put(COMMON.MIME_PLAIN, ".txt");
+	    put = mimeToExtension.put(COMMON.MIME_XHTML, ".xhtml");
+	    put = mimeToExtension.put(COMMON.MIME_HTML, ".html");
+	    put = mimeToExtension.put(COMMON.MIME_XML, ".xml");
+	    put = mimeToExtension.put(COMMON.MIME_CSV, ".csv");
     }
 
     /**
