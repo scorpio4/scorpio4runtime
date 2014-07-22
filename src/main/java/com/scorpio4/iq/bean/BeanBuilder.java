@@ -3,7 +3,7 @@ package com.scorpio4.iq.bean;
 import com.scorpio4.fact.stream.FactStream;
 import com.scorpio4.oops.FactException;
 import com.scorpio4.oops.IQException;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class BeanBuilder implements FactStream {
 	protected HashMap<String, Map<String, String>> attributesMap = new HashMap();
 	protected HashMap<String, String> classMap = new HashMap();
 
-	public String baseURI = COMMON.CORE+"bean/";
+	public String baseURI = COMMONS.CORE+"bean/";
 	public String INSTANCE_OF = baseURI+"asa";
 
 	protected Object delegate = null;

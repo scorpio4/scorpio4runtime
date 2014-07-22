@@ -1,6 +1,6 @@
 package com.scorpio4.runtime;
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.Statement;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
@@ -26,7 +26,7 @@ public class OSGi extends Engine implements BundleActivator {
 	static final Logger log = LoggerFactory.getLogger(OSGi.class);
 
 	BundleContext bundleContext;
-	public static String INSTALL_BUNDLE = COMMON.CORE+"osgi/bundle";
+	public static String INSTALL_BUNDLE = COMMONS.CORE+"osgi/bundle";
 
 	public OSGi() {
 	}

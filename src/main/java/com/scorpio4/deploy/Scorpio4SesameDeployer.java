@@ -13,7 +13,7 @@ import com.scorpio4.util.Identifiable;
 import com.scorpio4.util.Steps;
 import com.scorpio4.util.io.StreamCopy;
 import com.scorpio4.vendor.sesame.util.SesameHelper;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -82,15 +82,15 @@ public class Scorpio4SesameDeployer implements Identifiable {
 	protected void initScriptEngines() throws FactException {
 		List<ScriptEngineFactory> scriptEngineFactories = sem.getEngineFactories();
 		try {
-			this.textType = values.createURI(COMMON.MIME_PLAIN);
-            this.rdfsLabel = values.createURI(COMMON.RDFS+"label");
-            this.mimeExtension = values.createURI(COMMON.MIME_TYPE+"extension");
+			this.textType = values.createURI(COMMONS.MIME_PLAIN);
+            this.rdfsLabel = values.createURI(COMMONS.RDFS+"label");
+            this.mimeExtension = values.createURI(COMMONS.MIME_TYPE+"extension");
 			for (int i=0;i<scriptEngineFactories.size();i++) {
 				ScriptEngineFactory sef = scriptEngineFactories.get(i);
 				List<String> extensions = sef.getExtensions();
 				List mimes = sef.getMimeTypes();
 				for(int m=0;m<mimes.size();m++) {
-					URI mimeURI = values.createURI(COMMON.MIME_TYPE+mimes.get(m));
+					URI mimeURI = values.createURI(COMMONS.MIME_TYPE+mimes.get(m));
 					getConnection().add(mimeURI, subClassOf, textType, provenanceContext);
 					getConnection().add(mimeURI, a, textType, provenanceContext);
 					getConnection().add(mimeURI, rdfsLabel, values.createLiteral(sef.getLanguageName()), provenanceContext);
@@ -102,16 +102,16 @@ public class Scorpio4SesameDeployer implements Identifiable {
 					}
 				}
 			}
-			extension2type.put("sparql", COMMON.MIME_TYPE+ "application/x-sparql-query");
-			extension2type.put("rq", COMMON.MIME_TYPE+ "application/x-sparql-query");
-			extension2type.put("camel.xml",	COMMON.MIME_TYPE+ "application/x-camel-route");
-			extension2type.put("asq",	COMMON.MIME_TYPE+ "application/x-asq");
+			extension2type.put("sparql", COMMONS.MIME_TYPE+ "application/x-sparql-query");
+			extension2type.put("rq", COMMONS.MIME_TYPE+ "application/x-sparql-query");
+			extension2type.put("camel.xml",	COMMONS.MIME_TYPE+ "application/x-camel-route");
+			extension2type.put("asq",	COMMONS.MIME_TYPE+ "application/x-asq");
 
-			extension2type.put("xhtml", COMMON.MIME_TYPE+ "application/xhtml+xml");
-			extension2type.put("txt", COMMON.MIME_TYPE+"plain/text");
-            extension2type.put("json", COMMON.MIME_TYPE+ "application/json");
-            extension2type.put("css", COMMON.MIME_TYPE+"plain/css");
-            extension2type.put("xml", COMMON.MIME_TYPE+"application/xml");
+			extension2type.put("xhtml", COMMONS.MIME_TYPE+ "application/xhtml+xml");
+			extension2type.put("txt", COMMONS.MIME_TYPE+"plain/text");
+            extension2type.put("json", COMMONS.MIME_TYPE+ "application/json");
+            extension2type.put("css", COMMONS.MIME_TYPE+"plain/css");
+            extension2type.put("xml", COMMONS.MIME_TYPE+"application/xml");
 		} catch (RepositoryException e) {
 			throw new FactException("Repository failed: "+e.getMessage(),e);
 		}
@@ -333,8 +333,8 @@ public class Scorpio4SesameDeployer implements Identifiable {
  	public void setConnection(RepositoryConnection connection) throws RepositoryException {
 		this.connection = connection;
 		this.values = connection.getValueFactory();
-		this.a = values.createURI(COMMON.RDFS_TYPE);
-		this.subClassOf = values.createURI(COMMON.RDFS_SUBCLASS);
+		this.a = values.createURI(COMMONS.RDFS_TYPE);
+		this.subClassOf = values.createURI(COMMONS.RDFS_SUBCLASS);
         this.hasAsset = values.createURI(SesameAssetRegister.HAS_ASSET);
 	}
 

@@ -6,7 +6,7 @@ package com.scorpio4.iq.bean;
  *
  */
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.InputStream;
@@ -108,18 +108,18 @@ public class XSD2POJOConverter implements ConvertsType {
 	    if (xsdType==null) return String.class;
         switch(xsdType) {
             // xsd
-            case COMMON.XSD+"string": return String.class;
-            case COMMON.XSD+"integer": return Integer.class;
-            case COMMON.XSD+"int": return Integer.class;
-            case COMMON.XSD+"float": return Float.class;
-            case COMMON.XSD+"double": return Double.class;
-            case COMMON.XSD+"decimal": return Double.class;
-            case COMMON.XSD+"boolean": return Boolean.class;
-            case COMMON.XSD+"long": return Long.class;
-            case COMMON.XSD+"date": return Date.class;
-            case COMMON.XSD+"dateTime": return Date.class;
-            case COMMON.XSD+"anyURI": return URI.class;
-	        case COMMON.XSD+"null": return null;
+            case COMMONS.XSD+"string": return String.class;
+            case COMMONS.XSD+"integer": return Integer.class;
+            case COMMONS.XSD+"int": return Integer.class;
+            case COMMONS.XSD+"float": return Float.class;
+            case COMMONS.XSD+"double": return Double.class;
+            case COMMONS.XSD+"decimal": return Double.class;
+            case COMMONS.XSD+"boolean": return Boolean.class;
+            case COMMONS.XSD+"long": return Long.class;
+            case COMMONS.XSD+"date": return Date.class;
+            case COMMONS.XSD+"dateTime": return Date.class;
+            case COMMONS.XSD+"anyURI": return URI.class;
+	        case COMMONS.XSD+"null": return null;
             // simple
             case "string": return String.class;
             case "integer": return Integer.class;
@@ -134,27 +134,27 @@ public class XSD2POJOConverter implements ConvertsType {
             case "anyURI": return URI.class;
 	        case "null": return null;
         }
-	    if (xsdType.startsWith(COMMON.MIME_TYPE)) {
+	    if (xsdType.startsWith(COMMONS.MIME_TYPE)) {
 		    return InputStream.class;
 	    }
         return Object.class;
     }
 
     public static String convertToXSD(Object type) {
-        if (type==null) return COMMON.XSD+"string";
+        if (type==null) return COMMONS.XSD+"string";
         return convertClassToXSD(type.getClass());
     }
 
     public static String convertClassToXSD(Class type) {
-	    if (type==null) return COMMON.XSD+"null";
-        if (String.class.isInstance(type)) return COMMON.XSD+"string";
-        if (Integer.class.isInstance(type)) return COMMON.XSD+"integer";
-        if (Float.class.isInstance(type)) return COMMON.XSD+"float";
-        if (Double.class.isInstance(type)) return COMMON.XSD+"double";
-        if (Number.class.isInstance(type)) return COMMON.XSD+"decimal";
-        if (Date.class.isInstance(type)) return COMMON.XSD+"dateTime";
-        if (URI.class.isInstance(type)) return COMMON.XSD+"anyURI";
-        if (URL.class.isInstance(type)) return COMMON.XSD+"anyURI";
-        return COMMON.XSD+"string";
+	    if (type==null) return COMMONS.XSD+"null";
+        if (String.class.isInstance(type)) return COMMONS.XSD+"string";
+        if (Integer.class.isInstance(type)) return COMMONS.XSD+"integer";
+        if (Float.class.isInstance(type)) return COMMONS.XSD+"float";
+        if (Double.class.isInstance(type)) return COMMONS.XSD+"double";
+        if (Number.class.isInstance(type)) return COMMONS.XSD+"decimal";
+        if (Date.class.isInstance(type)) return COMMONS.XSD+"dateTime";
+        if (URI.class.isInstance(type)) return COMMONS.XSD+"anyURI";
+        if (URL.class.isInstance(type)) return COMMONS.XSD+"anyURI";
+        return COMMONS.XSD+"string";
     }
 }

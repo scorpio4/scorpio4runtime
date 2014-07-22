@@ -1,6 +1,6 @@
 package com.scorpio4.vendor.sesame.util;
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.*;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
@@ -34,14 +34,14 @@ public class RDFCollections {
     public RDFCollections(RepositoryConnection connection, String context) {
         this.connection=connection;
         ValueFactory vf = connection.getValueFactory();
-        this.rdfFirst = vf.createURI(COMMON.RDF+"first");
-        this.rdfRest = vf.createURI(COMMON.RDF+"rest");
-        this.rdfNil = vf.createURI(COMMON.RDF+"nil");
+        this.rdfFirst = vf.createURI(COMMONS.RDF+"first");
+        this.rdfRest = vf.createURI(COMMONS.RDF+"rest");
+        this.rdfNil = vf.createURI(COMMONS.RDF+"nil");
         if (context!=null) this.context = vf.createURI(context);
     }
 
 	public boolean isList(Value head) throws RepositoryException {
-		return (head==null || head instanceof Literal)  &&
+		return !(head==null || head instanceof Literal)  &&
 				connection.hasStatement( (Resource)head, RDF.TYPE, RDF.LIST, useInferred);
 	}
 

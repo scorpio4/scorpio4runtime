@@ -1,6 +1,6 @@
 package com.scorpio4.assets;
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,16 +40,16 @@ public class JARAssetRegister extends BaseAssetRegister {
 
 
     private void init() {
-	    Object put = mimeToExtension.put(COMMON.MIME_GROOVY, ".groovy");
-	    put = mimeToExtension.put(COMMON.MIME_JAVASCRIPT, ".js");
-	    put = mimeToExtension.put(COMMON.MIME_JSON, ".json");
-	    put = mimeToExtension.put(COMMON.MIME_SPARQL, ".sparql");
-	    put = mimeToExtension.put(COMMON.MIME_SQL, ".sql");
-	    put = mimeToExtension.put(COMMON.MIME_PLAIN, ".txt");
-	    put = mimeToExtension.put(COMMON.MIME_XHTML, ".xhtml");
-	    put = mimeToExtension.put(COMMON.MIME_HTML, ".html");
-	    put = mimeToExtension.put(COMMON.MIME_XML, ".xml");
-	    put = mimeToExtension.put(COMMON.MIME_CSV, ".csv");
+	    Object put = mimeToExtension.put(COMMONS.MIME_GROOVY, ".groovy");
+	    put = mimeToExtension.put(COMMONS.MIME_JAVASCRIPT, ".js");
+	    put = mimeToExtension.put(COMMONS.MIME_JSON, ".json");
+	    put = mimeToExtension.put(COMMONS.MIME_SPARQL, ".sparql");
+	    put = mimeToExtension.put(COMMONS.MIME_SQL, ".sql");
+	    put = mimeToExtension.put(COMMONS.MIME_PLAIN, ".txt");
+	    put = mimeToExtension.put(COMMONS.MIME_XHTML, ".xhtml");
+	    put = mimeToExtension.put(COMMONS.MIME_HTML, ".html");
+	    put = mimeToExtension.put(COMMONS.MIME_XML, ".xml");
+	    put = mimeToExtension.put(COMMONS.MIME_CSV, ".csv");
     }
 
     /**

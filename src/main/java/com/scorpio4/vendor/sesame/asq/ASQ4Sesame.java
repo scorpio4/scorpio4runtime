@@ -5,7 +5,7 @@ import com.scorpio4.asq.ASQParser;
 import com.scorpio4.asq.core.BasicASQ;
 import com.scorpio4.asq.core.Pattern;
 import com.scorpio4.oops.ASQException;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -33,7 +33,7 @@ public class ASQ4Sesame implements ASQParser {
 	private ASQ asq = null;
 	private RepositoryConnection connection;
 	private ValueFactory vf;
-	String vocabURI = COMMON.CORE+"asq/";
+	String vocabURI = COMMONS.CORE+"asq/";
 	Map patternVerbs = new HashMap();
 
 	public ASQ4Sesame(RepositoryConnection connection, String asqURI) throws RepositoryException, ASQException {

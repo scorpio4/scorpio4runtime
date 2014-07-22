@@ -3,7 +3,7 @@ package com.scorpio4.iq.exec;
 import com.scorpio4.assets.Asset;
 import com.scorpio4.oops.AssetNotSupported;
 import com.scorpio4.oops.IQException;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,7 @@ class NotFutureScript implements Future {
     public void execute(Asset script, Map parameters) throws ScriptException, IQException {
         Bindings bindings = new SimpleBindings();
         bindings.putAll(parameters);
-        String mimeType = script.getMimeType().substring(COMMON.MIME_TYPE.length());
+        String mimeType = script.getMimeType().substring(COMMONS.MIME_TYPE.length());
         log.info("Executing "+mimeType+" script");
         ScriptEngine scriptEngine = scripting.scriptEngineManager.getEngineByMimeType(mimeType);
         if (scriptEngine==null) throw new IQException("Unknown script: "+mimeType);

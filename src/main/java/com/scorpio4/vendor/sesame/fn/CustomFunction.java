@@ -1,6 +1,6 @@
 package com.scorpio4.vendor.sesame.fn;
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
@@ -22,7 +22,7 @@ public abstract class CustomFunction implements Function {
    * return the URI 'http://example.org/custom-function/xyz' as a String
    */
   public String getURI() {
-      return COMMON.FN + getFunctionName();
+      return COMMONS.FN + getFunctionName();
   }
 
 	public abstract String getFunctionName();

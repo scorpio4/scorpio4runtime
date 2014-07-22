@@ -1,6 +1,6 @@
 package com.scorpio4.vendor.sesame.util;
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
@@ -62,10 +62,10 @@ public class RDFPrefixer {
 		n3.append("@prefix rdf: <"+ RDF.NAMESPACE+">.\n");
 		n3.append("@prefix rdfs: <"+ RDFS.NAMESPACE+">.\n");
 		n3.append("@prefix owl: <"+ OWL.NAMESPACE+">.\n");
-		n3.append("@prefix skos: <"+ COMMON.SKOS+">.\n");
-		n3.append("@prefix dc: <"+ COMMON.DC+">.\n");
-		n3.append("@prefix xsd: <"+ COMMON.XSD+">.\n");
-		n3.append("@prefix acl: <"+ COMMON.ACL+">.\n");
+		n3.append("@prefix skos: <"+ COMMONS.SKOS+">.\n");
+		n3.append("@prefix dc: <"+ COMMONS.DC+">.\n");
+		n3.append("@prefix xsd: <"+ COMMONS.XSD+">.\n");
+		n3.append("@prefix acl: <"+ COMMONS.ACL+">.\n");
 
 		return n3.toString();
 	}

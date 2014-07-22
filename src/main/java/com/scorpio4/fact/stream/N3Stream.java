@@ -6,7 +6,7 @@ package com.scorpio4.fact.stream;
  *
  */
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import com.scorpio4.util.DateXSD;
 import com.scorpio4.util.Identifiable;
 
@@ -53,9 +53,9 @@ public class N3Stream implements FactStream {
 	private void init() {
 		setUseComments(true);
 		setUseHeaders(true);
-		setPrefix("rdf", COMMON.RDF);
-		setPrefix("rdfs", COMMON.RDFS);
-		setPrefix("xsd", COMMON.XSD);
+		setPrefix("rdf", COMMONS.RDF);
+		setPrefix("rdfs", COMMONS.RDFS);
+		setPrefix("xsd", COMMONS.XSD);
 
 	}
 
@@ -172,7 +172,7 @@ public class N3Stream implements FactStream {
 	}
 
 	public N3Stream typed(String txt, String type) {
-        if (type.indexOf(":")<1) type = COMMON.XSD+type;
+        if (type.indexOf(":")<1) type = COMMONS.XSD+type;
         if (txt.indexOf("\n")>0)
             n3.append(" ").append("\"\"\"").append(txt).append("\"\"\"^^<").append(type).append(">.\n");
         else
@@ -207,17 +207,17 @@ public class N3Stream implements FactStream {
 	}
 
     public N3Stream typeOf(String s, String t) {
-        uri(s, COMMON.A, t);
+        uri(s, COMMONS.A, t);
         return this;
     }
 
     public N3Stream label(String s, String t) {
-        append(s, COMMON.LABEL, t);
+        append(s, COMMONS.LABEL, t);
         return this;
     }
 
     public N3Stream comment(String s, String t) {
-        append(s, COMMON.COMMENT, t);
+        append(s, COMMONS.COMMENT, t);
         return this;
     }
 

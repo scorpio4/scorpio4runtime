@@ -30,9 +30,12 @@ public class Scorpio4ActiveVocabularies extends AbstractActiveVocabulary {
 
 	@Override
 	public void start() throws Exception {
+		super.start();
+		isActive=false;
 		asq.start();
 		springBeans.start();
 		flo.start();
+		isActive=true;
 	}
 
 	@Override
@@ -40,6 +43,7 @@ public class Scorpio4ActiveVocabularies extends AbstractActiveVocabulary {
 		flo.stop();
 		springBeans.stop();
 		asq.stop();
+		super.stop();
 	}
 
 	public Object activate(String triggerURI, Object body) {

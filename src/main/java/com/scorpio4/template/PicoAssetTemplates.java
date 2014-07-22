@@ -5,7 +5,7 @@ import com.scorpio4.assets.AssetRegister;
 import com.scorpio4.assets.JARAssetRegister;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.ConfigException;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class PicoAssetTemplates {
     FactSpace factSpace = null;
     AssetRegister assetRegister;
-    String mimeType = COMMON.MIME_PLAIN;
+    String mimeType = COMMONS.MIME_PLAIN;
 
     public PicoAssetTemplates(FactSpace factSpace) {
         this.factSpace=factSpace;

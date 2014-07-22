@@ -6,7 +6,7 @@ package com.scorpio4.vendor.sesame.io;
  *  25/04/2014 re-licensed BSD License [Lee Curtis].
  */
 import com.scorpio4.oops.FactException;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.*;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
@@ -128,12 +128,12 @@ log.debug("GraphQuery: "+query+"\n -> from: "+graphQuery.getClass());
     }
 
     public static void defaultNamespaces(RepositoryConnection to) throws RepositoryException {
-        to.setNamespace("rdf", COMMON.RDF);
-        to.setNamespace("rdfs", COMMON.RDFS);
-        to.setNamespace("owl", COMMON.OWL);
-        to.setNamespace("skos", COMMON.SKOS);
-        to.setNamespace("dc", COMMON.DC);
-        to.setNamespace("xsd", COMMON.XSD);
-        to.setNamespace("acl", COMMON.ACL);
+        to.setNamespace("rdf", COMMONS.RDF);
+        to.setNamespace("rdfs", COMMONS.RDFS);
+        to.setNamespace("owl", COMMONS.OWL);
+        to.setNamespace("skos", COMMONS.SKOS);
+        to.setNamespace("dc", COMMONS.DC);
+        to.setNamespace("xsd", COMMONS.XSD);
+        to.setNamespace("acl", COMMONS.ACL);
     }
 }

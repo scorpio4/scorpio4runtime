@@ -1,6 +1,6 @@
 package com.scorpio4.jaxrs;
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 
 /**
  * scorpio4-oss (c) 2014
@@ -9,5 +9,5 @@ import com.scorpio4.vocab.COMMON;
  * Date  : 19/07/2014
  * Time  : 10:59 PM
  */
-public interface ContentType extends COMMON {
+public interface ContentType extends COMMONS {
 }

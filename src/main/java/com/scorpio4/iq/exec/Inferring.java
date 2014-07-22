@@ -6,7 +6,7 @@ import com.scorpio4.oops.AssetNotSupported;
 import com.scorpio4.oops.ConfigException;
 import com.scorpio4.oops.IQException;
 import com.scorpio4.vendor.sesame.io.SPARQLRules;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.Repository;
@@ -39,7 +39,7 @@ public class Inferring implements Executable {
 
     @Override
     public Future execute(Asset asset, Map bindings) throws IQException, AssetNotSupported {
-	    if (asset.getMimeType().equals(COMMON.MIME_SPARQL)) throw new AssetNotSupported("Not SPARQL: "+asset);
+	    if (asset.getMimeType().equals(COMMONS.MIME_SPARQL)) throw new AssetNotSupported("Not SPARQL: "+asset);
         try {
             return new NotInferFuture(this, asset, bindings);
         } catch (RepositoryException e) {

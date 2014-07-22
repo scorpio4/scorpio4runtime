@@ -9,7 +9,7 @@ import com.scorpio4.vendor.camel.component.Any23Component;
 import com.scorpio4.vendor.camel.component.SesameComponent;
 import com.scorpio4.vendor.camel.flo.RDFCamelPlanner;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
@@ -36,7 +36,7 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 	protected boolean tracing = true;
 
 	public ActiveFLOVocabulary(ExecutionEnvironment engine) throws Exception {
-		super(COMMON.ACTIVE_FLO, engine, true);
+		super(COMMONS.ACTIVE_FLO, engine, true);
 		boot(engine);
 	}
 

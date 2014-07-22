@@ -19,6 +19,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
@@ -38,17 +39,17 @@ public class SesameHandler implements Processor {
 
 	boolean inferred = true;
 	private int maxQueryTime = -1;
-	String sparql = null;
-	String outputType;
+	String outputType, queryType;
 	Repository repository;
 
-	public SesameHandler(Repository repository, String sparql, Boolean isInferred, Integer maxQueryTime, String contentType) {
-		this.sparql=sparql;
+	public SesameHandler(Repository repository, String type, Boolean isInferred, Integer maxQueryTime, String contentType) {
 		this.inferred=isInferred;
 		this.maxQueryTime=maxQueryTime;
 		this.outputType = contentType;
 		this.repository=repository;
-		log.debug("SesameHandler: "+ outputType +" -> "+sparql);
+		this.queryType=type;
+		log.debug("SesameHandler: "+ outputType);
+
 	}
 
 	@Override
@@ -60,53 +61,53 @@ public class SesameHandler implements Processor {
 		Message out = exchange.getOut();
 		out.setHeaders(headers);
 
-		String contentType = this.outputType;
-		// SPARQL query is specified in message Body not in declaration
-		if (sparql==null||sparql.equals ("")) {
-
-			contentType = contentType==null? ExchangeHelper.getContentType(exchange):contentType;
-			if (contentType==null||contentType.equals("")) {
-				log.debug("Accept-Types:"+headers.get("Accept"));
-				contentType = (String) headers.get("Accept");
-			}
-
-			sparql = in.getBody(String.class);
-
-			if ( sparql==null||sparql.equals ("") ) {
-				sparql = (String) headers.get("sparql.query");
-				if ( sparql==null||sparql.equals ("") ) {
-					throw new MalformedQueryException("Missing SPARQL query");
-				} else {
-					log.debug("Header SPARQL: "+sparql);
-				}
-			} else {
-				log.debug("Body SPARQL: "+sparql);
-			}
-
-		} else log.debug("Parameter SPARQL: "+sparql);
-
-		TupleQueryResultFormat parserFormatForMIMEType = QueryResultIO.getParserFormatForMIMEType(contentType, null);
-		if (parserFormatForMIMEType!=null) {
-			headers.put("Content-Type", parserFormatForMIMEType.getDefaultMIMEType()+";"+parserFormatForMIMEType.getCharset());
-		}
-
-//		headers.put("sparql.query", sparql);
-
 		RepositoryConnection connection = repository.getConnection();
+		String sparql = null, contentType = this.outputType;
+		// SPARQL query is specified in message Body not in declaration
 
-		// prepare SPARQL/XML results
-		log.debug("FLO SPARQL: "+parserFormatForMIMEType+" -> "+sparql);
-		if (parserFormatForMIMEType!=null) {
-			StringWriter stringWriter = handle(connection, sparql, parserFormatForMIMEType);
-			log.trace(stringWriter.toString());
-			// output message
-			String results = stringWriter.toString();
-			out.setBody(results);
-		} else {
-			Collection<Map> body = SesameHelper.toMapCollection(connection, sparql);
-			log.debug("SPARQL Results: " + body);
-			out.setBody(body);
+		contentType = contentType==null? ExchangeHelper.getContentType(exchange):contentType;
+		if (contentType==null||contentType.equals("")) {
+			log.debug("Accept-Types:"+headers.get("Accept"));
+			contentType = (String) headers.get("Accept");
 		}
+
+		sparql = in.getBody(String.class);
+		if ( sparql==null||sparql.equals ("") ) throw new MalformedQueryException("Missing SPARQL query");
+
+		if (queryType=="select") {
+			TupleQueryResultFormat parserFormatForMIMEType = QueryResultIO.getParserFormatForMIMEType(contentType, null);
+			if (parserFormatForMIMEType!=null) {
+				headers.put("Content-Type", parserFormatForMIMEType.getDefaultMIMEType()+";"+parserFormatForMIMEType.getCharset());
+				StringWriter stringWriter = handle(connection, sparql, parserFormatForMIMEType);
+log.trace("TUPLES: " + stringWriter.toString());
+				// output message
+				String results = stringWriter.toString();
+				out.setBody(results);
+			} else {
+				// unknown-type, internal
+				Collection<Map> results = SesameHelper.toMapCollection(connection, sparql);
+log.debug("COLLECTION: " + results);
+				out.setBody(results);
+			}
+		} else if (queryType=="construct") {
+			RDFFormat rdfFormat = RDFFormat.forMIMEType(contentType, RDFFormat.valueOf(contentType));
+log.debug("CONSTRUCT: " + contentType+" -> "+rdfFormat);
+			if (rdfFormat!=null) {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				handleGraph(connection, sparql, outputStream, rdfFormat);
+				outputStream.flush();
+				outputStream.close();
+
+log.debug("GRAPH: "+outputStream);
+				out.setBody(outputStream.toString());
+			} else {
+				handleGraph(connection, sparql, out);
+			}
+		} else {
+			log.debug("DEFAULT: ");
+			handleGraph(connection, sparql, out);
+		}
+
 		connection.close();
 
 	}
@@ -139,6 +140,16 @@ public class SesameHandler implements Processor {
 
 		QueryResultIO.write(graphQueryResult, format, out);
 	}
+
+	private void handleGraph(RepositoryConnection connection, String sparql, Message out) throws MalformedQueryException, RepositoryException, QueryEvaluationException {
+		GraphQuery query = connection.prepareGraphQuery(QueryLanguage.SPARQL, sparql);
+		query.setIncludeInferred(isInferred());
+		if (maxQueryTime>0) query.setMaxQueryTime(getMaxQueryTime());
+		GraphQueryResult graphQueryResult = query.evaluate();
+		out.setBody(graphQueryResult);
+	}
+
+
 
 	public boolean isInferred() {
 		return inferred;

@@ -6,7 +6,7 @@ import com.scorpio4.assets.AssetHelper;
 import com.scorpio4.oops.AssetNotSupported;
 import com.scorpio4.oops.FactException;
 import com.scorpio4.oops.IQException;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
 import org.apache.camel.Message;
@@ -46,7 +46,7 @@ public class AssetBase extends Base {
 		out.setAttachments(in.getAttachments());
 
 		String contentType = ExchangeHelper.getContentType(exchange);
-		String mimeType = COMMON.MIME_TYPE+contentType;
+		String mimeType = COMMONS.MIME_TYPE+contentType;
 
 		if (asset==null) {
 			asset = engine.getAssetRegister().getAsset(uri,mimeType);

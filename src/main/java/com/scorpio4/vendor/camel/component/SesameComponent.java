@@ -9,6 +9,7 @@ import org.apache.camel.component.bean.ClassComponent;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.config.RepositoryResolver;
+import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,16 +27,8 @@ public class SesameComponent extends ClassComponent {
 	static protected final Logger log = LoggerFactory.getLogger(SesameComponent.class);
 	String identity;
 	RepositoryResolver manager;
-	Map<String,String> outputType2contentType;
-
-	public SesameComponent(ExecutionEnvironment engine) {
-		this(engine.getIdentity(), engine.getRepositoryManager());
-	}
-
-	public SesameComponent(String identity, RepositoryResolver manager) {
-		this.identity=identity;
-		this.manager=manager;
-		outputType2contentType = new HashMap();
+	public static Map<String,String> outputType2contentType = new HashMap();
+	static {
 		outputType2contentType.put("xml", TupleQueryResultFormat.SPARQL.getDefaultMIMEType());
 		outputType2contentType.put("sparql", TupleQueryResultFormat.SPARQL.getDefaultMIMEType());
 		outputType2contentType.put("json", TupleQueryResultFormat.JSON.getDefaultMIMEType());
@@ -44,21 +37,41 @@ public class SesameComponent extends ClassComponent {
 		outputType2contentType.put("binary", TupleQueryResultFormat.BINARY.getDefaultMIMEType());
 	}
 
+	public SesameComponent(ExecutionEnvironment engine) {
+		this(engine.getIdentity(), engine.getRepositoryManager());
+	}
+
+	public SesameComponent(String identity, RepositoryResolver manager) {
+		this.identity=identity;
+		this.manager=manager;
+	}
+
 	protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
 		Boolean isInferred = getAndRemoveParameter(parameters, "isInferred", Boolean.class, true);
 		Integer maxQueryTime = getAndRemoveParameter(parameters, "maxQueryTime", Integer.class, 0);
-		String sparql = getAndRemoveParameter(parameters, "sparql.query", String.class, "");
 
 		String contentType = getAndRemoveParameter(parameters, "outputType", String.class);
 		contentType = outputType2contentType.containsKey(contentType)?outputType2contentType.get(contentType):contentType;
 
+		String type = "describe", repoURI = null;
 		Repository repository;
-		if (remaining.equals("self")) remaining = identity;
-		repository = manager.getRepository(remaining);
 
-		log.debug("SPARQL Repository: "+remaining);
+		if (remaining.startsWith("select:")) {
+			type = "select";
+			repoURI = remaining.substring(type.length()+1);
+		} else if (remaining.startsWith("construct:")) {
+			type = "construct";
+			repoURI = remaining.substring(type.length()+1);
+		} else {
+			type = "construct";
+			repoURI = identity;
+		}
+		if (repoURI.equals("self")) repoURI = identity;
+		repository = manager.getRepository(repoURI);
+
+		log.debug("SPARQL Repository: "+repoURI);
 		return new BeanEndpoint(uri, this, new BeanProcessor(
-			new SesameHandler(repository, sparql, isInferred, maxQueryTime, contentType ), getCamelContext()));
+			new SesameHandler(repository, type, isInferred, maxQueryTime, contentType ), getCamelContext()));
 	}
 
 }

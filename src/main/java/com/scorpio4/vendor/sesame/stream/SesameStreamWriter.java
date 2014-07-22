@@ -9,7 +9,7 @@ package com.scorpio4.vendor.sesame.stream;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.fact.stream.FactStream;
 import com.scorpio4.oops.FactException;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
@@ -61,7 +61,7 @@ public class SesameStreamWriter implements FactStream {
     public void fact(String s, String p, Object o, String xsdType) throws FactException {
         if (s==null||p==null||o==null||xsdType==null) return;
         try {
-            if (xsdType.indexOf(":")<1) xsdType = COMMON.XSD+xsdType;
+            if (xsdType.indexOf(":")<1) xsdType = COMMONS.XSD+xsdType;
             if (absolute) this.conn.remove(vf.createURI(s), vf.createURI(p), null, context);
             this.conn.add(vf.createURI(s), vf.createURI(p), vf.createLiteral(o.toString(), vf.createURI(xsdType)), context );
         } catch (RepositoryException e) {

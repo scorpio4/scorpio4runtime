@@ -10,7 +10,7 @@ import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.ConfigException;
 import com.scorpio4.oops.FactException;
 import com.scorpio4.util.Identifiable;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class SesameCRUD implements CRUD {
     }
 
 	public Asset getAsset(String queryURI, Map model) throws FactException, IOException, ConfigException {
-		Asset sparqlAsset = assetRegister.getAsset(queryURI, COMMON.MIME_SPARQL);
+		Asset sparqlAsset = assetRegister.getAsset(queryURI, COMMONS.MIME_SPARQL);
 		Asset asset = AssetHelper.getAsset(sparqlAsset, model);
 		return asset;
 	}

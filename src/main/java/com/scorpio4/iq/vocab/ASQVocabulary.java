@@ -10,7 +10,7 @@ import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vendor.sesame.io.SPARQLRules;
 import com.scorpio4.vendor.sesame.util.RDFScalars;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -39,7 +39,7 @@ import java.util.Map;
 public class ASQVocabulary extends AbstractActiveVocabulary {
 
 	public ASQVocabulary(ExecutionEnvironment engine) throws Exception {
-		super(COMMON.CORE + "asq/", engine, false);
+		super(COMMONS.CORE + "asq/", engine, false);
 		boot(engine);
 	}
 
@@ -93,7 +93,7 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 		Resource queryURI = vf.createURI(asqURI);
 		URI hasAsset = vf.createURI(SesameAssetRegister.HAS_ASSET);
 		connection.remove(queryURI, hasAsset, null);
-		Literal asset = vf.createLiteral(sparql.toString(), vf.createURI(COMMON.MIME_SPARQL));
+		Literal asset = vf.createLiteral(sparql.toString(), vf.createURI(COMMONS.MIME_SPARQL));
 		log.debug("Update Asset: "+queryURI+" -> "+sparql);
 		connection.add(queryURI, hasAsset, asset);
 	}

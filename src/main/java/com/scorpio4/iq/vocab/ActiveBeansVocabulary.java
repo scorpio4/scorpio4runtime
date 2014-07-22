@@ -6,7 +6,7 @@ import com.scorpio4.oops.FactException;
 import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vendor.spring.RDFBeanDefinitionReader;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
@@ -25,7 +25,7 @@ public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
 	RDFBeanDefinitionReader rdfBeanReader;
 
 	public ActiveBeansVocabulary(ExecutionEnvironment engine) throws Exception {
-		super(COMMON.CORE+"bean/",engine, true);
+		super(COMMONS.CORE+"bean/",engine, true);
 		boot(engine);
 	}
 

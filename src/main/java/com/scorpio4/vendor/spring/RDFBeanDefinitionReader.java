@@ -4,7 +4,7 @@ import com.scorpio4.iq.bean.XSD2POJOConverter;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.util.RDFCollections;
 import com.scorpio4.vendor.sesame.util.RDFScalars;
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -39,10 +39,10 @@ import java.util.Map;
  * Date  : 18/06/2014
  * Time  : 9:27 AM
  */
-public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implements Identifiable, COMMON {
+public class RDFBeanDefinitionReader extends AbstractBeanDefinitionReader implements Identifiable, COMMONS {
 	static protected final Logger log = LoggerFactory.getLogger(RDFBeanDefinitionReader.class);
 
-	String NS = COMMON.CORE+"bean/";
+	String NS = COMMONS.CORE+"bean/";
 	String BEAN = NS +"Bean";
 	String ontology = NS;
 	boolean useInferencing = true;

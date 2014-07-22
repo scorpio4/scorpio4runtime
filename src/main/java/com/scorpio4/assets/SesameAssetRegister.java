@@ -1,6 +1,6 @@
 package com.scorpio4.assets;
 
-import com.scorpio4.vocab.COMMON;
+import com.scorpio4.vocab.COMMONS;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 public class SesameAssetRegister extends BaseAssetRegister {
 	private static final Logger log = LoggerFactory.getLogger(SesameAssetRegister.class);
-    public static String HAS_ASSET = COMMON.CORE+"hasAsset";
+    public static String HAS_ASSET = COMMONS.CORE+"hasAsset";
 
 	RepositoryConnection connection = null;
     String hasAsset = HAS_ASSET;
