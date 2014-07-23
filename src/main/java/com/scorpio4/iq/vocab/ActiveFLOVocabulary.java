@@ -3,15 +3,16 @@ package com.scorpio4.iq.vocab;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.IQException;
 import com.scorpio4.runtime.ExecutionEnvironment;
-import com.scorpio4.vendor.camel.CRUDComponent;
-import com.scorpio4.vendor.camel.SelfComponent;
-import com.scorpio4.vendor.camel.component.Any23Component;
-import com.scorpio4.vendor.camel.component.SesameComponent;
+import com.scorpio4.vendor.camel.component.any23.Any23Component;
+import com.scorpio4.vendor.camel.component.sesame.SesameComponent;
+import com.scorpio4.vendor.camel.crud.CRUDComponent;
 import com.scorpio4.vendor.camel.flo.RDFCamelPlanner;
+import com.scorpio4.vendor.camel.self.SelfComponent;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vocab.COMMONS;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.direct.DirectComponent;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultFactoryFinderResolver;
@@ -55,9 +56,11 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 
 		// Custom Components
 		// TODO: Find a better way to register them
+		camel.addComponent("urn", new DirectComponent()); // synonym - maybe 'vm' instead?
+
 		camel.addComponent("crud", new CRUDComponent(crud));
 		camel.addComponent("self", new SelfComponent(engine));
-		camel.addComponent("any23", new Any23Component());
+		camel.addComponent("any23", new Any23Component(engine));
 
 		camel.addComponent("sparql", new SesameComponent(engine));
 //		camel.addComponent("curate", new CurateComponent(engine));

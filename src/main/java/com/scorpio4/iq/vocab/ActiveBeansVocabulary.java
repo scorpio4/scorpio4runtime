@@ -57,14 +57,17 @@ public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
 
 	public void _start() throws RepositoryException, FactException, IOException, ConfigException {
 		FactSpace factSpace = new FactSpace(engine.getIdentity(), engine.getRepository());
+
 		rdfBeanReader = new RDFBeanDefinitionReader(connection, (BeanDefinitionRegistry) getEngine().getRegistry());
 
 		SesameCRUD crud = new SesameCRUD(factSpace);
 
+		// load bean:Bean instances, should be bean: prefixed fully qualified classes
 		Collection<Map> prototypes = crud.read("self/prototypes.sparql", engine.getConfig());
 		register(prototypes);
 		log.debug("Registered "+prototypes.size()+" Prototypes");
 
+		// load instances of prototypes, ideally urn: name-spaced
 		Collection<Map> singletons = crud.read("self/singletons.sparql", engine.getConfig());
 		register(singletons);
 		log.debug("Registered "+singletons.size()+" Singletons");

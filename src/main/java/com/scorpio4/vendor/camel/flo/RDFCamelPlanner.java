@@ -24,6 +24,7 @@ import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
+import org.semarglproject.vocab.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +70,8 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		TO = connection.getValueFactory().createURI(getVocabURI() + "to");
 	}
 
-	public void setVocabURI(String prefix) {
-		this.vocabURI = prefix;
+	public void setVocabURI(String vocabURI) {
+		this.vocabURI = vocabURI;
 	}
 
 	public String getVocabURI() {
@@ -144,7 +145,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 			// look for known predicates
 			if (action.startsWith(getVocabURI()) ) {
 				_from = toRoutes(routeBuilder, _from, to, action.substring(getVocabURI().length()));
-			} else if ( defaultAction!=null ) {
+			} else if ( defaultAction!=null && action.equals(RDF.FIRST)) {
 				_from = toRoutes(routeBuilder, _from, to, defaultAction);
 			} else {
 				log.debug("Ignored Predicate: " + action);
@@ -171,7 +172,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 			for(Value to: pipeline) {
 				from = toRoute(routeBuilder, from, to, action);
 			}
-			return from.end();
+			return from;
 
 		}
 		return tryAction(routeBuilder, from, _to, action);
@@ -192,7 +193,11 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 			}
 
 			log.debug("flo:"+action+"\t"+_to);
-			return from.to(to);
+			// is the route just an internal placeholder?
+			if (action!=null && action.equals("to") && (to.startsWith("urn:") || isSimpleIORoute(_to) ) )  {
+				return fromRoute(routeBuilder, from, (URI) _to, action);
+			}
+			return fromRoute(routeBuilder, from.to(to), (URI) _to, action);
 		}
 		if (_to instanceof Literal) {
 			log.debug("\tTO script: "+_to);
@@ -294,7 +299,7 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 	private Value normalizeTo(Value to) {
 		if (to instanceof URI) {
 			// preserve concepts of linked data ... don't trigger Camel http: scheme
-			if (to.stringValue().startsWith("http:") || to.stringValue().startsWith("https:") || to.stringValue().startsWith("file:")) {
+			if (isSimpleIORoute(to)) {
 				ValueFactory vf = connection.getValueFactory();
 				return vf.createURI("direct:"+to.stringValue());
 			}
@@ -302,8 +307,12 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 		return to;
 	}
 
+	private boolean isSimpleIORoute(Value to) {
+		return to.stringValue().startsWith("http:") || to.stringValue().startsWith("https:") || to.stringValue().startsWith("file:");
+	}
+
 	private boolean isTemplated(String s) {
-		return (s.contains("{"));
+		return (s.contains("{") && s.contains("}"));
 	}
 
 	protected ProcessorDefinition doChoice(RouteBuilder routeBuilder, ChoiceDefinition from, String action, Value to) throws RepositoryException, CamelException, ClassNotFoundException, IOException, URITemplateParseException, IQException {

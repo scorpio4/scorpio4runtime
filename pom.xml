@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.scorpio4</groupId>
         <artifactId>scorpio4</artifactId>
-        <version>0.10-SNAPSHOT</version>
+        <version>0.11-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -106,13 +106,18 @@
         </plugins>
     </build>
     <repositories>
+        <!-- R -->
         <repository>
             <id>bedatadriven</id>
             <name>bedatadriven public repo</name>
             <url>http://nexus.bedatadriven.com/content/groups/public/</url>
         </repository>
+        <!-- Restlet -->
+        <repository>
+            <id>opencast-public</id>
+            <url>http://repository.opencastproject.org/nexus/content/repositories/public/</url>
+        </repository>
     </repositories>
-
     <!-- Project dependencies -->
     <dependencies>
 
@@ -208,18 +213,6 @@
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-binary</artifactId>
-            <version>${sesame.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-rdfjson</artifactId>
-            <version>${sesame.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-turtle</artifactId>
             <version>${sesame.version}</version>
         </dependency>
 
@@ -342,23 +335,17 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.1</version>
         </dependency>
 
         <!-- R language -->
-        <dependency>
-            <groupId>org.renjin</groupId>
-            <artifactId>renjin-script-engine</artifactId>
-            <version>0.7.0-RC2</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.renjin</groupId>-->
+            <!--<artifactId>renjin-script-engine</artifactId>-->
+            <!--<version>0.7.0-RC2</version>-->
+        <!--</dependency>-->
 
         <!-- Ruby language -->
         <dependency>
@@ -374,15 +361,33 @@
             <version>2.7-b2</version>
         </dependency>
 
-        <!-- Experimental -->
-
         <dependency>
-            <groupId>net.sf.dozer</groupId>
-            <artifactId>dozer</artifactId>
-            <version>5.4.0</version>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-eclipse-batch</artifactId>
+            <version>2.1.8-01</version>
         </dependency>
 
-    </dependencies>
+        <dependency>
+            <groupId>org.restlet.osgi</groupId>
+            <artifactId>org.restlet</artifactId>
+            <version>${restlet.version}</version>
+        </dependency>
 
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+
+        <!-- Experimental -->
+
+        <!--<dependency>-->
+            <!--<groupId>net.sf.dozer</groupId>-->
+            <!--<artifactId>dozer</artifactId>-->
+            <!--<version>5.4.0</version>-->
+        <!--</dependency>-->
+
+    </dependencies>
 
 </project>

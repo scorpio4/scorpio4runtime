@@ -6,7 +6,6 @@ import com.scorpio4.iq.vocab.ActiveVocabulary;
 import com.scorpio4.iq.vocab.Scorpio4ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.RepositoryManager;
-import com.scorpio4.vendor.spring.CachedBeanFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,13 +33,13 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	Repository repository = null;
 	AssetRegister assetRegister = null;
 	RepositoryConnection connection = null;
-	ApplicationContext applicationContext;
+	GenericApplicationContext springContext;
 
 	boolean isRunning = false;
 	Map<String,String> properties = null;
 
 	ActiveVocabulary activeVocabulary;
-	private CachedBeanFactory beanFactory;
+//	private CachedBeanFactory beanFactory;
 	private ClassLoader classloader;
 
 	protected Engine() {
@@ -59,18 +59,16 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 
 	protected void boot(String identity) throws Exception {
 		this.identity=identity;
-		this.beanFactory = new CachedBeanFactory();
-//		ApplicationContextRegistry
-		this.applicationContext = new GenericApplicationContext(this.beanFactory);
-
-		beanFactory.cache("engine", this);
-		beanFactory.cache("assets", this.getAssetRegister());
-		beanFactory.cache("config", this.getConfig());
-		beanFactory.cache("sesame", this.getRepositoryManager());
-		beanFactory.cache("core", repository);
 
 		repository = manager.getRepository(identity);
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
+
+		Map self = new HashMap();
+		self.put("assets", this.getAssetRegister());
+		self.put("config", this.getConfig());
+		self.put("sesame", this.getRepositoryManager());
+		self.put("core", repository);
+		springContext = RuntimeHelper.newSpringContext(self);
 
 		activeVocabulary = new Scorpio4ActiveVocabularies(this);
 	}
@@ -161,7 +159,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	}
 
 	public ApplicationContext getRegistry() {
-		return applicationContext;
+		return springContext;
 	}
 
 	public RepositoryResolver getRepositoryManager() {

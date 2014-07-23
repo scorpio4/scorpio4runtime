@@ -75,41 +75,50 @@ public class SesameHandler implements Processor {
 		if ( sparql==null||sparql.equals ("") ) throw new MalformedQueryException("Missing SPARQL query");
 
 		if (queryType=="select") {
-			TupleQueryResultFormat parserFormatForMIMEType = QueryResultIO.getParserFormatForMIMEType(contentType, null);
-			if (parserFormatForMIMEType!=null) {
-				headers.put("Content-Type", parserFormatForMIMEType.getDefaultMIMEType()+";"+parserFormatForMIMEType.getCharset());
-				StringWriter stringWriter = handle(connection, sparql, parserFormatForMIMEType);
-log.trace("TUPLES: " + stringWriter.toString());
-				// output message
-				String results = stringWriter.toString();
-				out.setBody(results);
-			} else {
-				// unknown-type, internal
-				Collection<Map> results = SesameHelper.toMapCollection(connection, sparql);
-log.debug("COLLECTION: " + results);
-				out.setBody(results);
-			}
+			processSelect(connection, headers, contentType, sparql, out);
 		} else if (queryType=="construct") {
-			RDFFormat rdfFormat = RDFFormat.forMIMEType(contentType, RDFFormat.valueOf(contentType));
-log.debug("CONSTRUCT: " + contentType+" -> "+rdfFormat);
-			if (rdfFormat!=null) {
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				handleGraph(connection, sparql, outputStream, rdfFormat);
-				outputStream.flush();
-				outputStream.close();
-
-log.debug("GRAPH: "+outputStream);
-				out.setBody(outputStream.toString());
-			} else {
-				handleGraph(connection, sparql, out);
-			}
+			processConstruct(connection, headers, contentType, sparql, out);
 		} else {
 			log.debug("DEFAULT: ");
-			handleGraph(connection, sparql, out);
+			processConstruct(connection, headers, contentType, sparql, out);
 		}
 
 		connection.close();
 
+	}
+
+	private void processConstruct(RepositoryConnection connection, Map<String, Object> headers, String contentType, String sparql, Message out) throws RDFHandlerException, MalformedQueryException, RepositoryException, IOException, QueryResultHandlerException, QueryEvaluationException {
+		RDFFormat rdfFormat = RDFFormat.forMIMEType(contentType, RDFFormat.valueOf(contentType));
+		log.debug("CONSTRUCT: " + contentType+" -> "+rdfFormat);
+		if (rdfFormat!=null) {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			GraphQueryResult graphQueryResult = handleGraph(connection, sparql);
+			QueryResultIO.write(graphQueryResult, rdfFormat, outputStream);
+			outputStream.flush();
+			outputStream.close();
+			log.debug("GRAPH: "+outputStream);
+			out.setBody(outputStream.toString());
+		} else {
+			GraphQueryResult graphQueryResult = handleGraph(connection, sparql);
+			out.setBody(graphQueryResult);
+		}
+	}
+
+	private void processSelect(RepositoryConnection connection, Map<String, Object> headers, String contentType, String sparql, Message out) throws RepositoryException, QueryResultHandlerException, MalformedQueryException, QueryEvaluationException, IOException {
+		TupleQueryResultFormat parserFormatForMIMEType = QueryResultIO.getParserFormatForMIMEType(contentType, null);
+		if (parserFormatForMIMEType!=null) {
+			headers.put("Content-Type", parserFormatForMIMEType.getDefaultMIMEType()+";"+parserFormatForMIMEType.getCharset());
+			StringWriter stringWriter = handle(connection, sparql, parserFormatForMIMEType);
+			log.trace("TUPLES: " + stringWriter.toString());
+			// output message
+			String results = stringWriter.toString();
+			out.setBody(results);
+		} else {
+			// unknown-type, internal
+			Collection<Map> results = SesameHelper.toMapCollection(connection, sparql);
+			log.debug("COLLECTION: " + results);
+			out.setBody(results);
+		}
 	}
 
 	public StringWriter handle(RepositoryConnection connection, String sparql, TupleQueryResultFormat parserFormatForMIMEType) throws MalformedQueryException, RepositoryException, QueryResultHandlerException, QueryEvaluationException, IOException {
@@ -129,27 +138,17 @@ log.debug("GRAPH: "+outputStream);
 		TupleQueryResultWriter resultWriter = QueryResultIO.createWriter(parserFormatForMIMEType, out);
 		resultWriter.startQueryResult(new ArrayList());
 		tupleQuery.evaluate(resultWriter);
+		resultWriter.endQueryResult();
 	}
 
-	public void handleGraph(RepositoryConnection connection, String sparql, OutputStream out, RDFFormat format) throws MalformedQueryException, RepositoryException, QueryResultHandlerException, QueryEvaluationException, IOException, RDFHandlerException {
+	public GraphQueryResult handleGraph(RepositoryConnection connection, String sparql) throws MalformedQueryException, RepositoryException, QueryResultHandlerException, QueryEvaluationException, IOException, RDFHandlerException {
 		// handle query and result set
 		GraphQuery query = connection.prepareGraphQuery(QueryLanguage.SPARQL, sparql);
 		query.setIncludeInferred(isInferred());
 		if (maxQueryTime>0) query.setMaxQueryTime(getMaxQueryTime());
 		GraphQueryResult graphQueryResult = query.evaluate();
-
-		QueryResultIO.write(graphQueryResult, format, out);
+		return graphQueryResult;
 	}
-
-	private void handleGraph(RepositoryConnection connection, String sparql, Message out) throws MalformedQueryException, RepositoryException, QueryEvaluationException {
-		GraphQuery query = connection.prepareGraphQuery(QueryLanguage.SPARQL, sparql);
-		query.setIncludeInferred(isInferred());
-		if (maxQueryTime>0) query.setMaxQueryTime(getMaxQueryTime());
-		GraphQueryResult graphQueryResult = query.evaluate();
-		out.setBody(graphQueryResult);
-	}
-
-
 
 	public boolean isInferred() {
 		return inferred;

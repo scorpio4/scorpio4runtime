@@ -2,7 +2,6 @@ package com.scorpio4.vendor.camel.crud;
 
 import com.scorpio4.oops.ConfigException;
 import com.scorpio4.oops.FactException;
-import com.scorpio4.vendor.camel.CRUDComponent;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
 
