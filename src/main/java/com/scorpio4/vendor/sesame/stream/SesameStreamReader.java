@@ -1,7 +1,6 @@
 package com.scorpio4.vendor.sesame.stream;
 /*
- *   Fact:Core - CONFIDENTIAL
- *   Copyright (c) 2009-2014 Lee Curtis, All Rights Reserved.
+ *   Copyright (c) 2009-2014 Lee Curtis.
  *
  *
  */
@@ -19,8 +18,7 @@ import org.openrdf.repository.RepositoryException;
 import java.util.Map;
 
 /**
- * FactCore (c) 2013
- * Module: com.factcore.vendor.sparql
+ * Scorpio4 (c) 2013-2014
  * @author lee
  * Date  : 22/11/2013
  * Time  : 5:06 PM
@@ -52,7 +50,7 @@ public class SesameStreamReader {
     }
 
     public void stream(String query, Map bindings) throws FactException {
-        if (query==null) throw new FactException("urn:factcore:fact:finder:stream:oops:missing-query");
+        if (query==null) throw new FactException("urn:scorpio4:fact:finder:stream:oops:missing-query");
         try {
             FactStream stream = getFactStream();
             GraphQuery graphQuery = getConnection().prepareGraphQuery(QueryLanguage.SPARQL, query);

@@ -6,8 +6,7 @@ package com.scorpio4.fact.stream;
 import com.scorpio4.oops.FactException;
 
 /**
- * FactCore (c) 2013
- * Module: com.factcore.fact.stream
+ * Scorpio4 (c) 2013
  * User  : root
  * Date  : 11/14/13
  * Time  : 11:47 AM
@@ -29,6 +28,6 @@ public class SinkStream implements FactStream {
 
     @Override
     public String getIdentity() {
-        return "urn:factcore:fact:stream:Sink";
+        return "urn:scorpio4:fact:stream:Sink";
     }
 }

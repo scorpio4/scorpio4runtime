@@ -16,8 +16,8 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
 /**
- * FactCore (c) 2013
- * Module: com.factcore.vendor.sparql
+ * Scorpio4 (c) 2013-2014
+ * Module: com.scorpio4.vendor.sesame.stream
  * @author lee
  * Date  : 26/10/2013
  * Time  : 8:54 PM
@@ -42,7 +42,7 @@ public class SesameStreamWriter implements FactStream {
         try {
             this.conn.clear(this.context);
         } catch (RepositoryException e) {
-            throw new FactException("urn:factcore:finder:sparql:oops:clear#"+e.getMessage(),e);
+            throw new FactException("urn:scorpio4:finder:sparql:oops:clear#"+e.getMessage(),e);
         }
     }
 
@@ -53,7 +53,7 @@ public class SesameStreamWriter implements FactStream {
             if (absolute) this.conn.remove(vf.createURI(s), vf.createURI(p), null, context);
             this.conn.add(vf.createURI(s), vf.createURI(p), vf.createURI(o.toString()), context );
         } catch (RepositoryException e) {
-            throw new FactException("urn:factcore:finder:sparql:oops:add-fact#"+e.getMessage(),e);
+            throw new FactException("urn:scorpio4:finder:sparql:oops:add-fact#"+e.getMessage(),e);
         }
     }
 
@@ -65,7 +65,7 @@ public class SesameStreamWriter implements FactStream {
             if (absolute) this.conn.remove(vf.createURI(s), vf.createURI(p), null, context);
             this.conn.add(vf.createURI(s), vf.createURI(p), vf.createLiteral(o.toString(), vf.createURI(xsdType)), context );
         } catch (RepositoryException e) {
-            throw new FactException("urn:factcore:finder:sparql:oops:add-literal#"+e.getMessage(),e);
+            throw new FactException("urn:scorpio4:finder:sparql:oops:add-literal#"+e.getMessage(),e);
         }
     }
 
@@ -73,7 +73,7 @@ public class SesameStreamWriter implements FactStream {
         try {
             this.conn.commit();
         } catch (RepositoryException e) {
-            throw new FactException("urn:factcore:finder:sparql:oops:not-done#"+e.getMessage(),e);
+            throw new FactException("urn:scorpio4:finder:sparql:oops:not-done#"+e.getMessage(),e);
         }
     }
 

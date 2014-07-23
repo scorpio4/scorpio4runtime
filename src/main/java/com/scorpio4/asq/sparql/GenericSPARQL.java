@@ -15,7 +15,7 @@ import java.util.Collection;
 
 /**
  * Fact:Core (c) 2013
- * Module: com.factcore.fact.domain.sparql
+ * Module: com.scorpio4.asq.core.sparql
  * @author lee
  * Date  : 11/01/2014
  * Time  : 9:39 PM

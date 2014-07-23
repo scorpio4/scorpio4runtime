@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * FactCore (c) 2013
- * Module: com.factcore.fact.domain.parser
+ * Scorpio4 (c) 2013-2014
+ * Module: com.scorpio4.asq.core.parser
  * @author lee
  * Date  : 16/11/2013
  * Time  : 12:02 AM
@@ -65,7 +65,7 @@ public class ASQ4JSON implements ASQParser {
             if (where instanceof Collection) {
 	            this.asq = makeWhere(id, (Collection)where);
             }
-            else throw new ASQException("urn:factcore:fact:domain:parser:oops:invalid-where#"+where.toString());
+            else throw new ASQException("urn:scorpio4:fact:domain:parser:oops:invalid-where#"+where.toString());
         }
     }
 

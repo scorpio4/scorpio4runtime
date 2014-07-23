@@ -45,7 +45,7 @@ public class Pattern {
 	}
 
 	public void init(String _this, String _has, String _that, boolean _optional) throws ASQException {
-        if (_this.equals("")|| _has.equals("") || _that.equals("")) throw new ASQException("urn:factcore:fact:domain:oops:invalid-terms");
+        if (_this.equals("")|| _has.equals("") || _that.equals("")) throw new ASQException("urn:scorpio4:fact:domain:oops:invalid-terms");
 		this._this = new Term(_this);
 		this._has = new Term(_has);
 		this._that = new Term(_that);
@@ -53,7 +53,7 @@ public class Pattern {
 	}
 
     public Pattern(String _this, String _has, String _that, String type, boolean _optional) throws ASQException {
-        if (_this.equals("")|| _has.equals("") || _that.equals("")) throw new ASQException("urn:factcore:fact:domain:oops:invalid-terms");
+        if (_this.equals("")|| _has.equals("") || _that.equals("")) throw new ASQException("urn:scorpio4:fact:domain:oops:invalid-terms");
         this._this = new Term(_this);
         this._has = new Term(_has);
         this._that = new LiteralTerm( _that, type);

@@ -8,7 +8,7 @@ import com.scorpio4.asq.ASQ;
 
 /**
  * Fact:Core (c) 2013
- * Module: com.factcore.fact.domain.sparql
+ * Module: com.scorpio4.asq.core.sparql
  * @author lee
  * Date  : 11/01/2014
  * Time  : 11:23 PM

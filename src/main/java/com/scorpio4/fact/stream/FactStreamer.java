@@ -9,8 +9,7 @@ import com.scorpio4.oops.FactException;
 import java.util.Map;
 
 /**
- * FactCore (c) 2013
- * Module: com.factcore.fact.stream
+ * Scorpio4 (c) 2013-2014
  * User  : lee
  * Date  : 12/09/13
  * Time  : 11:53 PM

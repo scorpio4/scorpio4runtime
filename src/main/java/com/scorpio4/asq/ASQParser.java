@@ -5,8 +5,8 @@ package com.scorpio4.asq;
  */
 
 /**
- * FactCore (c) 2013
- * Module: com.factcore.fact.domain.parser
+ * Scorpio4 (c) 2013-2014
+ * Module: com.scorpio4.asq.core.parser
  * @author lee
  * Date  : 16/11/2013
  * Time  : 12:02 AM

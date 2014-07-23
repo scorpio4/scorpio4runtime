@@ -1,7 +1,5 @@
 package com.scorpio4.asq;
 /*
- *
-
  */
 
 
@@ -15,14 +13,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * FactCore (c) 2013
- * Module: com.factcore.fact.query
  * @author lee
  * Date  : 18/09/13
  * Time  : 9:25 PM
  */
 public interface ASQ extends Identifiable {
-    public static String NS = "urn:factcore:asq:";
+    public static String NS = "urn:scorpio4:asq:";
 //    public static String THIS = NS+"this";
 //    public static String HAS = NS+"has";
 //    public static String THAT = NS+"that";

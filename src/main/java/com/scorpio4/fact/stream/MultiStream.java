@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Module: com.factcore.fact.stream
- * User  : lee
  * Date  : 8/02/2014
  *
  * An observable stream. All registered streams will be notified of incoming facts.
