@@ -1,0 +1,84 @@
+package com.scorpio4.fact.stream;
+/*
+ *
+ */
+
+import org.apache.camel.component.bean.BeanConverter;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+/**
+ * Fact:Core (c) 2013
+ * Module: com.factcore.fact.stream
+ * User  : lee
+ * Date  : 23/01/2014
+ * Time  : 2:25 AM
+ */
+public class StreamModel extends FactModel implements FactStream {
+    BeanConverter convertsType = new BeanConverter();
+
+    protected StreamModel() {
+        setIdentity(IdentityHelper.uuid("bean:" + getClass().getCanonicalName() + "#"));
+    }
+
+    protected StreamModel(String id) {
+        setIdentity(id);
+    }
+
+    protected StreamModel(Identifiable id) {
+        setIdentity(id.getIdentity());
+    }
+
+    @Override
+    public void fact(String s, String p, Object o) throws FactException {
+        Model model = (Model) get(s);
+        if (model==null) {
+            synchronized (this) {
+                model = new FactModel(s);
+                put(s, model);
+            }
+        }
+        Model other = (Model) get(o);
+        if (other==null) {
+            synchronized (this) {
+                other = new FactModel(o.toString());
+                put(o.toString(), other);
+            }
+        }
+        model.put(p, other);
+    }
+
+    @Override
+    public void fact(String s, String p, Object o, String xsdType) throws FactException {
+        synchronized (this) {
+            Model model = (Model) get(s);
+            if (model==null) {
+                    model = new FactModel(s);
+                    put(s, model);
+            }
+            if (o!=null) {
+                model.put(p,convertsType.convertToType(o.toString(),xsdType));
+            }
+        }
+    }
+
+    public Collection<Model> models() {
+        return new ArrayList<Model>(values());
+    }
+
+    public void stream(FactStream stream) throws FactException {
+        for(Object s: keySet()) {
+            Model model = (Model) get(s);
+            for(Object p: model.keySet()) {
+                Object other = get(model.get(p));
+                if (other instanceof FactModel) {
+                    stream.fact(s.toString(), p.toString(), ((FactModel)other).getIdentity() );
+                } else {
+                    stream.fact(s.toString(), p.toString(), other.toString(), CORE.XSD+ other.getClass().getSimpleName().toLowerCase());
+                }
+            }
+
+        }
+    }
+}
