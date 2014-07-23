@@ -1,7 +1,6 @@
-package com.scorpio4.vendor.camel;
+package com.scorpio4.vendor.camel.self;
 
 import com.scorpio4.runtime.ExecutionEnvironment;
-import com.scorpio4.vendor.camel.self.*;
 import org.apache.camel.CamelException;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.bean.BeanEndpoint;

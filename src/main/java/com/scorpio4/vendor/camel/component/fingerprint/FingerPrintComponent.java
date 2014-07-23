@@ -1,4 +1,4 @@
-package com.scorpio4.vendor.camel.component;
+package com.scorpio4.vendor.camel.component.fingerprint;
 
 import com.scorpio4.vendor.camel.component.fingerprint.FingerprintHandler;
 import org.apache.camel.Endpoint;

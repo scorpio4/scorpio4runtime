@@ -1,7 +1,6 @@
-package com.scorpio4.vendor.camel.component;
+package com.scorpio4.vendor.camel.component.sesame;
 
 import com.scorpio4.runtime.ExecutionEnvironment;
-import com.scorpio4.vendor.camel.component.sesame.SesameHandler;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.bean.BeanEndpoint;
 import org.apache.camel.component.bean.BeanProcessor;
@@ -9,7 +8,6 @@ import org.apache.camel.component.bean.ClassComponent;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.config.RepositoryResolver;
-import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

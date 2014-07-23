@@ -1,10 +1,6 @@
-package com.scorpio4.vendor.camel;
+package com.scorpio4.vendor.camel.crud;
 
 import com.scorpio4.crud.CRUD;
-import com.scorpio4.vendor.camel.crud.Create;
-import com.scorpio4.vendor.camel.crud.Delete;
-import com.scorpio4.vendor.camel.crud.Read;
-import com.scorpio4.vendor.camel.crud.Update;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.bean.BeanEndpoint;
 import org.apache.camel.component.bean.BeanProcessor;
