@@ -6,6 +6,7 @@ import com.scorpio4.iq.vocab.ActiveVocabulary;
 import com.scorpio4.iq.vocab.Scorpio4ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.RepositoryManager;
+import com.scorpio4.vendor.sesame.util.SesameHelper;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -60,24 +60,26 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	protected void boot(String identity) throws Exception {
 		this.identity=identity;
 
-		repository = manager.getRepository(identity);
+		this.repository = manager.getRepository(identity);
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
 
-		Map self = new HashMap();
-		self.put("assets", this.getAssetRegister());
-		self.put("config", this.getConfig());
-		self.put("sesame", this.getRepositoryManager());
-		self.put("core", repository);
-		springContext = RuntimeHelper.newSpringContext(self);
+		connection = repository.getConnection();
+		SesameHelper.defaultNamespaces(connection);
+
+		this.assetRegister = new AssetRegisters(connection);
+		springContext = RuntimeHelper.newSpringContext(this);
+		log.debug("VM stats: " + RuntimeHelper.getVMStats());
 
 		activeVocabulary = new Scorpio4ActiveVocabularies(this);
 	}
 
 	public void start() throws Exception {
-		connection = repository.getConnection();
-		assetRegister = new AssetRegisters(connection);
+		if (connection==null||!connection.isOpen()) {
+			// should only be called after a stop(), never a cold start
+			connection = repository.getConnection();
+		}
 
-		log.debug("Starting Engine");
+		log.debug("Starting Engine: "+RuntimeHelper.getVMStats());
 		final Engine self = this;
 
 		activeVocabulary.start();
@@ -95,6 +97,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		});
 		isRunning = true;
 		activeVocabulary.activate("direct:self:started", self);
+		log.debug("Engine Running: " + RuntimeHelper.getVMStats());
 	}
 
 	public void reboot() throws Exception {

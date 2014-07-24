@@ -44,7 +44,7 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 	}
 
 	public void start() throws Exception {
-		log.debug("ASQ Connected: " + connection);
+		log.debug("ASQ Starting: " + connection);
 		isActive=true;
 		reboot();
 	}

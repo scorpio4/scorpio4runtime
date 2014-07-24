@@ -31,6 +31,7 @@ public class SesameHelper {
 
 	public static void defaultNamespaces(RepositoryConnection to) throws RepositoryException {
 		to.begin();
+		// W3C Vocabularies
 		to.setNamespace("rdf", COMMONS.RDF);
 		to.setNamespace("rdfs", COMMONS.RDFS);
 		to.setNamespace("owl", COMMONS.OWL);
@@ -38,6 +39,11 @@ public class SesameHelper {
 		to.setNamespace("dc", COMMONS.DC);
 		to.setNamespace("xsd", COMMONS.XSD);
 		to.setNamespace("acl", COMMONS.ACL);
+		// Scorpio4 Active Vocabularies
+		to.setNamespace("flo", COMMONS.CORE+"flo/");
+		to.setNamespace("bean", COMMONS.CORE+"bean/");
+		to.setNamespace("asq", COMMONS.CORE+"asq/");
+		to.setNamespace("core", COMMONS.CORE);
 		to.commit();
 	}
 
@@ -48,6 +54,7 @@ public class SesameHelper {
 			Namespace namespace = namespaces.next();
 			namespace$.append("PREFIX ").append(namespace.getPrefix()).append(": <").append(namespace.getName()).append( ">\n");
 		}
+		log.debug("SPARQL prefices: "+namespace$);
 		return namespace$;
 	}
 
@@ -80,6 +87,7 @@ public class SesameHelper {
     }
 
 	public static String explodePragmas(RepositoryConnection connection, String sparql) throws RepositoryException, QueryEvaluationException, MalformedQueryException, IOException {
-		return sparql.replace("@namespaces", "\n"+toSPARQLPrefix(connection).toString() );
+		String namespaces = toSPARQLPrefix(connection).toString();
+		return sparql.replace("@namespaces", "\n"+ namespaces);
 	}
 }

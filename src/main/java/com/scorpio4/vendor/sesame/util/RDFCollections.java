@@ -52,7 +52,7 @@ public class RDFCollections {
 
     public Collection<Value> getList(Resource head, URI predicate) throws RepositoryException {
         Collection<Value> list = new ArrayList();
-        log.debug("\tgetList: "+head+" -> "+predicate+" @ "+context);
+        log.trace("\tgetList: "+head+" -> "+predicate+" @ "+context);
         RepositoryResult<Statement> statements = getStatements(head,predicate);
 
 		while (statements.hasNext()) {
@@ -68,7 +68,7 @@ public class RDFCollections {
 
 	public Collection<Value> getList(Resource head) throws RepositoryException {
 		List<Value> list = new ArrayList();
-		log.debug("\tgetList: "+head+" @ "+context);
+		log.trace("\tgetList: "+head+" @ "+context);
 		addToList(list, head);
 		return list;
 	}

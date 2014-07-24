@@ -70,6 +70,10 @@ public class FLOSupport {
 //	}
 
 	public Object trigger(String from, Object body, Map header, Class type) {
+		if (!context.getEndpointMap().containsKey(from)) {
+			log.warn("Un-configured Trigger: " + from);
+			return null;
+		}
 		try {
 			ProducerTemplate producer = context.createProducerTemplate();
 			Object result = producer.requestBodyAndHeaders(from, body, header, type);

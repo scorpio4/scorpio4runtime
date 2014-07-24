@@ -6,11 +6,10 @@ import org.apache.camel.spring.spi.ApplicationContextRegistry;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,9 +30,13 @@ public class RuntimeHelper {
 	}
 
 	public static GenericApplicationContext newSpringContext(Map<String, Object> map) throws NamingException {
-		SimpleNamingContextBuilder jndi = new SimpleNamingContextBuilder();
+		if (map==null) throw new NamingException("NULL Spring configuration");
+//		SimpleNamingContextBuilder jndi = new SimpleNamingContextBuilder();
+//		for(String k: map.keySet()) jndi.bind(k, map.get(k));
+//		jndi.activate();
+
+		InitialContext jndi = new InitialContext();
 		for(String k: map.keySet()) jndi.bind(k, map.get(k));
-		jndi.activate();
 
 		GenericApplicationContext applicationContext = new GenericApplicationContext();
 		RootBeanDefinition rootBeanDefinition = new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class);
@@ -42,7 +45,7 @@ public class RuntimeHelper {
 		return applicationContext;
 	}
 
-	public static ApplicationContext newSpringContext(ExecutionEnvironment engine) throws RepositoryConfigException, RepositoryException, NamingException {
+	public static GenericApplicationContext newSpringContext(ExecutionEnvironment engine) throws RepositoryConfigException, RepositoryException, NamingException {
 		Map self = new HashMap();
 		self.put("assets", engine.getAssetRegister());
 		self.put("config", engine.getConfig());
@@ -50,4 +53,14 @@ public class RuntimeHelper {
 		self.put("core", engine.getRepository());
 		return newSpringContext(self);
 	}
+
+	public static Map getVMStats() {
+		Runtime runtime = Runtime.getRuntime();
+		Map stats = new HashMap();
+		stats.put("maxMemory", runtime.maxMemory());
+		stats.put("totalMemory", runtime.totalMemory());
+		stats.put("freeMemory", runtime.freeMemory());
+		return stats;
+	}
+
 }
