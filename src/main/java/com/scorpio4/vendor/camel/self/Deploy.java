@@ -51,7 +51,7 @@ public class Deploy extends Base {
 			deployer.deploy(file.getParentFile(), file);
 		}
 		if (!uri.equals("")) {
-//			log.info("Deploy URL: "+uri);
+			log.info("Deploy URL: "+uri);
 			deployer.deploy(new URL(uri));
 		}
 		connection.close();

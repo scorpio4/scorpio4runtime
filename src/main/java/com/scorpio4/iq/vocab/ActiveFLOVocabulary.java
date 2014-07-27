@@ -11,8 +11,10 @@ import com.scorpio4.vendor.camel.self.SelfComponent;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vocab.COMMONS;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Route;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.direct.DirectComponent;
+import org.apache.camel.component.jetty.JettyHttpComponent;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultFactoryFinderResolver;
@@ -20,7 +22,10 @@ import org.apache.camel.spi.ClassResolver;
 import org.apache.camel.spi.FactoryFinder;
 import org.apache.camel.spi.FactoryFinderResolver;
 import org.apache.camel.spring.spi.ApplicationContextRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
+
+import java.util.List;
 
 /**
  * scorpio4-oss (c) 2014
@@ -66,6 +71,16 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 //		camel.addComponent("curate", new CurateComponent(engine));
 		camel.addComponent("properties", new PropertiesComponent());
 
+		JettyHttpComponent jetty = (JettyHttpComponent) camel.getComponent("jetty");
+//		jetty.set
+
+		BeanDefinitionRegistry registry = (BeanDefinitionRegistry) getEngine().getRegistry();
+		List<String> componentNames = camel.getComponentNames();
+		for(String name: componentNames) {
+			// consider components part of the FLO namespace
+			// helpful, but is it wise?
+			registry.registerAlias(COMMONS.CORE+"flo/"+name, name);
+		}
 
 		floSupport = new RDFCamelPlanner(camel, engine);
 		floSupport.setVocabURI(getIdentity());
@@ -119,6 +134,12 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 		if (camel==null) throw new IQException("Not booted: "+toString());
 		camel.start();
 		floSupport.plan();
+
+		log.debug("Started Active FLOs:");
+		List<Route> routes = camel.getRoutes();
+		for(Route route: routes) {
+			log.debug("\t"+route.getEndpoint().getEndpointUri());
+		}
 	}
 
 	protected void addRoutes(RouteBuilder routeBuilder) throws Exception {

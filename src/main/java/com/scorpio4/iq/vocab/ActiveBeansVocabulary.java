@@ -59,7 +59,6 @@ public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
 		FactSpace factSpace = new FactSpace(engine.getIdentity(), engine.getRepository());
 
 		rdfBeanReader = new RDFBeanDefinitionReader(connection, (BeanDefinitionRegistry) getEngine().getRegistry());
-
 		SesameCRUD crud = new SesameCRUD(factSpace);
 
 		// load bean:Bean instances, should be bean: prefixed fully qualified classes

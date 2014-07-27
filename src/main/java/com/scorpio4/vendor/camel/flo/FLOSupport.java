@@ -5,6 +5,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.util.URISupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,11 +71,13 @@ public class FLOSupport {
 //	}
 
 	public Object trigger(String from, Object body, Map header, Class type) {
-		if (!context.getEndpointMap().containsKey(from)) {
-			log.warn("Un-configured Trigger: " + from);
-			return null;
-		}
 		try {
+			from = URISupport.normalizeUri(from);
+			if (!context.getEndpointMap().containsKey(from)) {
+				log.warn("Un-configured Trigger: " + from);
+				return null;
+			}
+			log.debug("Trigger: " + from );
 			ProducerTemplate producer = context.createProducerTemplate();
 			Object result = producer.requestBodyAndHeaders(from, body, header, type);
 			return result;

@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -140,8 +141,15 @@ public class Scorpio4SesameDeployer implements Identifiable {
 	}
 
 	public void deploy(URL url) throws FactException, IOException {
-		JarURLConnection jarURL = (JarURLConnection)url.openConnection();
-		deploy(jarURL.getJarFile());
+		URLConnection urlConnection = url.openConnection();
+		if (urlConnection instanceof JarURLConnection) {
+			JarURLConnection jarURL = (JarURLConnection) urlConnection;
+			deploy(jarURL.getJarFile());
+		} else if (url.getProtocol().equals("file")) {
+			log.debug("TODO: Deploy File URI: "+url);
+		} else {
+			deploy(url.toExternalForm(), url.openStream());
+		}
 	}
 
 	public void classpath(String resource) throws FactException, IOException {

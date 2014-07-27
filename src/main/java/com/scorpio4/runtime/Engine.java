@@ -5,6 +5,7 @@ import com.scorpio4.assets.AssetRegisters;
 import com.scorpio4.iq.vocab.ActiveVocabulary;
 import com.scorpio4.iq.vocab.Scorpio4ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
+import com.scorpio4.util.map.MapUtil;
 import com.scorpio4.vendor.sesame.RepositoryManager;
 import com.scorpio4.vendor.sesame.util.SesameHelper;
 import org.openrdf.repository.Repository;
@@ -26,6 +27,8 @@ import java.util.Map;
  * Time  : 12:00 AM
  */
 public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
+	private static final String CONFIG_PREFIX = "scorpio4.";
+
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 	String identity;
 	RepositoryManager manager = null;
@@ -51,9 +54,10 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 
 	protected void init(String identity, RepositoryManager manager, Map<String,String> properties) throws Exception {
 		log.debug("Engine: "+identity);
-		this.properties=properties;
-		this.manager=manager;
+		this.properties = MapUtil.getConfig(properties, CONFIG_PREFIX);	// localize properties (strip the prefix)
+		this.manager = manager;
 		this.classloader = Thread.currentThread().getContextClassLoader();
+		log.debug("Configuration: " + this.properties);
 		boot(identity);
 	}
 
