@@ -14,7 +14,6 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Route;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.direct.DirectComponent;
-import org.apache.camel.component.jetty.JettyHttpComponent;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultFactoryFinderResolver;
@@ -71,7 +70,7 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 //		camel.addComponent("curate", new CurateComponent(engine));
 		camel.addComponent("properties", new PropertiesComponent());
 
-		JettyHttpComponent jetty = (JettyHttpComponent) camel.getComponent("jetty");
+//		JettyHttpComponent jetty = (JettyHttpComponent) camel.getComponent("jetty");
 //		jetty.set
 
 		BeanDefinitionRegistry registry = (BeanDefinitionRegistry) getEngine().getRegistry();

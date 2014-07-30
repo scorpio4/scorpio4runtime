@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
@@ -24,12 +25,13 @@ import java.util.Map;
  * Date  : 5/11/2013
  * Time  : 3:41 PM
  */
-public class DeskTray {
+public class DeskTray implements ActionListener {
     private static final Logger log = LoggerFactory.getLogger(DeskTray.class);
     TrayIcon trayIcon = null;
     Map<String,MenuItem> menus = new HashMap();
     String title = "Scorpio4", tooltip = "Not Configured", icon = null;
     PopupMenu popup = new PopupMenu();
+	ActionListener actionListener = this;
 
     public DeskTray(String title, String tooltip, String icon) {
         this.title=title;
@@ -131,6 +133,7 @@ public class DeskTray {
 
     private void register(String menuURI, MenuItem item) {
         this.menus.put(menuURI, item);
+	    item.addActionListener(actionListener);
     }
 
     public MenuItem getMenu(String menuURI) {
@@ -178,4 +181,13 @@ public class DeskTray {
         this.tooltip = tooltip;
     }
 
+	/**
+	 * Invoked when an action occurs.
+	 *
+	 * @param e
+	 */
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		log.debug("ACTION: "+e.getActionCommand()+" -> "+e.getSource());
+	}
 }

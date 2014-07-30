@@ -1,8 +1,13 @@
 package com.scorpio4.runtime;
 
+import com.scorpio4.deploy.Scorpio4SesameDeployer;
+import com.scorpio4.oops.FactException;
+import com.scorpio4.vendor.sesame.util.SesameHelper;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spring.spi.ApplicationContextRegistry;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -11,6 +16,8 @@ import org.springframework.context.support.GenericApplicationContext;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +68,18 @@ public class RuntimeHelper {
 		stats.put("totalMemory", runtime.totalMemory());
 		stats.put("freeMemory", runtime.freeMemory());
 		return stats;
+	}
+
+	public static void provision(Repository repository,  ClassLoader loader, String resource) throws IOException, FactException, RepositoryException {
+		InputStream stream = loader.getResourceAsStream(resource);
+		if (stream==null) throw new IOException("Deploy resource not found: "+resource+" in "+loader);
+		RepositoryConnection connection = repository.getConnection();
+		SesameHelper.defaultNamespaces(connection);
+
+		Scorpio4SesameDeployer deployer = new Scorpio4SesameDeployer("classpath:"+resource, connection);
+		deployer.deploy(resource, stream);
+
+		connection.close();
 	}
 
 }

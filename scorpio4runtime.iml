@@ -252,7 +252,7 @@
     <orderEntry type="library" name="Maven: org.codehaus.groovy:groovy-eclipse-batch:2.1.8-01" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:3.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.50" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.camel:camel-jetty:2.13.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.50" level="project" />
   </component>
 </module>
 
