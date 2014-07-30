@@ -1,6 +1,7 @@
 package com.scorpio4.security.webid;
 
 import com.scorpio4.util.IdentityHelper;
+import com.scorpio4.util.string.PrettyString;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -22,6 +23,9 @@ import java.util.Map;
  * Time  : 1:36 PM
  */
 public class WebIDSelfCertIssuer implements Processor {
+	private String issuerURI = "http://scorpio4.com/webid/";
+	private File keystorePath = new File("webid"+File.separator);
+	private String issuerPassword = "scorpio4";
 
 	/**
 	 * Generate a self-signed certificate.
@@ -63,15 +67,43 @@ public class WebIDSelfCertIssuer implements Processor {
 
 	X509Certificate selfCertificate(String newSPKAC, Hashtable subjectAttributes) throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, SignatureException, InvalidKeyException {
 		String cn = (String) subjectAttributes.get(X509Principal.CN);
-		String uri = IdentityHelper.uuid("http://scorpio4.com/webid/");
+		String uri = IdentityHelper.uuid(getIssuerURI());
 		WebIDMaker webIDMaker = new WebIDMaker();
 		KeyPair keyPair = webIDMaker.generateKeyPair();
 		PrivateKey privateKey = keyPair.getPrivate();
 		X509Certificate cert = webIDMaker.generateCertificate(subjectAttributes, newSPKAC, privateKey);
-		File keyFile = new File( "webid"+File.separator+uri);
-		WebIDMaker.storeCertificate(cn, cert, privateKey, "scorpio4", keyFile);
+		File keyFile = getKeyFile(uri);
+		WebIDMaker.storeCertificate(cn, cert, privateKey, getIssuerPassword(), keyFile);
 
 		return cert;
+	}
+
+	protected File getKeyFile(String uri) {
+		return new File(getKeystorePath(), PrettyString.sanitize(uri));
+	}
+
+	public String getIssuerURI() {
+		return issuerURI;
+	}
+
+	public void setIssuerURI(String issuerURI) {
+		this.issuerURI = issuerURI;
+	}
+
+	public File getKeystorePath() {
+		return keystorePath;
+	}
+
+	public void setKeystorePath(File keystorePath) {
+		this.keystorePath = keystorePath;
+	}
+
+	public String getIssuerPassword() {
+		return issuerPassword;
+	}
+
+	public void setIssuerPassword(String issuerPassword) {
+		this.issuerPassword = issuerPassword;
 	}
 
 }
