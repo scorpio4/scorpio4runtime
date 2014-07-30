@@ -1,8 +1,5 @@
 package com.scorpio4.security.webid;
 
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.crypto.AsymmetricBlockCipher;
 import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
@@ -97,9 +94,9 @@ public class WebIDMaker {
 		v3CertGen.setPublicKey(publicKey);
 		v3CertGen.setSignatureAlgorithm("SHA1withRSA");
 
-		GeneralNames names = new GeneralNames(new GeneralName(GeneralName.uniformResourceIdentifier,webID));
-		v3CertGen.addExtension(X509Extensions.SubjectAlternativeName, false, names);
-		v3CertGen.addExtension(X509Extensions.KeyUsage, false, names);
+//		GeneralNames names = new GeneralNames(new GeneralName(GeneralName.uniformResourceIdentifier,webID));
+//		v3CertGen.addExtension(X509Extensions.SubjectAlternativeName, false, names);
+//		v3CertGen.addExtension(X509Extensions.KeyUsage, false, names);
 
 		X509Certificate certificate = v3CertGen.generate(privateKey);
 		certificate.verify(publicKey);
@@ -117,7 +114,6 @@ public class WebIDMaker {
 		X509Certificate cert = v3CertGen.generate(privateKey);
 		return cert;
 	}
-
 
 	public static void storeCertificate(String certName, X509Certificate cert, Key key, String password, File file) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
 		KeyStore keyStore = KeyStore.getInstance("JKS");
@@ -172,6 +168,12 @@ public class WebIDMaker {
 			result.append( Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 ) );
 		}
 		return result.toString();
+	}
+
+	public static boolean isSameKey(RSAPublicKey publicKey, RSAPublicKey publicKey2) {
+		return publicKey.getModulus().equals( publicKey2.getModulus() )
+			&& publicKey.getPublicExponent().equals( publicKey2.getPublicExponent() )
+			&& publicKey.getAlgorithm().equals( publicKey2.getAlgorithm() );
 	}
 
 
