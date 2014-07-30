@@ -23,7 +23,7 @@ import java.util.Map;
  * Time  : 1:36 PM
  */
 public class WebIDSelfCertIssuer implements Processor {
-	private String issuerURI = "http://scorpio4.com/webid/";
+	private String issuerURI = "http://scorpio4demo.com/webid/";
 	private File keystorePath = new File("webid"+File.separator);
 	private String issuerPassword = "scorpio4";
 
