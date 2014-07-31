@@ -50,7 +50,7 @@ public class Deploy extends Base {
 //			log.info("\t"+headers);
 			deployer.deploy(file.getParentFile(), file);
 		}
-		if (!uri.equals("")) {
+		if (uri!=null && !uri.equals("")) {
 			log.info("Deploy URL: "+uri);
 			deployer.deploy(new URL(uri));
 		}

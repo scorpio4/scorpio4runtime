@@ -5,7 +5,9 @@ import com.scorpio4.asq.sparql.SelectSPARQL;
 import com.scorpio4.iq.bean.ConvertsType;
 import com.scorpio4.iq.bean.XSD2POJOConverter;
 import com.scorpio4.vocab.COMMONS;
+import org.apache.camel.Converter;
 import org.openrdf.model.Namespace;
+import org.openrdf.model.Statement;
 import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -14,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Scorpio4 (c) 2014
@@ -26,6 +25,7 @@ import java.util.Map;
  * Date  : 17/06/2014
  * Time  : 10:16 PM
  */
+@Converter
 public class SesameHelper {
     private static final Logger log = LoggerFactory.getLogger(SesameHelper.class);
 
@@ -69,22 +69,46 @@ public class SesameHelper {
 
 	public static Collection<Map> toMapCollection(RepositoryConnection connection, String sparql, ConvertsType convertsType) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
 		sparql = explodePragmas(connection, sparql);
-        TupleQuery tuple = connection.prepareTupleQuery(QueryLanguage.SPARQL, sparql);
+		TupleQuery tuple = connection.prepareTupleQuery(QueryLanguage.SPARQL, sparql);
+		return toMapCollection(tuple);
+	}
 
-        TupleQueryResult result = tuple.evaluate();
+	@Converter
+	public static Collection<Map> toMapCollection(TupleQuery tuple) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
+		return toMapCollection(tuple.evaluate());
+	}
+
+	@Converter
+	public static Collection<Map> toMapCollection(TupleQueryResult result) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
         Collection reply = new ArrayList();
         while(result.hasNext()) {
             BindingSet bindingSet = result.next();
 	        log.trace("SPARQL binding: "+bindingSet.getBindingNames());
             Map map = new HashMap();
             for(Binding name:bindingSet) {
-                map.put(name.getName(), name.getValue().stringValue() );
+	            Object put = map.put(name.getName(), name.getValue().stringValue());
             }
             reply.add(map);
         }
         log.trace("SPARQL found: "+reply.size()+" results");
         return reply;
     }
+
+	@Converter
+	public static Collection<Statement> toStatements(TupleQuery query) throws QueryEvaluationException {
+		return toStatements(query.evaluate());
+	}
+
+	@Converter
+	public static Collection<Statement> toStatements(TupleQueryResult result) throws QueryEvaluationException {
+		Collection statements = new ArrayList();
+		while (result.hasNext()) {
+			Statement stmt = (Statement) result.next();
+			statements.add(stmt);
+		}
+		result.close();
+		return statements;
+	}
 
 	public static String explodePragmas(RepositoryConnection connection, String sparql) throws RepositoryException, QueryEvaluationException, MalformedQueryException, IOException {
 		String namespaces = toSPARQLPrefix(connection).toString();

@@ -65,7 +65,7 @@ public class ASQ4JSON implements ASQParser {
             if (where instanceof Collection) {
 	            this.asq = makeWhere(id, (Collection)where);
             }
-            else throw new ASQException("urn:scorpio4:fact:domain:parser:oops:invalid-where#"+where.toString());
+            else throw new ASQException("urn:scorpio4:asq:core:parser:oops:invalid-where#"+where.toString());
         }
     }
 

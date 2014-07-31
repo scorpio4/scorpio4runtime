@@ -23,7 +23,7 @@ public class Term {
 	protected String term = null;
 
 	public Term(String _term) throws ASQException {
-        if (_term==null ||_term.equals("")) throw new ASQException("urn:scorpio4:fact:domain:oops:invalid-term");
+        if (_term==null ||_term.equals("")) throw new ASQException("urn:scorpio4:asq:core:oops:invalid-term");
 		this.term = _term.trim();
 	}
 
