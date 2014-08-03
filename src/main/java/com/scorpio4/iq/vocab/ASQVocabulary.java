@@ -120,9 +120,7 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 	}
 
 	protected SelectSPARQL toSPARQL(String asqURI, Map meta) throws RepositoryException, QueryEvaluationException, MalformedQueryException, ASQException {
-		if (!asqURI.contains(":")) {
-			throw new ASQException("ASQ not a URI: "+asqURI);
-		}
+		if (!asqURI.contains(":")) return null;
 		RDFScalars scalars = new RDFScalars(connection);
 		Resource queryURI = vf.createURI(asqURI);
 

@@ -36,10 +36,7 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -63,6 +60,8 @@ public class Scorpio4SesameDeployer implements Identifiable {
 	private URI provenanceContext = null, a = null, subClassOf = null, hasAsset = null;
     URI textType = null, rdfsLabel = null, mimeExtension = null;
     ScriptEngineManager sem = new ScriptEngineManager();
+
+	long since = 0L;
 
     public Scorpio4SesameDeployer(String context, RepositoryConnection connection) throws FactException, RepositoryException {
         init(context,connection);
@@ -108,6 +107,7 @@ public class Scorpio4SesameDeployer implements Identifiable {
 			extension2type.put("camel.xml",	COMMONS.MIME_TYPE+ "application/x-camel-route");
 			extension2type.put("asq",	COMMONS.MIME_TYPE+ "application/x-asq");
 
+			extension2type.put("html", COMMONS.MIME_TYPE+ "text/html");
 			extension2type.put("xhtml", COMMONS.MIME_TYPE+ "application/xhtml+xml");
 			extension2type.put("txt", COMMONS.MIME_TYPE+"plain/text");
             extension2type.put("json", COMMONS.MIME_TYPE+ "application/json");
@@ -131,12 +131,12 @@ public class Scorpio4SesameDeployer implements Identifiable {
         log.debug("Cleaned: "+this.provenanceContext);
 	}
 
-	public void deploy(File zipFile) throws FactException, IOException, RepositoryException {
-		log.debug("Deploying: "+zipFile.getAbsolutePath());
-		if (zipFile.isDirectory()) {
-			deploy(zipFile, zipFile, true);
+	public void deploy(File jarOrPath) throws FactException, IOException, RepositoryException {
+		log.debug("Deploying: " + jarOrPath.getAbsolutePath());
+		if (jarOrPath.isDirectory()) {
+			deploy(jarOrPath, jarOrPath, true);
 		} else {
-            deploy(new JarFile(zipFile));
+            deploy(new JarFile(jarOrPath));
 		}
 	}
 
@@ -202,9 +202,14 @@ public class Scorpio4SesameDeployer implements Identifiable {
 	}
 
 	public void deploy(File home, File file) throws FactException, IOException {
+		if (since>0 && file.lastModified()<since) {
+			log.trace("Not modified: "+file.getAbsolutePath());
+			return;
+		}
+
 		FileInputStream inStream = new FileInputStream(file);
 		deploy(Steps.localize("", home.getParentFile(), file), inStream);
-        inStream.close();
+		inStream.close();
 	}
 
 	public void deploy(String localPath, InputStream inStream) throws FactException, IOException {
@@ -215,27 +220,32 @@ public class Scorpio4SesameDeployer implements Identifiable {
             return;
         }
 		try {
-			if (extension.equals("n3") && isDeployingRDF()) {
-				deployN3(localPath, inStream);
-			} else if (extension.equals("ttl") && isDeployingRDF()) {
-				deployTTL(localPath, inStream);
-			} else if (extension.equals("rdf.xml") && isDeployingRDF()) {
-				deployRDFXML(localPath, inStream);
-            } else if (extension.equals("rdf") && isDeployingRDF()) {
-                deployRDFXML(localPath, inStream);
-			} else if (extension.equals("owl.xml") && isDeployingRDF()) {
-				deployRDFXML(localPath, inStream);
-            } else if (extension.equals("owl") && isDeployingRDF()) {
-                deployRDFXML(localPath, inStream);
-            } else if (extension.equals("nt") && isDeployingRDF()) {
-                deployNT(localPath, inStream);
-			} else if (extension.equals("nq") && isDeployingRDF()) {
-				deployNQ(localPath, inStream);
-			} else if (scriptTypes.containsKey(extension) && isDeployingScripts() ) {
-                script(localPath, inStream);
-            } else if(extension2type.containsKey(extension) && isDeployingScripts() ) {
-                asset(localPath, inStream);
-            }
+			if (isDeployingRDF()) {
+				if (extension.equals("n3")) {
+					deployN3(localPath, inStream);
+				} else if (extension.equals("ttl")) {
+					deployTTL(localPath, inStream);
+				} else if (extension.equals("rdf.xml")) {
+					deployRDFXML(localPath, inStream);
+				} else if (extension.equals("rdf")) {
+					deployRDFXML(localPath, inStream);
+				} else if (extension.equals("owl.xml")) {
+					deployRDFXML(localPath, inStream);
+				} else if (extension.equals("owl")) {
+					deployRDFXML(localPath, inStream);
+				} else if (extension.equals("nt")) {
+					deployNT(localPath, inStream);
+				} else if (extension.equals("nq")) {
+					deployNQ(localPath, inStream);
+				}
+			}
+			if (isDeployingScripts()) {
+				if (scriptTypes.containsKey(extension) ) {
+					script(localPath, inStream);
+				} else if(extension2type.containsKey(extension) ) {
+					asset(localPath, inStream);
+				}
+			}
 		} catch (RDFParseException e) {
 			throw new FactException("Corrupt RDF: "+e.getMessage()+"-> "+localPath+" -> "+e.getLineNumber()+":"+e.getColumnNumber(),e);
 		} catch (RepositoryException e) {
@@ -245,7 +255,7 @@ public class Scorpio4SesameDeployer implements Identifiable {
 
 	private void deployRIO(String localPath, InputStream inStream, RDFFormat format) throws RepositoryException, IOException, RDFParseException {
 		getConnection().begin();
-		String baseURN = toURN(localPath, ":");
+		String baseURN = toURN(localPath, "/");
 		log.debug("Deploying: "+format+": "+baseURN+" in: "+provenanceContext+" ("+inStream.available()+")");
 		getConnection().add(inStream, baseURN, format, provenanceContext);
 		describeAsset(baseURN);
@@ -373,7 +383,19 @@ public class Scorpio4SesameDeployer implements Identifiable {
         return getIdentity()+steps.toString( 1,-1,sep);
     }
 
-    @Override
+	public long getSince() {
+		return since;
+	}
+
+	public void setSince(long since) {
+		this.since = since;
+	}
+
+	public void setSince(Date since) {
+		this.since = since.getTime();
+	}
+
+	@Override
     public String getIdentity() {
         return identity;
     }

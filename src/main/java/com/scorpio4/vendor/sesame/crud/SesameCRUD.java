@@ -73,7 +73,7 @@ public class SesameCRUD implements CRUD {
     @Override
     public Collection<Map> read(String queryURI, Map model) throws FactException, IOException, ConfigException {
         Asset asset = getAsset(queryURI, model);
-        log.info("READ: "+asset.getContent());
+	    log.trace("Read Asset: "+asset.getContent());
         return new SesameRead(this,asset.toString()).execute();
     }
 

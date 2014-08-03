@@ -96,4 +96,10 @@ public class FLOSupport {
 		plan();
 		context.resume();
 	}
+
+	public static boolean canDereference(String to) {
+		return to.startsWith("http:") || to.startsWith("https:") || to.startsWith("file:");
+	}
+
+
 }

@@ -62,12 +62,12 @@ public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
 		SesameCRUD crud = new SesameCRUD(factSpace);
 
 		// load bean:Bean instances, should be bean: prefixed fully qualified classes
-		Collection<Map> prototypes = crud.read("self/prototypes.sparql", engine.getConfig());
+		Collection<Map> prototypes = crud.read("self/prototypes", engine.getConfig());
 		register(prototypes);
 		log.debug("Registered "+prototypes.size()+" Prototypes");
 
 		// load instances of prototypes, ideally urn: name-spaced
-		Collection<Map> singletons = crud.read("self/singletons.sparql", engine.getConfig());
+		Collection<Map> singletons = crud.read("self/singletons", engine.getConfig());
 		register(singletons);
 		log.debug("Registered "+singletons.size()+" Singletons");
 

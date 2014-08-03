@@ -47,33 +47,33 @@ public class WebIDMaker {
 	public WebIDMaker() {
 	}
 
-	public KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+	public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
 		return generate("RSA", 1024);
 	}
 
-	public KeyPair generate(String algorithm, int size) throws NoSuchAlgorithmException {
+	public static KeyPair generate(String algorithm, int size) throws NoSuchAlgorithmException {
 		java.security.KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
 		keyPairGenerator.initialize(size, new SecureRandom());
 		return keyPairGenerator.generateKeyPair();
 	}
 
-	public String getWebIDProfile(KeyPair keyPair) {
+	public static String getWebIDProfile(KeyPair keyPair) {
 		PublicKey publicKey = keyPair.getPublic();
 		return getWebIDProfile((RSAPublicKey)publicKey);
 	}
 
-	public String getWebIDProfile(RSAPublicKey publicKey) {
+	public static String getWebIDProfile(RSAPublicKey publicKey) {
 		return DatatypeConverter.printHexBinary(publicKey.getModulus().toByteArray());
 	}
 
-	public RSAPublicKey getPublicKey(String modulus$, String exponent$) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+	public static RSAPublicKey getPublicKey(String modulus$, String exponent$) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
 		byte[] bytes = DatatypeConverter.parseHexBinary(modulus$);
 		BigInteger modulus = new BigInteger(bytes);
 		BigInteger exponent = new BigInteger(exponent$);
 		return getPublicKey(modulus, exponent);
 	}
 
-	public RSAPublicKey getPublicKey(BigInteger modulus, BigInteger exponent) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+	public static RSAPublicKey getPublicKey(BigInteger modulus, BigInteger exponent) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
 		RSAPublicKeySpec rsaPublicKey = new RSAPublicKeySpec(modulus, exponent);
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		return (RSAPublicKey) keyFactory.generatePublic(rsaPublicKey);
@@ -103,7 +103,7 @@ public class WebIDMaker {
 		return certificate;
 	}
 
-	public X509Certificate generateCertificate(Hashtable attribs, String spkacData, PrivateKey privateKey) throws IOException, CertificateEncodingException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	public static X509Certificate generateCertificate(Hashtable attribs, String spkacData, PrivateKey privateKey) throws IOException, CertificateEncodingException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		X509Principal x509Principal = new X509Principal(attribs);
 		NetscapeCertRequest netscapeCertReq = new NetscapeCertRequest(Base64.decode(spkacData));
 		PublicKey certPubKey = netscapeCertReq.getPublicKey();
@@ -115,7 +115,16 @@ public class WebIDMaker {
 		return cert;
 	}
 
-	public static void storeCertificate(String certName, X509Certificate cert, Key key, String password, File file) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+	public static KeyStore newStore(String identity, String password, File file) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, NoSuchProviderException, SignatureException, InvalidKeyException {
+		KeyPair keyPair = generateKeyPair();
+		X509Principal issuer = getWebIDIssuer();
+		WebIDMaker webIDMaker = new WebIDMaker();
+		X509Certificate certificate = webIDMaker.generateCertificate(keyPair.getPublic(), keyPair.getPrivate(), identity, issuer, issuer);
+		KeyStore keyStore = storeCertificate(identity, certificate, keyPair.getPrivate(), password, file);
+		return keyStore;
+	}
+
+	public static KeyStore storeCertificate(String certName, X509Certificate cert, Key key, String password, File file) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
 		KeyStore keyStore = KeyStore.getInstance("JKS");
 		file.getParentFile().mkdirs();
 		if (file.exists()) {
@@ -129,6 +138,7 @@ public class WebIDMaker {
 		FileOutputStream fileOutputStream = new FileOutputStream(file);
 		keyStore.store(fileOutputStream, password.toCharArray() );
 		fileOutputStream.close();
+		return keyStore;
 	}
 
 	public static X509Certificate loadCertificate(String certName, String password, File file) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
@@ -139,7 +149,7 @@ public class WebIDMaker {
 		return certificate;
 	}
 
-	public void encrypt(String key, byte[] encrypted, Writer out) throws Exception {
+	public static void encrypt(String key, byte[] encrypted, Writer out) throws Exception {
 
 		BASE64Decoder b64 = new BASE64Decoder();
 
@@ -154,7 +164,7 @@ public class WebIDMaker {
 		out.write(getHexString(hexEncodedCipher));
 	}
 
-	public X509Principal getWebIDIssuer() {
+	public static X509Principal getWebIDIssuer() {
 		Hashtable attrs = new Hashtable();
 		attrs.put(X509Principal.O, "{}");
 		attrs.put(X509Principal.CN, "WebID");

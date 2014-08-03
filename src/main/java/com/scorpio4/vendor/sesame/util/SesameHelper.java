@@ -30,6 +30,10 @@ public class SesameHelper {
     private static final Logger log = LoggerFactory.getLogger(SesameHelper.class);
 
 	public static void defaultNamespaces(RepositoryConnection to) throws RepositoryException {
+		defaultNamespaces(to, null);
+	}
+
+	public static void defaultNamespaces(RepositoryConnection to, String identity) throws RepositoryException {
 		to.begin();
 		// W3C Vocabularies
 		to.setNamespace("rdf", COMMONS.RDF);
@@ -44,6 +48,9 @@ public class SesameHelper {
 		to.setNamespace("bean", COMMONS.CORE+"bean/");
 		to.setNamespace("asq", COMMONS.CORE+"asq/");
 		to.setNamespace("core", COMMONS.CORE);
+		if (identity!=null) {
+			to.setNamespace("self", identity);
+		}
 		to.commit();
 	}
 
@@ -54,7 +61,7 @@ public class SesameHelper {
 			Namespace namespace = namespaces.next();
 			namespace$.append("PREFIX ").append(namespace.getPrefix()).append(": <").append(namespace.getName()).append( ">\n");
 		}
-		log.debug("SPARQL prefices: "+namespace$);
+		log.trace("SPARQL prefices: " + namespace$);
 		return namespace$;
 	}
 

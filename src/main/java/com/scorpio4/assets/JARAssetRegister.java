@@ -72,7 +72,7 @@ public class JARAssetRegister extends BaseAssetRegister {
 		    uri = uri.substring("classpath:".length());
 	    }
         String scriptPath = fromURNToPath(uri);
-        log.debug("getScriptJAR: "+uri+" from: "+classLoader);
+        log.trace("getScriptJAR: "+uri+" from: "+classLoader);
         if (mimeType!=null&&!mimeType.equals("") && uri.indexOf(".")<0) {
             String extn = (String) mimeToExtension.get(mimeType);
             scriptPath+=extn;
@@ -84,7 +84,7 @@ public class JARAssetRegister extends BaseAssetRegister {
 
     public Properties getProperties(String uri) throws IOException {
 		String scriptPath = fromURNToPath(uri);
-		log.debug("getProperties: "+uri+" from: "+classLoader);
+		log.trace("getProperties: "+uri+" from: "+classLoader);
 		InputStream resourceAsStream = classLoader.getResourceAsStream(scriptPath);
 		if (resourceAsStream==null) throw new IOException("JAR properties not found: "+scriptPath);
 		Properties properties = new Properties();

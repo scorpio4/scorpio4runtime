@@ -5,9 +5,12 @@ import com.scorpio4.assets.AssetRegisters;
 import com.scorpio4.iq.vocab.ActiveVocabulary;
 import com.scorpio4.iq.vocab.Scorpio4ActiveVocabularies;
 import com.scorpio4.util.Identifiable;
-import com.scorpio4.util.map.MapUtil;
 import com.scorpio4.vendor.sesame.RepositoryManager;
 import com.scorpio4.vendor.sesame.util.SesameHelper;
+import com.scorpio4.vocab.COMMONS;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -27,7 +30,7 @@ import java.util.Map;
  * Time  : 12:00 AM
  */
 public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
-	private static final String CONFIG_PREFIX = "scorpio4.";
+//	private static final String CONFIG_PREFIX = "scorpio4.";
 
 	final Logger log = LoggerFactory.getLogger(this.getClass());
 	String identity;
@@ -54,7 +57,7 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 
 	protected void init(String identity, RepositoryManager manager, Map<String,String> properties) throws Exception {
 		log.debug("Engine: "+identity);
-		this.properties = MapUtil.getConfig(properties, CONFIG_PREFIX);	// localize properties (strip the prefix)
+		this.properties = properties;	// localize properties (strip the prefix)
 		this.manager = manager;
 		this.classloader = Thread.currentThread().getContextClassLoader();
 		log.debug("Configuration: " + this.properties);
@@ -64,17 +67,17 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 	protected void boot(String identity) throws Exception {
 		this.identity=identity;
 
-		this.repository = manager.getRepository(identity);
+		this.repository = manager.newRepository(identity);
 		if (repository==null) throw new RepositoryException("Missing repository: "+identity);
 
 		connection = repository.getConnection();
 		SesameHelper.defaultNamespaces(connection);
 
 		this.assetRegister = new AssetRegisters(connection);
-		springContext = RuntimeHelper.newSpringContext(this);
+		this.springContext = RuntimeHelper.newSpringContext(this);
 		log.debug("VM stats: " + RuntimeHelper.getVMStats());
 
-		activeVocabulary = new Scorpio4ActiveVocabularies(this);
+		this.activeVocabulary = new Scorpio4ActiveVocabularies(this);
 	}
 
 	public void start() throws Exception {
@@ -91,8 +94,8 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				try {
-					activeVocabulary.activate("direct:self:graceful", self);
 					log.error("Graceful shutdown ...");
+					activeVocabulary.activate("direct:self:graceful", self);
 					self.stop();
 				} catch (Exception e) {
 					log.error("FATAL shutdown", e);
@@ -179,6 +182,12 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 
 	public boolean isRunning() {
 		return isRunning;
+	}
+
+	public boolean isInstalled() throws RepositoryException {
+		ValueFactory vf = connection.getValueFactory();
+		URI runtimeType = vf.createURI(COMMONS.CORE + "Runtime");
+		return connection.hasStatement(null, RDF.TYPE, runtimeType,true);
 	}
 
 //	public ActiveVocabularies getActiveVocabularies() {

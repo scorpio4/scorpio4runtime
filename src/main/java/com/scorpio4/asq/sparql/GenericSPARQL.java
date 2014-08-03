@@ -7,6 +7,7 @@ package com.scorpio4.asq.sparql;
 import com.scorpio4.asq.ASQ;
 import com.scorpio4.asq.core.LiteralTerm;
 import com.scorpio4.asq.core.Pattern;
+import com.scorpio4.asq.core.RawTerm;
 import com.scorpio4.asq.core.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +58,12 @@ public abstract class GenericSPARQL {
 	    if (pattern==null || !pattern.isDefined()) return;
         if (pattern.isOptional()) sparql.append("\nOPTIONAL {\n");
         buildTerm(sparql, pattern.getThis());
-        if (pattern.getHas().toString().equals("a"))
+	    Term has = pattern.getHas();
+
+	    if (has.toString().equals("a"))
             sparql.append("a ");
         else
-            buildTerm(sparql, pattern.getHas());
+            buildTerm(sparql, has);
         buildTerm(sparql, pattern.getThat());
         sparql.append(".\n");
 //        buildWherePattern(sparql, pattern.getNext());
@@ -75,6 +78,7 @@ public abstract class GenericSPARQL {
     protected void buildTerm(StringBuilder sparql, Term term) {
         if (term.isFunction()) return;
         if (term.isBinding()) sparql.append("?").append(term.toString()).append(" ");
+        if (term instanceof RawTerm) sparql.append(term).append(" ");
         else sparql.append("<").append(term).append("> ");
     }
 

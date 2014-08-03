@@ -7,19 +7,18 @@ package com.scorpio4.vendor.sesame;
  */
 
 import com.scorpio4.util.Identifiable;
+import com.scorpio4.util.string.PrettyString;
+import org.openrdf.repository.DelegatingRepository;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.config.RepositoryConfig;
-import org.openrdf.repository.config.RepositoryConfigException;
+import org.openrdf.repository.config.*;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.SystemRepository;
-import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.repository.sail.config.RepositoryResolverClient;
 import org.openrdf.repository.sail.config.SailRepositoryConfig;
 import org.openrdf.sail.config.SailImplConfig;
 import org.openrdf.sail.federation.Federation;
-import org.openrdf.sail.inferencer.fc.ForwardChainingRDFSInferencer;
 import org.openrdf.sail.inferencer.fc.config.ForwardChainingRDFSInferencerConfig;
-import org.openrdf.sail.memory.MemoryStore;
 import org.openrdf.sail.memory.config.MemoryStoreConfig;
 import org.openrdf.sail.nativerdf.config.NativeStoreConfig;
 import org.slf4j.Logger;
@@ -48,35 +47,26 @@ public class RepositoryManager extends LocalRepositoryManager implements Identif
 		log.debug("SystemRepository() " + systemRepository+" @ "+systemRepository.isInitialized()+" & "+ systemRepository.isWritable());
 	}
 
-	public Repository getRepository(String repositoryId) throws RepositoryException, RepositoryConfigException {
-		Repository repository = super.getRepository(repositoryId);
-		if (repository!=null) {
-			log.debug("getRepository() "+repositoryId);
-			return repository;
-		}
-		return getNewRepository(repositoryId);
-	}
-
-	private Repository getNewRepository(String repositoryId) throws RepositoryException, RepositoryConfigException {
-		log.debug("getNewRepository() "+repositoryId);
-		RepositoryConfig repositoryConfig = newMemoryRepositoryConfig(repositoryId, false, true);
+	public Repository newRepository(String repositoryId) throws RepositoryException, RepositoryConfigException {
+		log.debug("newRepository() "+repositoryId);
+		RepositoryConfig repositoryConfig = newDiskRepositoryConfig(repositoryId, true);
 		addRepositoryConfig(repositoryConfig);
-		return super.getRepository(repositoryId);
+		return createRepository(repositoryId, repositoryConfig.getRepositoryImplConfig());
 	}
 
 	public Repository createRepository(String repositoryId) throws RepositoryException, RepositoryConfigException {
 		log.debug("createRepository() "+repositoryId);
-		Repository repository = super.createRepository(repositoryId);
-		if (repository!=null) return repository;
-		return null;
+		RepositoryConfig repConfig = newMemoryRepositoryConfig(repositoryId, true, false);
+		addRepositoryConfig(repConfig);
+		return createRepository(repositoryId, repConfig.getRepositoryImplConfig());
 	}
 
-	public Repository createRepository(boolean infer) {
-		if (infer)
-			return new SailRepository(new ForwardChainingRDFSInferencer( new MemoryStore() ) );
-		else
-			return new SailRepository( new MemoryStore() );
-	}
+//	public Repository createRepository(boolean infer) {
+//		if (infer)
+//			return new SailRepository(new ForwardChainingRDFSInferencer( new MemoryStore() ) );
+//		else
+//			return new SailRepository( new MemoryStore() );
+//	}
 
 	public Federation getFederation(String repositoryId) {
 		return getFederation(repositoryId, null);
@@ -112,6 +102,32 @@ public class RepositoryManager extends LocalRepositoryManager implements Identif
 		log.debug("newDiskRepository() "+repositoryId+" -> "+backendConfig);
 		SailRepositoryConfig repositoryTypeSpec = new SailRepositoryConfig(backendConfig);
 		return new RepositoryConfig(repositoryId, repositoryTypeSpec);
+	}
+
+	// copied from Sesame's LocalRepositoryManager.java
+	protected Repository createRepository(String repositoryId, RepositoryImplConfig config) throws RepositoryConfigException, RepositoryException {
+		RepositoryFactory factory = RepositoryRegistry.getInstance().get(config.getType());
+		if (factory == null) {
+			throw new RepositoryConfigException("Unsupported repository type: " + config.getType());
+		}
+		if (factory instanceof RepositoryResolverClient) {
+			((RepositoryResolverClient)factory).setRepositoryResolver(this);
+		}
+		File repositoryDir = getRepositoryDir(PrettyString.sanitize(repositoryId));
+		Repository repository = factory.getRepository(config);
+		repository.setDataDir(repositoryDir);
+		repository.initialize();
+		if (config instanceof DelegatingRepositoryImplConfig) {
+			RepositoryImplConfig delegateConfig = ((DelegatingRepositoryImplConfig)config).getDelegate();
+			Repository delegate = createRepository(repositoryId, delegateConfig);
+			try {
+				((DelegatingRepository)repository).setDelegate(delegate);
+			}
+			catch (ClassCastException e) {
+				throw new RepositoryConfigException( "Delegate specified for repository that is not a DelegatingRepository: " + delegate.getClass(), e);
+			}
+		}
+		return repository;
 	}
 
 	@Override

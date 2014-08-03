@@ -106,6 +106,10 @@ public class Pattern {
 		_has = new Term( term);
 	}
 
+	public void setPath(String term) throws ASQException {
+		_has = new RawTerm( term);
+	}
+
 	public void setThat(String term) throws ASQException {
 		_that = new Term( term);
 	}
@@ -155,4 +159,5 @@ public class Pattern {
 	public boolean isDefined() {
 		return _that!=null&&_has!=null&&_this!=null;
 	}
+
 }

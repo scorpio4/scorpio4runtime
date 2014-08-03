@@ -64,7 +64,7 @@ public class ASQ4Sesame implements ASQParser {
 
 	private Pattern buildWhere(ASQ asq, String verb, Value object) throws ASQException, RepositoryException {
 		if (verb!=null && (patternVerbs.containsKey(verb))) {
-			log.trace("verb: "+verb);
+			log.debug("verb: " + verb);
 			if (object instanceof Resource) {
 				Pattern pattern = builtPattern(asq, (Resource) object);
 				if (verb.equals("optional")) {
@@ -99,6 +99,9 @@ public class ASQ4Sesame implements ASQParser {
 				break;
 			case "has":
 				pattern.setHas(object.stringValue());
+				break;
+			case "path":
+				pattern.setPath(object.stringValue());
 				break;
 			case "that":
 				if (object instanceof Literal) {
