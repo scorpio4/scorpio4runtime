@@ -64,6 +64,8 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 
 		camel.addComponent("crud", new CRUDComponent(crud));
 		camel.addComponent("self", new SelfComponent(engine));
+		camel.addComponent("flo", camel.getComponent("self"));
+
 		camel.addComponent("any23", new Any23Component(engine));
 
 		camel.addComponent("sparql", new SesameComponent(engine));
@@ -84,6 +86,7 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 		floSupport = new RDFCamelPlanner(camel, engine);
 		floSupport.setVocabURI(getIdentity());
 		factSpace.close();
+		crud.close();
 
 		log.debug("Active FLO Booted: "+engine.getIdentity());
 	}

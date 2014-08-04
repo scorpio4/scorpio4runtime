@@ -39,9 +39,9 @@ public class SelfComponent extends ClassComponent {
 		} else if (remaining.startsWith("asset:")) {
 			executable = new AssetBase(engine, remaining.substring(6));
 		} else if (remaining.startsWith("deploy:")) {
-			log.debug("Deploying: "+uri+" @ "+remaining);
+			log.debug("Deploy: "+uri+" @ "+remaining);
 			String assetURI = remaining.substring(7);
-			if (assetURI.equals("")) assetURI = engine.getIdentity();
+//			if (assetURI.equals("")) assetURI = engine.getIdentity();
 			executable = new Deploy(engine, assetURI);
 		}
 		if (executable==null) throw new CamelException("Unknown SELF command: "+remaining);

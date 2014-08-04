@@ -6,6 +6,7 @@ import com.scorpio4.vendor.sesame.util.SesameHelper;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spring.spi.ApplicationContextRegistry;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -93,5 +94,14 @@ public class RuntimeHelper {
 		Scorpio4SesameDeployer sesameDeployer = new Scorpio4SesameDeployer(engine.getIdentity(), connection);
 		sesameDeployer.deploy(srcDir);
 		connection.close();
+	}
+
+	public static void empty(ExecutionEnvironment engine) throws RepositoryException {
+		RepositoryConnection connection = engine.getRepository().getConnection();
+		ValueFactory vf = connection.getValueFactory();
+		connection.begin();
+		connection.clear(vf.createURI(engine.getIdentity()));
+		connection.commit();
+		connection.clear();
 	}
 }

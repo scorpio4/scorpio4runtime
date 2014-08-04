@@ -1,12 +1,17 @@
 package com.scorpio4.runtime;
 
+import com.scorpio4.oops.FactException;
 import com.scorpio4.security.webid.WebIDMaker;
 import com.scorpio4.ui.swing.DeskTray;
+import com.scorpio4.ui.swing.RuntimeDeskTray;
 import com.scorpio4.util.map.MapUtil;
+import com.scorpio4.vendor.camel.flo.FLOSupport;
 import com.scorpio4.vendor.sesame.RepositoryManager;
+import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -24,8 +29,8 @@ import java.util.Properties;
  */
 public class Personal extends Engine {
 	static final Logger log = LoggerFactory.getLogger(Personal.class);
-	DeskTray deskTray;
-	File rootDir;
+	RuntimeDeskTray trayUI = null;
+	File rootDir, srcDir;
 
 	public Personal(String name, String identity, File rootDir, Map<String,String> properties) throws Exception {
 		log.debug("Working directory: " + rootDir.getAbsolutePath());
@@ -33,23 +38,58 @@ public class Personal extends Engine {
 	}
 
 	public void init(String name, String identity, File rootDir, RepositoryManager repositoryManager, Map<String, String> properties) throws Exception {
-		this.deskTray = new DeskTray(name, name, "images/logo.png");
+		this.trayUI = new RuntimeDeskTray(this, new DeskTray(name, name, "images/logo.png"));
 		this.rootDir=rootDir;
+		this.srcDir = MapUtil.getFile(properties, "src", null);
 		init(identity, repositoryManager, MapUtil.getConfig(properties, name + "."));
+
+		// menu
+		trayUI.getDeskTray().getMenu().add(name);
+		trayUI.getDeskTray().getMenu().addSeparator();
 	}
 
 	@Override
 	public void start() throws Exception {
+		Menu actions = trayUI.addMenu("Actions", null);
+		Menu menu = trayUI.addAdminMenu();
+
+		actions.setEnabled(false);
+		menu.setEnabled(false);
+
+		bootstrap();
 		super.start();
+
+		menu.setEnabled(true);
+		actions.setEnabled(true);
+		trayUI.addFloMenu(actions, getActiveVocabulary());
+	}
+
+	protected void bootstrap() throws RepositoryException, IOException, FactException {
+		if (srcDir!=null) {
+			if (!srcDir.isAbsolute()) srcDir = new File(rootDir, srcDir.toString());
+			srcDir.mkdirs();
+			log.debug("SDK Provision: "+srcDir.getAbsolutePath());
+			RuntimeHelper.empty(this);
+			RuntimeHelper.provision(this, srcDir);
+		}
+
+		if (!isInstalled() && FLOSupport.canDereference(getIdentity())) {
+			RuntimeHelper.empty(this);
+			RuntimeHelper.provision(this, new URL(getIdentity()));
+		}
+
+	}
+
+	public void stop() throws Exception {
+		super.stop();
 	}
 
 	public static void main(String[] args) {
 		String name = "scorpio4";
 		String configPath = name+".properties";
-		File configFile = null;
 		try {
 			if (args.length>0) configPath = args[0];
-			configFile = new File(configPath);
+			File configFile = new File(configPath);
 			log.debug("Properties from: " + configFile.getAbsolutePath());
 			if (!configFile.exists()) throw new IOException("Properties not found: "+configFile.getAbsolutePath());
 			Properties properties = new Properties();
@@ -68,17 +108,6 @@ public class Personal extends Engine {
 			headers.putAll(properties);
 			Personal personal = new Personal(name, identity, homeDir, headers);
 			log.debug("---------------------------------------- ----------------------------------------");
-
-			File srcDir = MapUtil.getFile(properties, name + ".src", null);
-			if (srcDir!=null) {
-				if (!srcDir.isAbsolute()) srcDir = new File(homeDir, srcDir.toString());
-				srcDir.mkdirs();
-				log.debug("SDK Provision: "+srcDir.getAbsolutePath());
-				RuntimeHelper.provision(personal, srcDir);
-			}
-			if (!personal.isInstalled()) {
-				RuntimeHelper.provision(personal, new URL(identity));
-			}
 
 			personal.start();
 		} catch (IOException e) {

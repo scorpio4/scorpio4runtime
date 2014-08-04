@@ -78,6 +78,20 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		log.debug("VM stats: " + RuntimeHelper.getVMStats());
 
 		this.activeVocabulary = new Scorpio4ActiveVocabularies(this);
+
+		final Engine self = this;
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				try {
+					log.error("Graceful shutdown ...");
+					self.stop();
+					System.exit(0);
+				} catch (Exception e) {
+					log.error("FATAL shutdown", e);
+					System.exit(-1);
+				}
+			}
+		});
 	}
 
 	public void start() throws Exception {
@@ -87,23 +101,11 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		}
 
 		log.debug("Starting Engine: "+RuntimeHelper.getVMStats());
-		final Engine self = this;
 
 		activeVocabulary.start();
 
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				try {
-					log.error("Graceful shutdown ...");
-					activeVocabulary.activate("direct:self:graceful", self);
-					self.stop();
-				} catch (Exception e) {
-					log.error("FATAL shutdown", e);
-				}
-			}
-		});
 		isRunning = true;
-		activeVocabulary.activate("direct:self:started", self);
+		activeVocabulary.activate("direct:self:started", this);
 		log.debug("Engine Running: " + RuntimeHelper.getVMStats());
 	}
 
@@ -139,9 +141,10 @@ public class Engine implements ExecutionEnvironment, Identifiable, Runnable {
 		log.debug("Stopping Engine");
 		activeVocabulary.stop();
 
-		connection.close();
+		if (connection!=null && connection.isOpen()) connection.close();
 		repository.shutDown();
 		isRunning = false;
+		log.debug("Engine Shutdown");
 	}
 
 	public String getIdentity() {

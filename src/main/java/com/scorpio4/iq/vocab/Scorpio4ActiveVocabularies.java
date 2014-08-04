@@ -40,6 +40,7 @@ public class Scorpio4ActiveVocabularies extends AbstractActiveVocabulary {
 
 	@Override
 	public void stop() throws Exception {
+		isActive=false;
 		flo.stop();
 		springBeans.stop();
 		asq.stop();

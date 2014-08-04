@@ -100,8 +100,8 @@ public class RDFCamelPlanner extends FLOSupport implements Identifiable {
 				@Override
 				public void configure() throws Exception {
 //					errorHandler(deadLetterChannel("mock:error"));
-					log.debug("Configure Route ("+_routeID+") -> "+_from);
 					String from = _from.stringValue();
+					log.debug("Configure Route ("+_routeID+") -> "+from);
 					if (IRITemplate.isTemplated(from)) {
 						IRITemplate toTemplate = new IRITemplate(from, engine.getConfig());
 						log.debug("FROM Template: "+from+" -> "+toTemplate);

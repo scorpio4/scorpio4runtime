@@ -71,10 +71,11 @@ public class FLOSupport {
 //	}
 
 	public Object trigger(String from, Object body, Map header, Class type) {
+		if (canDereference(from)||from.startsWith("urn:")) from = "direct://"+from;
 		try {
 			from = URISupport.normalizeUri(from);
-			if (!context.getEndpointMap().containsKey(from)) {
-				log.warn("Un-configured Trigger: " + from);
+			if (context.hasEndpoint(from)==null) {
+				log.debug("Missing Endpoint: " + from );
 				return null;
 			}
 			log.debug("Trigger: " + from );

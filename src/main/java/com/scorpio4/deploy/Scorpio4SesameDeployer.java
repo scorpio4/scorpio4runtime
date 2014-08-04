@@ -202,6 +202,10 @@ public class Scorpio4SesameDeployer implements Identifiable {
 	}
 
 	public void deploy(File home, File file) throws FactException, IOException {
+		if (file.isDirectory()) {
+			deploy(home, file, true);
+			return;
+		}
 		if (since>0 && file.lastModified()<since) {
 			log.trace("Not modified: "+file.getAbsolutePath());
 			return;

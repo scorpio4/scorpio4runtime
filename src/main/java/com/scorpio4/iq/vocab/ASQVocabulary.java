@@ -52,7 +52,7 @@ public class ASQVocabulary extends AbstractActiveVocabulary {
 	public void stop() {
 		this.isActive=false;
 		try {
-			this.connection.close();
+			if (this.connection!=null && this.connection.isOpen()) this.connection.close();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}

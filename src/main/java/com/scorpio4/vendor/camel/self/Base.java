@@ -44,10 +44,10 @@ abstract public class Base implements Identifiable {
 		if (uri!=null && !uri.equals("")) {
 			try {
 				asset = engine.getAssetRegister().getAsset(uri,null);
-				log.info("Self:"+getClass().getSimpleName()+":Asset -> "+(asset==null?"not found: ":asset.getMimeType())+" -> "+uri+"\n"+asset);
 			} catch(Exception e) {
 				throw new IOException(e.getMessage(),e);
 			}
+			log.info("Asset for "+getClass().getSimpleName()+" -> "+(asset==null?"not found: ":asset.getMimeType())+" -> "+uri+"\n"+asset);
 		}
 	}
 

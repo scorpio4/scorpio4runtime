@@ -1,4 +1,4 @@
-prefix core: 		<http://scorpio4.com/v1/vocab/>
+#@namespaces
 
 SELECT DISTINCT ?id
 WHERE {

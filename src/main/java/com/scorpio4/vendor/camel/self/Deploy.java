@@ -42,12 +42,12 @@ public class Deploy extends Base {
 
 		Map<String, Object> headers = exchange.getIn().getHeaders();
 		File file = exchange.getIn().getBody(File.class);
-		log.info("Exec deploy:"+uri+" -> "+file);
+		log.info("Exec deploy: "+uri+" -> "+file);
 
 		if (file!=null) {
 			String from = exchange.getFromEndpoint().getEndpointUri();
-//			log.info("Deploy File: "+from+" -> "+file.getAbsolutePath());
-//			log.info("\t"+headers);
+			log.info("Deploy File: "+from+" -> "+file.getAbsolutePath());
+			file = new File(file.getAbsolutePath());
 			deployer.deploy(file.getParentFile(), file);
 		}
 		if (uri!=null && !uri.equals("")) {

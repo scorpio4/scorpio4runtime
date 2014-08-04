@@ -48,6 +48,10 @@ public class DeskTray implements ActionListener {
         }
     }
 
+	public PopupMenu getMenu() {
+		return this.popup;
+	}
+
     public SystemTray getTray() {
         return SystemTray.getSystemTray();
     }
@@ -60,8 +64,8 @@ public class DeskTray implements ActionListener {
 	    }
         TrayIcon trayIcon = new TrayIcon(icon);
         trayIcon.setImageAutoSize(true);
-        trayIcon.setToolTip( tooltip );
-        trayIcon.setPopupMenu(makePopup());
+        trayIcon.setToolTip(tooltip);
+	    trayIcon.setPopupMenu(popup);
         getTray().add(trayIcon);
         return trayIcon;
     }
@@ -73,65 +77,26 @@ public class DeskTray implements ActionListener {
         return menuItem;
     }
 
+	public Menu addMenu(String label) {
+		Menu menu = new Menu(label);
+		popup.add(menu);
+		return menu;
+	}
+
     public MenuItem addMenu(String _this, String label) {
-        MenuItem aboutItem = new MenuItem(label);
-        register(_this, aboutItem);
-        popup.add(aboutItem);
-        return aboutItem;
+        MenuItem menuItem = new MenuItem(label);
+        popup.add(menuItem);
+	    register(_this, menuItem);
+        return menuItem;
     }
 
-    protected PopupMenu makePopup() {
-        // About Menu
-        MenuItem aboutItem = new MenuItem("About "+title);
-        register("urn:scorpio4:ui:desktop:tray:about", aboutItem);
-        popup.add(aboutItem);
+	public MenuItem newMenu(String label, ActionListener al) {
+		MenuItem menuItem = new MenuItem(label);
+		if (al!=null) menuItem.addActionListener(al);
+		return menuItem;
+	}
 
-        // Login Menu
-        MenuItem adminItem = new MenuItem("Login ...");
-        register("urn:scorpio4:ui:desktop:tray:login", adminItem);
-        popup.add(adminItem);
-
-        // Monitor Menu
-        Menu monitorMenu = new Menu("Commands");
-        popup.addSeparator();
-        popup.add(monitorMenu);
-
-        MenuItem appsItem = new MenuItem("Applications");
-        register("urn:scorpio4:ui:desktop:tray:applications", appsItem);
-        monitorMenu.add(appsItem);
-
-        MenuItem statsItem = new MenuItem("System Stats");
-        register("urn:scorpio4:ui:desktop:tray:stats", statsItem);
-        monitorMenu.add(statsItem);
-
-        MenuItem sanityItem = new MenuItem("Sanity Checks");
-        register("urn:scorpio4:ui:desktop:tray:sanity", sanityItem);
-        monitorMenu.add(sanityItem);
-
-        // Admin Menu
-        Menu adminMenu = new Menu("Admin");
-        popup.addSeparator();
-        popup.add(adminMenu);
-
-        // Reboot
-        MenuItem rebootItem = new MenuItem("Reboot");
-        register("urn:scorpio4:ui:desktop:tray:reboot", rebootItem);
-        adminMenu.add(rebootItem);
-
-        // Redeploy
-        MenuItem redeployItem = new MenuItem("Re-deploy");
-        register("urn:scorpio4:ui:desktop:tray:redeploy", redeployItem);
-        adminMenu.add(redeployItem);
-
-        // Shutdown
-        MenuItem shutdownItem = new MenuItem("Shutdown");
-        register("urn:scorpio4:ui:desktop:tray:shutdown", shutdownItem);
-        adminMenu.add(shutdownItem);
-
-        return popup;
-    }
-
-    private void register(String menuURI, MenuItem item) {
+	private void register(String menuURI, MenuItem item) {
         this.menus.put(menuURI, item);
 	    item.addActionListener(actionListener);
     }

@@ -9,6 +9,7 @@ import com.scorpio4.crud.Model;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.ConfigException;
 import com.scorpio4.oops.FactException;
+import com.scorpio4.runtime.ExecutionEnvironment;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vocab.COMMONS;
 import org.openrdf.repository.RepositoryConnection;
@@ -39,6 +40,12 @@ public class SesameCRUD implements CRUD {
     public SesameCRUD(FactSpace factSpace) throws FactException, RepositoryException {
         this(factSpace, new JARAssetRegister());
     }
+
+	public SesameCRUD(ExecutionEnvironment engine) throws FactException, RepositoryException {
+		this.connection = engine.getRepository().getConnection();
+		this.context = engine.getIdentity();
+		this.assetRegister = engine.getAssetRegister();
+	}
 
     public SesameCRUD(FactSpace factSpace, AssetRegister assetRegister) throws FactException, RepositoryException {
         this(factSpace.getConnection(), factSpace.getIdentity(), assetRegister);
