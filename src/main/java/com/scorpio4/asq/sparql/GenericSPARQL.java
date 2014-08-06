@@ -39,7 +39,7 @@ public abstract class GenericSPARQL {
     }
 
     protected void buildProjection(StringBuilder sparql, Term term) {
-        if (term.isBinding()) sparql.append("?").append(term).append(" ");
+        if (term.isBinding()) sparql.append(term).append(" ");
     }
 
     protected void buildWherePattern(StringBuilder sparql, ASQ asq) {
@@ -58,12 +58,13 @@ public abstract class GenericSPARQL {
 	    if (pattern==null || !pattern.isDefined()) return;
         if (pattern.isOptional()) sparql.append("\nOPTIONAL {\n");
         buildTerm(sparql, pattern.getThis());
-	    Term has = pattern.getHas();
 
-	    if (has.toString().equals("a"))
+	    Term has = pattern.getHas();
+	    if (has.toString().equalsIgnoreCase("a"))
             sparql.append("a ");
         else
             buildTerm(sparql, has);
+
         buildTerm(sparql, pattern.getThat());
         sparql.append(".\n");
 //        buildWherePattern(sparql, pattern.getNext());
@@ -77,8 +78,10 @@ public abstract class GenericSPARQL {
 
     protected void buildTerm(StringBuilder sparql, Term term) {
         if (term.isFunction()) return;
-        if (term.isBinding()) sparql.append("?").append(term.toString()).append(" ");
-        if (term instanceof RawTerm) sparql.append(term).append(" ");
+        if (term.isBinding()) {
+	        sparql.append(term.toString()).append(" ");
+        }
+        else if (term instanceof RawTerm) sparql.append(term).append(" ");
         else sparql.append("<").append(term).append("> ");
     }
 
@@ -110,7 +113,7 @@ public abstract class GenericSPARQL {
         if (term.isFunction()) return;
         if (term instanceof LiteralTerm) {
             LiteralTerm literalTerm = (LiteralTerm)term;
-            if (term.isBinding()) sparql.append("\"{{").append(literalTerm).append("}}\"^^"+literalTerm.getType());
+            if (term.isBinding()) sparql.append("\"{{").append(literalTerm).append("}}\"^^"+literalTerm.getXSDType());
             else sparql.append("\"").append(term).append("\"");
         } else {
             if (term.isBinding()) sparql.append("<{{").append(term).append("}}> ");

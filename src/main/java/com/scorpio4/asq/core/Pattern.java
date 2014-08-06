@@ -115,7 +115,7 @@ public class Pattern {
 	}
 
 	public void setThat(String term, String xsdType) throws ASQException {
-		_that = new LiteralTerm( term, xsdType);
+		_that = new Term( term, xsdType);
 	}
 
 	// is this clause optional?

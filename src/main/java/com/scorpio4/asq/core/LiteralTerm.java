@@ -14,14 +14,8 @@ import com.scorpio4.oops.ASQException;
  * Time  : 10:31 PM
  */
 public class LiteralTerm extends Term {
-    protected String type = null;
 
     public LiteralTerm(String _that, String type) throws ASQException {
-        super(_that);
-        this.type = type;
-    }
-
-    public String getType() {
-        return type;
+        super(_that,type);
     }
 }

@@ -4,6 +4,7 @@ import com.scorpio4.asq.ASQ;
 import com.scorpio4.asq.sparql.SelectSPARQL;
 import com.scorpio4.iq.bean.ConvertsType;
 import com.scorpio4.iq.bean.XSD2POJOConverter;
+import com.scorpio4.oops.FactException;
 import com.scorpio4.vocab.COMMONS;
 import org.apache.camel.Converter;
 import org.openrdf.model.Literal;
@@ -129,6 +130,44 @@ public class SesameHelper {
 		result.close();
 		return statements;
 	}
+
+	public static Map<Object, Map> toMap(RepositoryConnection connection, String sparql, ConvertsType convertsType, String idAttribute) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException, FactException {
+		sparql = explodePragmas(connection, sparql);
+		TupleQuery tuple = connection.prepareTupleQuery(QueryLanguage.SPARQL, sparql);
+		return toMap(new HashMap(), tuple.evaluate(), convertsType, idAttribute);
+	}
+
+	public static Map<Object, Map> toMap(Map items, RepositoryConnection connection, String sparql, ConvertsType convertsType, String idAttribute) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException, FactException {
+		sparql = explodePragmas(connection, sparql);
+		TupleQuery tuple = connection.prepareTupleQuery(QueryLanguage.SPARQL, sparql);
+		return toMap(items, tuple.evaluate(), convertsType, idAttribute);
+	}
+
+	public static Map<Object, Map> toMap(Map items, TupleQueryResult result, ConvertsType convertsType, String idAttribute ) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException, FactException {
+		while(result.hasNext()) {
+			BindingSet bindingSet = result.next();
+			log.trace("SPARQL binding: "+bindingSet.getBindingNames());
+			Map map = new HashMap();
+			for(Binding name:bindingSet) {
+				if (convertsType!=null && name.getValue() instanceof Literal) {
+					Literal literal = (Literal)name.getValue();
+					if (literal.getDatatype()!=null) {
+						Class aClass = XSD2POJOConverter.convertXSDToClass(literal.getDatatype().stringValue());
+						map.put(name.getName(), convertsType.convertToType(literal.stringValue(), aClass) );
+					} else
+						map.put(name.getName(), name.getValue().stringValue());
+				}
+				else
+					map.put(name.getName(), name.getValue().stringValue());
+			}
+			Object id = map.get(idAttribute);
+			if (id==null) throw new FactException("Missing mandatory ?"+idAttribute);
+			items.put(id, map);
+		}
+		log.trace("SPARQL found: "+items.size()+" items");
+		return items;
+	}
+
 
 	public static String explodePragmas(RepositoryConnection connection, String sparql) throws RepositoryException, QueryEvaluationException, MalformedQueryException, IOException {
 		String namespaces = toSPARQLPrefix(connection).toString();
