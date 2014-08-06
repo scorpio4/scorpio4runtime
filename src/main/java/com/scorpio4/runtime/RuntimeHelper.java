@@ -103,5 +103,6 @@ public class RuntimeHelper {
 		connection.clear(vf.createURI(engine.getIdentity()));
 		connection.commit();
 		connection.clear();
+		connection.close();
 	}
 }

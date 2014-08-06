@@ -12,9 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,9 +45,37 @@ public class Personal extends Engine {
 		this.rootDir=rootDir;
 		this.srcDir = MapUtil.getFile(properties, "src", null);
 		init(identity, repositoryManager, MapUtil.getConfig(properties, name + "."));
+		mainMenu(name);
+	}
 
+	private void mainMenu(String name) {
 		// menu
-		trayUI.getDeskTray().getMenu().add(name);
+		MenuItem mainMenu = trayUI.getDeskTray().newMenu(name, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					trayUI.browse(getWebHome());
+				} catch (URISyntaxException e1) {
+					log.error(e1.getMessage(), e1);
+				} catch (IOException e1) {
+					log.error(e1.getMessage(), e1);
+				}
+			}
+		});
+		trayUI.add(mainMenu).setEnabled(false);
+		trayUI.add(getIdentity(), new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					trayUI.browse(getIdentity());
+				} catch (URISyntaxException e1) {
+					log.error(e1.getMessage(), e1);
+				} catch (IOException e1) {
+					log.error(e1.getMessage(), e1);
+				}
+			}
+		});
+
 		trayUI.getDeskTray().getMenu().addSeparator();
 	}
 
@@ -84,6 +115,10 @@ public class Personal extends Engine {
 		super.stop();
 	}
 
+	public String getWebHome() {
+		return "http://127.0.0.1:9090/www/welcome";
+	}
+
 	public static void main(String[] args) {
 		String name = "scorpio4";
 		String configPath = name+".properties";
@@ -116,4 +151,5 @@ public class Personal extends Engine {
 			log.error("Initialization Error: "+e.getMessage(), e);
 		}
 	}
+
 }

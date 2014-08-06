@@ -28,7 +28,7 @@ public class HydraVocabulary extends AbstractActiveVocabulary {
 	@Override
 	public void boot(ExecutionEnvironment engine) throws Exception {
 		super.boot(engine);
-		RepositoryResult<Statement> apiDocs = connection.getStatements(vf.createURI(engine.getIdentity()), vf.createURI(BASE + "apiDocumentation"), null, useInferencing);
+		RepositoryResult<Statement> apiDocs = connection.getStatements(vf.createURI(engine.getIdentity()), vf.createURI(getIdentity() + "apiDocumentation"), null, useInferencing);
 		while(apiDocs.hasNext()) {
 			bootAPI(connection, apiDocs.next().getObject());
 		}
@@ -38,7 +38,7 @@ public class HydraVocabulary extends AbstractActiveVocabulary {
 		ValueFactory vf = connection.getValueFactory();
 
 		log.debug("Hydra API: "+apiDoc);
-		RepositoryResult<Statement> classes = connection.getStatements((Resource)apiDoc, vf.createURI(BASE + "hydra:supportedClass"), null, useInferencing);
+		RepositoryResult<Statement> classes = connection.getStatements((Resource)apiDoc, vf.createURI(getIdentity() + "hydra:supportedClass"), null, useInferencing);
 		while(classes.hasNext()) {
 			bootClass(connection, vf, classes.next().getObject());
 		}
@@ -46,7 +46,7 @@ public class HydraVocabulary extends AbstractActiveVocabulary {
 
 	private void bootClass(RepositoryConnection connection, ValueFactory vf, Value supportedClass) throws RepositoryException {
 		log.debug("Hydra Class: "+supportedClass);
-		RepositoryResult<Statement> templates = connection.getStatements((Resource)supportedClass, vf.createURI(BASE + "hydra:template"), null, useInferencing);
+		RepositoryResult<Statement> templates = connection.getStatements((Resource)supportedClass, vf.createURI(getIdentity() + "hydra:template"), null, useInferencing);
 		while(templates.hasNext()) {
 			Statement template = templates.next();
 			log.debug("Hydra Template: "+template);

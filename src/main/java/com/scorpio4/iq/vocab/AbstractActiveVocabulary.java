@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * Time  : 11:22 PM
  */
 public abstract class AbstractActiveVocabulary  implements ActiveVocabulary {
-	final Logger log = LoggerFactory.getLogger(ASQVocabulary.class);
+	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	protected ExecutionEnvironment engine;
 	protected String vocabURI = null;
@@ -27,8 +27,8 @@ public abstract class AbstractActiveVocabulary  implements ActiveVocabulary {
 		if (vocabURI==null) throw new IQException("Missing Vocabulary URI");
 		if (engine==null) throw new IQException("Missing Vocabulary Engine");
 
-		this.vocabURI=vocabURI;
-		this.useInferencing=useInferencing;
+		this.vocabURI = vocabURI;
+		this.useInferencing = useInferencing;
 	}
 
 	@Override

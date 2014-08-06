@@ -38,9 +38,10 @@ public class Executor implements Executable {
 	RepositoryConnection connection;
     AssetRegister assetRegister = null;
     RDFCollections rdfCollections = null;
-    String DO_EXECUTES = COMMONS.CORE+"iq/executes";
-    String DO_EXECUTE = COMMONS.CORE+"iq/execute";
-    String DO_CHAIN = COMMONS.CORE+"iq/runs";
+	String IQ = COMMONS.CORE+"iq/";
+    String DO_EXECUTES = IQ+"executes";
+    String DO_EXECUTE = IQ+"execute";
+    String DO_RUNS = IQ+"runs";
 //    String IS_BEAN = COMMON.CORE+"iq/Bean";
     Map<String,Executable> beanFactory = new HashMap();
     Map<String,Boolean> seen = new HashMap();
@@ -66,9 +67,9 @@ public class Executor implements Executable {
     }
 
     public Map<String,Future> run(String listURI, Map bindings) throws RepositoryException, ExecutionException, IQException, InterruptedException, IOException, AssetNotSupported {
-        log.debug("doRun: {} @ {}", listURI, DO_CHAIN);
+        log.debug("doRun: {} @ {}", listURI, DO_RUNS);
         Map<String,Future> results = new HashMap();
-        Collection<Value> allRuns = rdfCollections.getList(listURI, DO_CHAIN);
+        Collection<Value> allRuns = rdfCollections.getList(listURI, DO_RUNS);
 
         for(Value runURI: allRuns) {
             Map<String, Future> futureMap = execute(runURI.stringValue(), bindings);
@@ -92,7 +93,6 @@ public class Executor implements Executable {
             }
         }
 
-//        RepositoryConnection connection = factSpace.getConnection();
         ValueFactory vf = connection.getValueFactory();
         RepositoryResult<Statement> singleExecs = connection.getStatements(vf.createURI(listURI), vf.createURI(DO_EXECUTE), null, true);
         while(singleExecs.hasNext()) {
@@ -134,7 +134,7 @@ public class Executor implements Executable {
     }
 
     protected Map<String,String> findBeans(RepositoryConnection connection, URI execURI) throws RepositoryException {
-        log.debug("beanFinder: {}", execURI);
+        log.debug("findBeans: {}", execURI);
         Map<String,String> beans = new HashMap();
 
 //        ValueFactory vf = connection.getValueFactory();

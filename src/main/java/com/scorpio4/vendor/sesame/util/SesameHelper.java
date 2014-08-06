@@ -6,6 +6,7 @@ import com.scorpio4.iq.bean.ConvertsType;
 import com.scorpio4.iq.bean.XSD2POJOConverter;
 import com.scorpio4.vocab.COMMONS;
 import org.apache.camel.Converter;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;
 import org.openrdf.query.*;
@@ -16,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Scorpio4 (c) 2014
@@ -77,23 +81,32 @@ public class SesameHelper {
 	public static Collection<Map> toMapCollection(RepositoryConnection connection, String sparql, ConvertsType convertsType) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
 		sparql = explodePragmas(connection, sparql);
 		TupleQuery tuple = connection.prepareTupleQuery(QueryLanguage.SPARQL, sparql);
-		return toMapCollection(tuple);
+		return toMapCollection(tuple,convertsType);
 	}
 
 	@Converter
-	public static Collection<Map> toMapCollection(TupleQuery tuple) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
-		return toMapCollection(tuple.evaluate());
+	public static Collection<Map> toMapCollection(TupleQuery tuple, ConvertsType convertsType) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
+		return toMapCollection(tuple.evaluate(),convertsType);
 	}
 
 	@Converter
-	public static Collection<Map> toMapCollection(TupleQueryResult result) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
+	public static Collection<Map> toMapCollection(TupleQueryResult result, ConvertsType convertsType) throws IOException, RepositoryException, MalformedQueryException, QueryEvaluationException {
         Collection reply = new ArrayList();
         while(result.hasNext()) {
             BindingSet bindingSet = result.next();
 	        log.trace("SPARQL binding: "+bindingSet.getBindingNames());
             Map map = new HashMap();
             for(Binding name:bindingSet) {
-	            Object put = map.put(name.getName(), name.getValue().stringValue());
+	            if (convertsType!=null && name.getValue() instanceof Literal) {
+		            Literal literal = (Literal)name.getValue();
+		            if (literal.getDatatype()!=null) {
+			            Class aClass = XSD2POJOConverter.convertXSDToClass(literal.getDatatype().stringValue());
+			            map.put(name.getName(), convertsType.convertToType(literal.stringValue(), aClass) );
+		            } else
+			            map.put(name.getName(), name.getValue().stringValue());
+	            }
+	            else
+		            map.put(name.getName(), name.getValue().stringValue());
             }
             reply.add(map);
         }

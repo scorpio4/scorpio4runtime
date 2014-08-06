@@ -7,7 +7,7 @@ import com.scorpio4.vendor.camel.component.any23.Any23Component;
 import com.scorpio4.vendor.camel.component.sesame.SesameComponent;
 import com.scorpio4.vendor.camel.crud.CRUDComponent;
 import com.scorpio4.vendor.camel.flo.RDFCamelPlanner;
-import com.scorpio4.vendor.camel.self.SelfComponent;
+import com.scorpio4.vendor.camel.self.FLOComponent;
 import com.scorpio4.vendor.sesame.crud.SesameCRUD;
 import com.scorpio4.vocab.COMMONS;
 import org.apache.camel.CamelContext;
@@ -34,7 +34,6 @@ import java.util.List;
  * Time  : 8:37 PM
  */
 public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
-	public final static String DO_BOOTSTRAP = "direct:self:active";
 
 	protected RDFCamelPlanner floSupport;
 	protected CamelContext camel = null;
@@ -63,7 +62,7 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 		camel.addComponent("urn", new DirectComponent()); // synonym - maybe 'vm' instead?
 
 		camel.addComponent("crud", new CRUDComponent(crud));
-		camel.addComponent("self", new SelfComponent(engine));
+		camel.addComponent("self", new FLOComponent(engine));
 		camel.addComponent("flo", camel.getComponent("self"));
 
 		camel.addComponent("any23", new Any23Component(engine));

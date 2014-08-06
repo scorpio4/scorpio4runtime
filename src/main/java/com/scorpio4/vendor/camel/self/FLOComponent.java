@@ -18,11 +18,11 @@ import java.util.Map;
  * Date  : 22/06/2014
  * Time  : 11:51 PM
  */
-public class SelfComponent extends ClassComponent {
-	protected final Logger log = LoggerFactory.getLogger(SelfComponent.class);
+public class FLOComponent extends ClassComponent {
+	protected final Logger log = LoggerFactory.getLogger(FLOComponent.class);
 	ExecutionEnvironment engine;
 
-	public SelfComponent(ExecutionEnvironment engine) {
+	public FLOComponent(ExecutionEnvironment engine) {
 		this.engine = engine;
 	}
 
@@ -44,7 +44,7 @@ public class SelfComponent extends ClassComponent {
 //			if (assetURI.equals("")) assetURI = engine.getIdentity();
 			executable = new Deploy(engine, assetURI);
 		}
-		if (executable==null) throw new CamelException("Unknown SELF command: "+remaining);
+		if (executable==null) throw new CamelException("Unknown command for <flo:"+remaining+">");
 		return new BeanEndpoint(uri, this, new BeanProcessor(executable, getCamelContext()));
 	}
 

@@ -57,6 +57,9 @@ public class SesameComponent extends ClassComponent {
 		if (remaining.startsWith("select:")) {
 			type = "select";
 			repoURI = remaining.substring(type.length()+1);
+		} else if (remaining.startsWith("load:")) {
+			type = "load";
+			repoURI = remaining.substring(type.length()+1);
 		} else if (remaining.startsWith("construct:")) {
 			type = "construct";
 			repoURI = remaining.substring(type.length()+1);
@@ -64,12 +67,12 @@ public class SesameComponent extends ClassComponent {
 			type = "construct";
 			repoURI = identity;
 		}
-		if (repoURI.equals("self")) repoURI = identity;
+		if (repoURI.equals("")||repoURI.equals("self")) repoURI = identity;
 		repository = manager.getRepository(repoURI);
 
 		log.debug("SPARQL Repository: "+repoURI);
 		return new BeanEndpoint(uri, this, new BeanProcessor(
-			new SesameHandler(repository, type, isInferred, maxQueryTime, contentType ), getCamelContext()));
+			new SesameProcessor(repository, type, isInferred, maxQueryTime, contentType ), getCamelContext()));
 	}
 
 }

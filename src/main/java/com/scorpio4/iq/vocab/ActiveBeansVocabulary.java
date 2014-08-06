@@ -21,7 +21,7 @@ import java.util.Map;
  * Date  : 7/07/2014
  * Time  : 8:41 PM
  */
-public class ActiveBeansVocabulary extends AbstractActiveVocabulary{
+public class ActiveBeansVocabulary extends AbstractActiveVocabulary {
 	RDFBeanDefinitionReader rdfBeanReader;
 
 	public ActiveBeansVocabulary(ExecutionEnvironment engine) throws Exception {

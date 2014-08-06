@@ -1,5 +1,6 @@
 package com.scorpio4.vendor.camel.self;
 
+import com.scorpio4.assets.Asset;
 import com.scorpio4.iq.exec.Templating;
 import com.scorpio4.oops.AssetNotSupported;
 import com.scorpio4.oops.ConfigException;
@@ -37,19 +38,18 @@ public class AssetTemplate extends Base {
 		Map<String,Object> headers = in.getHeaders();
 		Message out = exchange.getOut();
 
+		Asset template = getAsset(String.valueOf(in.getHeader("asset")),null);
+
 		Templating templating = new Templating();
 		Map bindings = new HashMap();
 
 		bindings.put("config", getEngine().getConfig());
 		bindings.put("in", in);
-		bindings.put("headers", headers);
-		bindings.put("attachments", in.getAttachments() );
-
-
+		bindings.put("header", headers);
 		bindings.put("body", in.getBody());
 
 		log.debug("Template Bindings: "+bindings);
-		Future done = templating.execute(asset, bindings);
+		Future done = templating.execute(template, bindings);
 
 		out.setBody(done.get(), String.class);
 		out.setHeaders(headers);

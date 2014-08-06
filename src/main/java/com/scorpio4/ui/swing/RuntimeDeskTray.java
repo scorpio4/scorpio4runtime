@@ -11,6 +11,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -88,5 +90,22 @@ public class RuntimeDeskTray {
 
 	public DeskTray getDeskTray() {
 		return this.tray;
+	}
+
+	public static void browse(String url) throws URISyntaxException, IOException {
+		Desktop desktop = Desktop.getDesktop();
+		if (!desktop.isSupported(Desktop.Action.BROWSE)) return;
+		URI uri = new URI(url);
+		desktop.browse(uri);
+	}
+
+	public MenuItem add(MenuItem mainMenu) {
+		getDeskTray().getMenu().add(mainMenu);
+		return mainMenu;
+	}
+
+	public MenuItem add(String label, ActionListener al) {
+		MenuItem menuItem = getDeskTray().newMenu(label, al);
+		return add(menuItem);
 	}
 }

@@ -16,13 +16,11 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -34,21 +32,21 @@ import java.util.Map;
  * Date  : 25/06/2014
  * Time  : 11:33 AM
  */
-public class SesameHandler implements Processor {
-	private static final Logger log = LoggerFactory.getLogger(SesameHandler.class);
+public class SesameProcessor implements Processor {
+	private static final Logger log = LoggerFactory.getLogger(SesameProcessor.class);
 
 	boolean inferred = true;
 	private int maxQueryTime = -1;
 	String outputType, queryType;
 	Repository repository;
 
-	public SesameHandler(Repository repository, String type, Boolean isInferred, Integer maxQueryTime, String contentType) {
+	public SesameProcessor(Repository repository, String type, Boolean isInferred, Integer maxQueryTime, String contentType) {
+		this.repository=repository;
+		this.queryType=type;
 		this.inferred=isInferred;
 		this.maxQueryTime=maxQueryTime;
 		this.outputType = contentType;
-		this.repository=repository;
-		this.queryType=type;
-		log.debug("SesameHandler: "+ outputType);
+		log.debug("SesameProcessor: "+ outputType);
 
 	}
 
@@ -72,13 +70,18 @@ public class SesameHandler implements Processor {
 		}
 
 		sparql = in.getBody(String.class);
-		if ( sparql==null||sparql.equals ("") ) throw new MalformedQueryException("Missing SPARQL query");
 
 		if (queryType=="select") {
+			if ( sparql==null||sparql.equals("") ) throw new MalformedQueryException("Missing SPARQL SELECT query");
 			processSelect(connection, headers, contentType, sparql, out);
+		} else if (queryType=="load") {
+			if ( sparql==null||sparql.equals("") ) throw new MalformedQueryException("Missing RDF statements");
+			processLoad(connection, headers, contentType, sparql, out);
 		} else if (queryType=="construct") {
+			if ( sparql==null||sparql.equals("") ) throw new MalformedQueryException("Missing SPARQL CONSTRUCT query");
 			processConstruct(connection, headers, contentType, sparql, out);
 		} else {
+			if ( sparql==null||sparql.equals("") ) throw new MalformedQueryException("Missing SPARQL DESCRIBE query");
 			log.debug("DEFAULT: ");
 			processConstruct(connection, headers, contentType, sparql, out);
 		}
@@ -87,10 +90,21 @@ public class SesameHandler implements Processor {
 
 	}
 
+	private void processLoad(RepositoryConnection connection, Map<String, Object> headers, String contentType, String triples, Message out) throws RepositoryException, RDFParseException, IOException {
+		RDFFormat rdfFormat = RDFFormat.forMIMEType(contentType, RDFFormat.valueOf(contentType));
+		String baseURI = (String) headers.get("Sesame-Context");
+		if (baseURI==null||baseURI.equals("")) baseURI = "bean:"+getClass().getCanonicalName();
+		connection.begin();
+		log.debug("LOADING: " + contentType+" -> "+rdfFormat+" into "+baseURI);
+		connection.add( new StringReader(triples), baseURI, rdfFormat );
+		connection.commit();
+	}
+
 	private void processConstruct(RepositoryConnection connection, Map<String, Object> headers, String contentType, String sparql, Message out) throws RDFHandlerException, MalformedQueryException, RepositoryException, IOException, QueryResultHandlerException, QueryEvaluationException {
 		RDFFormat rdfFormat = RDFFormat.forMIMEType(contentType, RDFFormat.valueOf(contentType));
 		log.debug("CONSTRUCT: " + contentType+" -> "+rdfFormat);
 		if (rdfFormat!=null) {
+			headers.put("Content-Type", rdfFormat.getDefaultMIMEType()+";"+rdfFormat.getCharset());
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			GraphQueryResult graphQueryResult = handleGraph(connection, sparql);
 			QueryResultIO.write(graphQueryResult, rdfFormat, outputStream);

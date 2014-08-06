@@ -1,4 +1,4 @@
-package com.scorpio4.output.rdf;
+package com.scorpio4.vendor.sesame.io;
 /*
  *   Scorpio4 - Apache Licensed
  *   Copyright (c) 2009-2014 Lee Curtis, All Rights Reserved.

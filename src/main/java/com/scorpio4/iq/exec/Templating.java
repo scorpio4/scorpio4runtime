@@ -49,8 +49,8 @@ class NotFutureTemplate implements Future {
     SimpleTemplateEngine templateEngine = new SimpleTemplateEngine();
     Writable result = null;
 
-    public NotFutureTemplate(Asset script, Map paramaters) throws ScriptException, IQException, IOException, ClassNotFoundException {
-        result = execute(script, paramaters);
+    public NotFutureTemplate(Asset script, Map parameters) throws ScriptException, IQException, IOException, ClassNotFoundException {
+        result = execute(script, parameters);
     }
 
     public Writable execute(Asset script, Map parameters) throws ScriptException, IQException, IOException, ClassNotFoundException {

@@ -55,6 +55,10 @@ abstract public class Base implements Identifiable {
 		return engine;
 	}
 
+	public Asset getAsset(String uri, String type) throws IOException {
+		if (asset==null) return engine.getAssetRegister().getAsset( uri, type );
+		else return asset;
+	}
 
 	@Handler
 	public abstract  void execute(Exchange exchange) throws RepositoryException, ExecutionException, IQException, InterruptedException, IOException, AssetNotSupported, FactException, ConfigException, QueryEvaluationException, MalformedQueryException;
