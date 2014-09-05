@@ -239,7 +239,6 @@
         </dependency>
 -->
 
-        <!-- Apache Camel (Graph-based Integration & Workflow) -->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
@@ -250,6 +249,8 @@
             <artifactId>camel-spring</artifactId>
             <version>${camel.version}</version>
         </dependency>
+
+        <!-- Apache Camel (URI-based Integration & Workflow) -->
         <!-- RFC6570 - URITemplates -->
         <dependency>
             <groupId>com.github.fge</groupId>
@@ -330,6 +331,21 @@
             <groupId>ognl</groupId>
             <artifactId>ognl</artifactId>
             <version>3.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.mahout.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+            <version>0.20.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+            <version>1.1.2</version>
         </dependency>
 
     </dependencies>
