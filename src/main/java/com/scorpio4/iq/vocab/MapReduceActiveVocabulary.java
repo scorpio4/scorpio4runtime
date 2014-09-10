@@ -33,7 +33,7 @@ public class MapReduceActiveVocabulary extends AbstractActiveVocabulary {
 		SesameCRUD crud = new SesameCRUD(factSpace);
 		Collection<Map> prototypes = crud.read("self/mapreduce/jobs", engine.getConfig());
 		register(prototypes);
-		log.debug("Registered "+prototypes.size()+" Prototypes");
+		log.debug("Started "+prototypes.size()+" Mapper/Reducers");
 	}
 
 	public int register(Collection<Map> jobs) {
@@ -46,13 +46,7 @@ public class MapReduceActiveVocabulary extends AbstractActiveVocabulary {
 			String outputBeanURI = (String)job.get("to");
 			String typeBeanURI = (String)job.get("as");
 			try {
-				Class mapper = uriToClass(mapperBeanURI);
-				Class reducer = uriToClass(reduceBeanURI);
-				Class input = uriToClass(inputBeanURI);
-				Class output = uriToClass(outputBeanURI);
-				Class type = uriToClass(typeBeanURI);
-
-				executorMap.put(jobURI, new MapReduceExecutor(inputBeanURI, outputBeanURI, mapper, reducer, input, output, type));
+				register(jobURI, mapperBeanURI, reduceBeanURI, inputBeanURI, outputBeanURI, typeBeanURI);
 				log.debug("Mapper/Reducer: "+jobURI);
 			} catch(Exception e) {
 				log.error("Map/Reduce ERROR: "+jobURI+" -> "+e.getMessage());
@@ -61,12 +55,26 @@ public class MapReduceActiveVocabulary extends AbstractActiveVocabulary {
 		return c;
 	}
 
-	protected Class uriToClass(String uri) throws ClassNotFoundException {
+	public MapReduceExecutor register(String jobURI, String mapperBeanURI, String reduceBeanURI, String inputBeanURI, String outputBeanURI, String typeBeanURI) throws ClassNotFoundException {
+		Class mapper = beanUriToClass(mapperBeanURI);
+		Class reducer = beanUriToClass(reduceBeanURI);
+		Class input = beanUriToClass(inputBeanURI);
+		Class output = beanUriToClass(outputBeanURI);
+		Class type = beanUriToClass(typeBeanURI);
+		MapReduceExecutor executor = executorMap.put(jobURI, new MapReduceExecutor(inputBeanURI, outputBeanURI, mapper, reducer, input, output, type));
+		return executor;
+	}
+
+	protected Class beanUriToClass(String uri) throws ClassNotFoundException {
 		if (uri.startsWith("bean:")) {
-			Class<?> aClass = Class.forName(uri.substring(5));
-			return aClass;
+			return Class.forName(uri.substring(5));
 		}
-		throw new ClassNotFoundException(uri);
+		try {
+			return Class.forName(uri);
+		} catch (ClassNotFoundException cnfe) {
+			log.error(uri, cnfe.getMessage());
+			throw new ClassNotFoundException(uri);
+		}
 	}
 
 	@Override
@@ -125,7 +133,7 @@ class MapReduceExecutor {
 
 	public Job job(String resourceIn, Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 		Job job = new Job(conf, resourceIn);
-		job.setJarByClass(getClass());
+		job.setJarByClass(mapper);
 		job.setMapperClass(mapper);
 		job.setReducerClass(reducer);
 

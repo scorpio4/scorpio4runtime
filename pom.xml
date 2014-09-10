@@ -129,6 +129,12 @@
 
         <dependency>
             <groupId>com.scorpio4</groupId>
+            <artifactId>scorpio4asq</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.scorpio4</groupId>
             <artifactId>scorpio4utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
