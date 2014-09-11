@@ -1,6 +1,6 @@
 package com.scorpio4.vendor.spring;
 
-import com.scorpio4.iq.bean.XSD2POJOConverter;
+import com.scorpio4.util.bean.XSD2POJOConverter;
 import com.scorpio4.util.Identifiable;
 import com.scorpio4.vendor.sesame.util.RDFCollections;
 import com.scorpio4.vendor.sesame.util.RDFScalars;

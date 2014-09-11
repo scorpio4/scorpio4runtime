@@ -3,7 +3,7 @@ package com.scorpio4.vendor.sesame.util;
 import com.scorpio4.asq.ASQ;
 import com.scorpio4.asq.sparql.SelectSPARQL;
 import com.scorpio4.iq.bean.ConvertsType;
-import com.scorpio4.iq.bean.XSD2POJOConverter;
+import com.scorpio4.util.bean.XSD2POJOConverter;
 import com.scorpio4.oops.FactException;
 import com.scorpio4.vocab.COMMONS;
 import org.apache.camel.Converter;

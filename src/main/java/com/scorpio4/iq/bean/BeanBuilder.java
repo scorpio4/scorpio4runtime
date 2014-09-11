@@ -3,6 +3,7 @@ package com.scorpio4.iq.bean;
 import com.scorpio4.fact.stream.FactStream;
 import com.scorpio4.oops.FactException;
 import com.scorpio4.oops.IQException;
+import com.scorpio4.util.bean.XSD2POJOConverter;
 import com.scorpio4.vocab.COMMONS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
