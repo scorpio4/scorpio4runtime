@@ -43,7 +43,6 @@
     <scm>
         <url>github.com/scorpio4/scorpio4runtime.git</url>
         <connection>scm:git:https://github.com/scorpio4/scorpio4runtime.git</connection>
-      <tag>scorpio4-0.06</tag>
   </scm>
 
     <properties>
@@ -170,12 +169,6 @@
 
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-runtime-osgi</artifactId>
-            <version>${sesame.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-rdfxml</artifactId>
             <version>${sesame.version}</version>
         </dependency>
@@ -206,12 +199,6 @@
 
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-compliance</artifactId>
-            <version>${sesame.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-nquads</artifactId>
             <version>${sesame.version}</version>
         </dependency>
@@ -227,14 +214,6 @@
             <artifactId>sesame-rio-binary</artifactId>
             <version>${sesame.version}</version>
         </dependency>
-
-        <!-- Apache Libraries -->
-        <dependency>
-            <groupId>org.apache.any23</groupId>
-            <artifactId>apache-any23-core</artifactId>
-            <version>1.0</version>
-        </dependency>
-
 
         <!-- Apache Felix OSGi -->
 <!--
@@ -257,6 +236,7 @@
         </dependency>
 
         <!-- Apache Camel (URI-based Integration & Workflow) -->
+
         <!-- RFC6570 - URITemplates -->
         <dependency>
             <groupId>com.github.fge</groupId>

@@ -21,10 +21,10 @@ import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.language.LanguageExpression;
 import org.openrdf.model.*;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-import org.semarglproject.vocab.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

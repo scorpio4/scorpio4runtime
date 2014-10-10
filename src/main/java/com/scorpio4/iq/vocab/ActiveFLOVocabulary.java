@@ -3,7 +3,6 @@ package com.scorpio4.iq.vocab;
 import com.scorpio4.fact.FactSpace;
 import com.scorpio4.oops.IQException;
 import com.scorpio4.runtime.ExecutionEnvironment;
-import com.scorpio4.vendor.camel.component.any23.Any23Component;
 import com.scorpio4.vendor.camel.component.sesame.SesameComponent;
 import com.scorpio4.vendor.camel.crud.CRUDComponent;
 import com.scorpio4.vendor.camel.flo.RDFCamelPlanner;
@@ -65,7 +64,7 @@ public class ActiveFLOVocabulary extends AbstractActiveVocabulary{
 		camel.addComponent("self", new FLOComponent(engine));
 		camel.addComponent("flo", camel.getComponent("self"));
 
-		camel.addComponent("any23", new Any23Component(engine));
+//		camel.addComponent("any23", new Any23Component(engine));
 
 		camel.addComponent("sparql", new SesameComponent(engine));
 //		camel.addComponent("curate", new CurateComponent(engine));
